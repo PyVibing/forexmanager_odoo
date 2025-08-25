@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <!-- Form view of forexmanager.operation -->
+    <record id="forexmanager_operation_form_view" model="ir.ui.view">
+        <field name="name">ForexManager operation form view</field>
+        <field name="model">forexmanager.operation</field>
+        <field name="arch" type="xml">
+            <form>
+                <style>
+                    .subtitle {
+                        font-size: 15px;
+                    }
+                </style>
+                <sheet>
+                    <h1 class="bg-primary text-white p-2 rounded fs-3">CAMBIO DE MONEDA</h1>
+                    <notebook>
+                        <page string="Moneda y cantidad" class="subtitle">
+                            <field name="calculation_ids">
+                                <form>
+                                    <style>
+                                        .subtitle {
+                                            font-size: 15px;
+                                        }
+                                    </style>
+                                    <sheet>
+                                        <h1 class="bg-primary text-white rounded fs-3" style="margin-left: 5px;">MONEDA Y CANTIDAD</h1>
+                                                                                                
+                                            <div style="float: left; margin-left: 5px; margin-top: 10px; margin-bottom: 10px;">
+                                                <div style="margin-bottom: 20px; border-bottom: 1px black solid;">
+                                                    <label for="discount" string="Descuento:"/>
+                                                    <field name="discount" style="border: 1px black solid; margin-left: 5px;"/>
+                                                </div>
+                                                <label for="currency_source_id" string="Ofrecido por el cliente"/>
+                                                <div style="display: table;">
+                                                    <div style="display: table-cell">
+                                                        <field name="payment_type" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black;"/>
+                                                    </div>
+                                                    <div style="display: table-cell">
+                                                        <field name="currency_source_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                                                        <field name="source_currency_real_id" invisible="True"/>
+                                                    </div>
+                                                    <div style="display: table-cell;">
+                                                        <field name="amount_received" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                                                    </div>
+                                                </div>
+
+                                                <div style="display: table; margin-left: 150px; padding: 10px 0px;">
+                                                    <div style="display: table-cell;">
+                                                        <button name="reverse_fields" icon="fa-exchange fa-rotate-90" 
+                                                                type="object" title="Intercambiar campos"
+                                                                style="border: 1px black solid;"
+                                                                class="bg-primary text-white"
+                                                                />
+                                                    </div>
+                                                </div>
+
+                                                <label for="currency_target_id" string="Entregar al cliente"/>
+                                                <div style="display: table; margin-bottom: 20px;">
+                                                    <div style="display: table-cell">
+                                                        <field name="delivery_type" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black;"/>
+                                                    </div>
+                                                    <div style="display: table-cell">
+                                                        <field name="currency_target_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                                                        <field name="target_currency_real_id" invisible="True"/>
+                                                    </div>
+                                                    <div style="display: table-cell">
+                                                        <field name="amount_delivered" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                                                    </div>
+                                                </div>
+                                                <div style="display: table; margin-bottom: 20px;">
+                                                    <div style="display: table-cell">
+                                                        <p>Tasa de cambio:</p>
+                                                    </div>
+                                                    <div invisible="target_currency_real_id == currency_base_id or not (source_currency_real_id and target_currency_real_id)">
+                                                        <field name="buy_rate" style="margin-left: 5px; padding: 0px 10px;" class="bg-primary text-white rounded fs-5"/>
+                                                    </div>
+                                                    <div invisible="source_currency_real_id == currency_base_id or not (source_currency_real_id and target_currency_real_id)">
+                                                        <field name="sell_rate" style="margin-left: 5px; padding: 0px 10px;" class="bg-primary text-white rounded fs-5"/>
+                                                    </div>
+                                                </div>
+                                                
+                                                
+                                            </div>
+
+                                    </sheet>
+                                </form>
+                                <list>
+                                    <field name="name" width="300px;"/>
+                                    <field name="payment_type" width="100"/>
+                                    <field name="amount_received" string="Recibido" width="50"/>
+                                    <field name="currency_source_id" string="Moneda" width="200"/>
+                                    <field name="payment_type" width="100"/>
+                                    <field name="amount_delivered" string="Entregado" width="60"/>
+                                    <field name="currency_target_id" string="Moneda" width="200"/>
+                                    <field name="discount" width="80"/>
+                                    <field name="operation_ref" width="50"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Datos del cliente" class="subtitle">
+
+                        </page>
+
+                        <page string="Finalizar" class="subtitle">
+
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- List view of forexmanager.operation -->
+    <!-- <record id="forexmanager_operation_list_view" model="ir.ui.view">
+        <field name="name">ForexManager operation list view</field>
+        <field name="model">forexmanager.operation</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="id"/>
+                <field name="name"/>
+                <field name="date"/>
+                <field name="user_id"/>
+                <field name="calculation_ids"/>
+            </list>
+        </field>
+    </record> -->
+
+    <!-- Action of forexmanager.operation -->
+    <record id="forexmanager_new_operation_action" model="ir.actions.act_window">
+        <field name="name">NUEVA OPERACIÓN</field>
+        <field name="res_model">forexmanager.operation</field>
+        <field name="view_mode">form</field>
+    </record>
+
+    <!-- Action of forexmanager.operation -->
+    <!-- <record id="forexmanager_history_operation_action" model="ir.actions.act_window">
+        <field name="name">HISTORIAL</field>
+        <field name="res_model">forexmanager.operation</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'create': False}</field>
+    </record> -->
+</odoo>

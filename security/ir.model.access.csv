@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_forexmanager_rate,forexmanager.rate,model_forexmanager_rate,,1,1,1,1
+access_forexmanager_currency,forexmanager.currency,model_forexmanager_currency,,1,1,1,1
+access_forexmanager_calculation,forexmanager.calculation,model_forexmanager_calculation,,1,1,1,1
+access_forexmanager_operation,forexmanager.operation,model_forexmanager_operation,,1,1,1,1
+access_forexmanager_breakdown,forexmanager.breakdown,model_forexmanager_breakdown,,1,1,1,1
+
+

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <!-- Form view of forexmanager.calculation
+    <record id="forexmanager_operation_form_view" model="ir.ui.view">
+        <field name="name">ForexManager operation form view</field>
+        <field name="model">forexmanager.operation</field>
+        <field name="arch" type="xml">
+            <form>
+                <style>
+                    .subtitle {
+                        font-size: 15px;
+                    }
+                </style>
+                <sheet>
+                    <h1 class="bg-primary text-white p-2 rounded fs-3">CAMBIO DE MONEDA</h1>
+                    <notebook>
+                        <page string="Moneda y cantidad" class="subtitle">
+                            <field name="calculation_ids">
+                                <form>
+                                    <style>
+                                        .subtitle {
+                                            font-size: 15px;
+                                        }
+                                    </style>
+                                    <sheet>
+                                        <h1 class="bg-primary text-white rounded fs-3" style="margin-left: 5px;">MONEDA Y CANTIDAD</h1>
+                                                                                                
+                                            <div style="float: left; margin-left: 5px; margin-top: 10px; margin-bottom: 10px;">
+                                                <div style="margin-bottom: 20px; border-bottom: 1px black solid;">
+                                                    <label for="discount" string="Descuento:"/>
+                                                    <field name="discount" style="border: 1px black solid; margin-left: 5px;"/>
+                                                </div>
+                                                <label for="currency_source_id" string="Ofrecido por el cliente"/>
+                                                <div style="display: table; margin-bottom: 20px;">
+                                                    <div style="display: table-cell">
+                                                        <field name="currency_source_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black;"/>
+                                                        <field name="source_currency_real_id" invisible="True"/>
+                                                    </div>
+                                                    <div style="display: table-cell;">
+                                                        <field name="amount_received" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                                                    </div>
+                                                </div>
+                                                <label for="currency_target_id" string="Entregar al cliente"/>
+                                                <div style="display: table; margin-bottom: 20px;">
+                                                    <div style="display: table-cell">
+                                                        <field name="currency_target_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black;"/>
+                                                        <field name="target_currency_real_id" invisible="True"/>
+                                                    </div>
+                                                    <div style="display: table-cell">
+                                                        <field name="amount_delivered" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                    </sheet>
+                                </form>
+                                <list>
+                                    <field name="amount_received" string="Recibido"/>
+                                    <field name="currency_source_id" string="Moneda"/>
+                                    <field name="amount_delivered" string="Entregado"/>
+                                    <field name="currency_target_id" string="Moneda"/>
+                                    <field name="discount"/>
+                                    <field name="operation_ref"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Datos del cliente" class="subtitle">
+
+                        </page>
+
+                        <page string="Finalizar" class="subtitle">
+
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record> -->
+
+    <!-- List view of forexmanager.calculation -->
+    <record id="forexmanager_calculation_list_view" model="ir.ui.view">
+        <field name="name">ForexManager calculation list view</field>
+        <field name="model">forexmanager.calculation</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="id"/>
+                <field name="name"/>
+                <field name="amount_received" string="Recibido"/>
+                <field name="currency_source_id" string="Moneda"/>
+                <field name="amount_delivered" string="Entregado"/>
+                <field name="currency_target_id" string="Moneda"/>
+                <field name="discount"/>
+                <field name="date"/>
+                <field name="operation_ref"/>
+                <field name="user_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action of forexmanager.operation -->
+    <record id="forexmanager_history_calculation_action" model="ir.actions.act_window">
+        <field name="name">HISTORIAL</field>
+        <field name="res_model">forexmanager.calculation</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'create': False}</field>
+    </record>
+</odoo>

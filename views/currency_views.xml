@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <!-- Form view of forexmanager.currency -->
+    <record id="forexmanager_currency_form_view" model="ir.ui.view">
+        <field name="name">ForexManager currency form view</field>
+        <field name="model">forexmanager.currency</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <h1 class="bg-primary text-white p-2 rounded fs-3">ADMINISTRAR MONEDAS</h1>
+                    <div style="float: left;">
+                        <div style="display: table;">
+                            <div style="display: table-cell; width: 100px;">
+                                <label for="currency_id" string="Añadir moneda"/>
+                            </div>
+                            <div style="display: table-cell">
+                                <field name="currency_id" options="{'no_create': True}" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                            </div>                            
+                        </div>
+                        <div style="display: table;">
+                            <div style="display: table-cell; width:100px;">
+                                <label for="initial_balance" string="Balance inicial"/>
+                            </div>
+                            <div style="display: table-cell">
+                                <field name="initial_balance" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                            </div>                            
+                        </div>
+                        <field name="units_ids">
+                            <form>
+                                <sheet>
+                                    <h1 class="bg-primary text-white rounded fs-3" style="margin-left: 5px;">NUEVO BILLETE / MONEDA</h1>
+                                    <div style="margin-left: 5px; margin-top: 10px; margin-bottom: 10px;">
+                                        <label for="unit" string="Tipo de unidad:"/>
+                                        <field name="unit" style="border: 1px black solid; margin-left: 5px;"/>
+                                    </div>
+                                    <div style="float: left; margin-left: 5px; margin-top: 10px;">
+                                        <label for="bill_value" string="Valor:" />
+                                    </div>                                    
+                                    <div style="float: left; margin-left: 5px; margin-top: 10px; margin-bottom: 5px;">                                            
+                                        <div invisible="unit == 'coin'">                                                
+                                            <field name="bill_value" style="border: 1px black solid; margin-left: 5px;"/>
+                                        </div>
+                                    </div>
+                                    <div style="float: left; margin-left: 5px; margin-top: 10px; margin-bottom: 5px;">
+                                        <div invisible="unit == 'bill'">                                                
+                                            <field name="coin_value" style="border: 1px black solid; margin-left: 0px;"/>
+                                        </div>
+                                    </div>                                    
+                                </sheet>
+                                
+                            </form>
+                            <list>
+
+                            </list>
+                        </field>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
+    <!-- Action of forexmanager.currency -->
+    <record id="forexmanager_config_currencies_action" model="ir.actions.act_window">
+        <field name="name">ADMINISTRAR MONEDAS</field>
+        <field name="res_model">forexmanager.currency</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

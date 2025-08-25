@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <menuitem id="menu_forexmanager_root" name="ForexManager" sequence="0"/>
+
+    <menuitem id="menu_forexmanager_new_operation" name="Realizar Operación" sequence="1" 
+            parent="menu_forexmanager_root" action="forexmanager_new_operation_action"/>
+    <menuitem id="menu_forexmanager_history_calculation" name="Historial" sequence="2" 
+            parent="menu_forexmanager_root" action="forexmanager_history_calculation_action"/>
+    <menuitem id="menu_forexmanager_config" name="Configuración" sequence="2" 
+            parent="menu_forexmanager_root"/>
+            <menuitem id="menu_forexmanager_config_currencies" name="Administrar monedas" sequence="1" 
+                parent="menu_forexmanager_config" action="forexmanager_config_currencies_action"/>
+            <menuitem id="menu_forexmanager_config_rates" name="Administrar tasa de cambio" sequence="2" 
+                parent="menu_forexmanager_config" action=""/>
+</odoo>
