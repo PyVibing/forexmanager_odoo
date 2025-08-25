@@ -1,6 +1,7 @@
 from odoo import fields, models, api
 from ..utils import notification
 
+
 class Calculation(models.Model):
     _name = "forexmanager.calculation"
     _description = "A model for calculating from source to destination currency."
@@ -79,9 +80,11 @@ class Calculation(models.Model):
             def recalculate():
                 if rest > 0:
                     new_amount = amount - round(rest, 2)
+                    recalculated = True
                 else:
                     new_amount = amount
-                return new_amount
+                    recalculated = False
+                return new_amount, recalculated
 
             if coins:
                 rest = amount % min(coins)
@@ -93,16 +96,22 @@ class Calculation(models.Model):
     
     def aux_calc_amount_received(self):
         for rec in self:
-            if rec.target_currency_real_id == rec.currency_base_id:
+            if rec.target_currency_real_id == rec.currency_base_id: # If clients buys base_currency
                 rec.amount_received = rec.amount_delivered * rec.sell_rate
-            else:
-                new_amount = rec.recalculate_amount(rec.target_currency_real_id, rec.amount_delivered)
+            else: # If clients offers base_currency
+                new_amount, calculated = rec.recalculate_amount(rec.target_currency_real_id, rec.amount_delivered)
                 rec.amount_delivered = new_amount
                 rec.amount_received = rec.amount_delivered / rec.buy_rate
             
-            if rec.source_currency_real_id != rec.currency_base_id:
-                rec.amount_received = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received)
+            # if rec.source_currency_real_id != rec.currency_base_id: # If clients buys base_currency
+            #     rec.amount_received, calculated = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received)
+            #     rec.aux_calc_amount_delivered()
+            # else: # If clients offers base_currency
+            rec.amount_received, calculated = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received)
+            if calculated:
                 rec.aux_calc_amount_delivered()
+            
+
     
     @api.depends("amount_delivered", "target_currency_real_id", "buy_rate", "sell_rate")
     def _compute_amount_received(self):
@@ -112,16 +121,19 @@ class Calculation(models.Model):
 
     def aux_calc_amount_delivered(self):
         for rec in self:
-            if rec.source_currency_real_id == rec.currency_base_id:
+            if rec.source_currency_real_id == rec.currency_base_id: # If clients offers base_currency
+                new_amount, calculated = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received)
+                rec.amount_received = new_amount
                 rec.amount_delivered = rec.amount_received * rec.buy_rate
-            else:
-                new_amount = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received)
+            else: # If clients buys base_currency
+                new_amount, calculated = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received)
                 rec.amount_received = new_amount
                 rec.amount_delivered = rec.amount_received / rec.sell_rate
 
-            if rec.target_currency_real_id != rec.currency_base_id:
-                rec.amount_delivered = rec.recalculate_amount(rec.target_currency_real_id, rec.amount_delivered)
-                rec.aux_calc_amount_received()            
+            # if rec.target_currency_real_id != rec.currency_base_id: # If clients offers base_currency
+            rec.amount_delivered, calculated = rec.recalculate_amount(rec.target_currency_real_id, rec.amount_delivered)
+            if calculated:
+                rec.aux_calc_amount_received()
 
     @api.depends("amount_received", "source_currency_real_id", "buy_rate", "sell_rate")
     def _compute_amount_delivered(self):

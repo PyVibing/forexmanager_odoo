@@ -35,3 +35,4 @@ class Currency(models.Model):
                     rec.base_rate = 1
             else:
                 rec.base_rate = 0
+            
