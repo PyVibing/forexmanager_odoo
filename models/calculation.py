@@ -1,4 +1,6 @@
 from odoo import fields, models, api
+from odoo.exceptions import ValidationError
+from decimal import Decimal, ROUND_DOWN
 from ..utils import notification
 
 
@@ -68,7 +70,7 @@ class Calculation(models.Model):
     source_currency_real_id = fields.Many2one(related="currency_source_id.currency_id", readonly=True)
     target_currency_real_id = fields.Many2one(related="currency_target_id.currency_id", readonly=True)
 
-    def recalculate_amount(self, currency_id, amount):
+    def recalculate_amount(self, currency_id, amount, up_down):
         # Recalculate having in consideration accepted bills and coins (in breakdown model)
         for rec in self:
             breakdown_recs = self.env["forexmanager.breakdown"].search([
@@ -76,42 +78,77 @@ class Calculation(models.Model):
                 ])
             bills = [i.bill_value for i in breakdown_recs if i.bill_value>0] if breakdown_recs else []
             coins = [i.coin_value for i in breakdown_recs if i.coin_value>0] if breakdown_recs else []
+            if not bills and not coins:
+                raise ValidationError("No existe desglose de billetes ni monedas admitidos para una de las monedas seleccionadas.")
             
-            def recalculate():
-                if rest > 0:
-                    new_amount = amount - round(rest, 2)
-                    recalculated = True
-                else:
-                    new_amount = amount
-                    recalculated = False
-                return new_amount, recalculated
+            values = bills + coins
+            to_substract = []
 
-            if coins:
-                rest = amount % min(coins)
-                return recalculate()                
+            for value in values:
+                remainder = amount % value
+                if remainder == 0:
+                    return amount, False
+                else:
+                    if up_down == "down":
+                        to_substract.append(remainder)
+                    elif up_down == "up":
+                        to_substract.append(value - remainder)
+                    else:
+                        raise ValidationError("Parámetro incorrecto. No se pudo completar el cálculo. Contacte con su equipo técnico para solucionarlo.")
             
-            elif bills:
-                rest = amount % min(bills)
-                return recalculate()
+            if up_down == "down":
+                new_amount = amount - min(to_substract)
+            else: # if 'up'
+                new_amount = amount + min(to_substract)
+
+            if min(to_substract) < 0.02:
+                    return new_amount, False # Omit a very small difference to avoid looping forever in currencies with no small coins
+            return new_amount, True
     
     def aux_calc_amount_received(self):
         for rec in self:
-            if rec.target_currency_real_id == rec.currency_base_id: # If clients buys base_currency
-                rec.amount_received = rec.amount_delivered * rec.sell_rate
-            else: # If clients offers base_currency
-                new_amount, calculated = rec.recalculate_amount(rec.target_currency_real_id, rec.amount_delivered)
-                rec.amount_delivered = new_amount
-                rec.amount_received = rec.amount_delivered / rec.buy_rate
-            
-            # if rec.source_currency_real_id != rec.currency_base_id: # If clients buys base_currency
-            #     rec.amount_received, calculated = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received)
-            #     rec.aux_calc_amount_delivered()
-            # else: # If clients offers base_currency
-            rec.amount_received, calculated = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received)
-            if calculated:
-                rec.aux_calc_amount_delivered()
-            
+            def calculate(up_down):
+                # Recalculate amount_delivered and adjust it depending on the accepted bills and coins
+                amount_delivered, recalculated_delivered = rec.recalculate_amount(rec.target_currency_real_id, rec.amount_delivered, up_down)
+                
+                # Calculate amount_received from amount_delivered
+                if rec.target_currency_real_id == rec.currency_base_id: # If clients buys base_currency
+                    amount_received = amount_delivered * rec.sell_rate
+                else: # If clients offers base_currency                    
+                    amount_received = amount_delivered / rec.buy_rate               
+                
+                # Recalculate amount_received and adjust it depending on the accepted bills and coins
+                amount_received, recalculated_received = rec.recalculate_amount(rec.source_currency_real_id, amount_received, up_down)
 
+                while recalculated_received: # while amount_delivered is recalculated and readjusted
+                    # Calculate amount_delivered back from recalculated amount_received
+                    if rec.source_currency_real_id == rec.currency_base_id: # If clients offers base_currency
+                        amount_delivered = amount_received * rec.buy_rate
+                    else: # If clients buys base_currency
+                        amount_delivered = amount_received / rec.sell_rate
+
+                    # Recalculate amount_delivered and adjust it depending on the accepted bills and coins
+                    amount_delivered, recalculated_delivered = rec.recalculate_amount(
+                        rec.target_currency_real_id, amount_delivered, up_down
+                        )
+                    if not recalculated_delivered: # After recalculating the amount_received, if amount_delivered did not changed, break
+                        break
+                    
+                    # Calculate amount_received back from recalculated amount_delivered
+                    if rec.target_currency_real_id == rec.currency_base_id: # If clients buys base_currency
+                        amount_received = amount_delivered * rec.sell_rate
+                    else: # If clients offers base_currency                    
+                        amount_received = amount_delivered / rec.buy_rate               
+                    
+                    # Recalculate amount_received and adjust it depending of the accepted bills and coins
+                    amount_received, recalculated_received = rec.recalculate_amount(
+                        rec.source_currency_real_id, amount_received, up_down
+                        )
+                    
+                return amount_received, amount_delivered
+
+            rec.amount_received, rec.amount_delivered = calculate("down")
+                         
     
     @api.depends("amount_delivered", "target_currency_real_id", "buy_rate", "sell_rate")
     def _compute_amount_received(self):
@@ -121,26 +158,53 @@ class Calculation(models.Model):
 
     def aux_calc_amount_delivered(self):
         for rec in self:
-            if rec.source_currency_real_id == rec.currency_base_id: # If clients offers base_currency
-                new_amount, calculated = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received)
-                rec.amount_received = new_amount
-                rec.amount_delivered = rec.amount_received * rec.buy_rate
-            else: # If clients buys base_currency
-                new_amount, calculated = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received)
-                rec.amount_received = new_amount
-                rec.amount_delivered = rec.amount_received / rec.sell_rate
+            def calculate(up_down):
+                # Recalculate amount_received and adjust it depending on the accepted bills and coins
+                amount_received, recalculated_received = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received, up_down)
 
-            # if rec.target_currency_real_id != rec.currency_base_id: # If clients offers base_currency
-            rec.amount_delivered, calculated = rec.recalculate_amount(rec.target_currency_real_id, rec.amount_delivered)
-            if calculated:
-                rec.aux_calc_amount_received()
+                # Calculate amount_delivered from amount_received
+                if rec.source_currency_real_id == rec.currency_base_id: # If clients offers base_currency
+                    amount_delivered = amount_received * rec.buy_rate
+                else: # If clients buys base_currency
+                    amount_delivered = amount_received / rec.sell_rate
+
+                # Recalculate amount_delivered and adjust it depending on the accepted bills and coins
+                amount_delivered, recalculated_delivered = rec.recalculate_amount(rec.target_currency_real_id, amount_delivered, up_down)
+
+                while recalculated_delivered: # while amount_delivered is recalculated and readjusted
+                    # Calculate amount_received back from recalculated amount_delivered
+                    if rec.target_currency_real_id == rec.currency_base_id: # If clients buys base_currency
+                        amount_received = amount_delivered * rec.sell_rate
+                    else: # If clients offers base_currency                    
+                        amount_received = amount_delivered / rec.buy_rate
+
+                    # Recalculate amount_received and adjust it depending on the accepted bills and coins
+                    amount_received, recalculated_received = rec.recalculate_amount(
+                        rec.source_currency_real_id, amount_received, up_down
+                        )                    
+                    if not recalculated_received: # After recalculating the amount_delivered, if amount_received did not changed, break
+                        break
+                    
+                    # Calculate amount_delivered back from recalculated amount_received
+                    if rec.source_currency_real_id == rec.currency_base_id:
+                        amount_delivered = amount_received * rec.buy_rate
+                    else:
+                        amount_delivered = amount_received / rec.sell_rate
+
+                    # Recalculate amount_delivered and adjust it depending of the accepted bills and coins
+                    amount_delivered, recalculated_delivered = rec.recalculate_amount(
+                        rec.target_currency_real_id, amount_delivered, up_down
+                        )
+                    
+                return amount_received, amount_delivered
+        
+            rec.amount_received, rec.amount_delivered = calculate("down")
 
     @api.depends("amount_received", "source_currency_real_id", "buy_rate", "sell_rate")
     def _compute_amount_delivered(self):
         for rec in self:
             if rec.amount_received:
-                rec.aux_calc_amount_delivered()               
-                                  
+                rec.aux_calc_amount_delivered()                                  
     
     # --- Inverse ---
     def _inverse_amount_received(self):
@@ -208,11 +272,21 @@ class Calculation(models.Model):
     
     def reverse_fields(self):
         for rec in self:
-            if rec.currency_source_id and rec.currency_target_id:
+            if rec.amount_received and rec.amount_delivered and rec.currency_source_id and rec.currency_target_id:
+                to_source_amount = rec.amount_delivered
+                to_source_currency = rec.currency_target_id
+                to_target_currency = rec.currency_source_id
+
+                rec.amount_delivered = False # So its calculated from the amount_received amount
+                rec.currency_target_id = False
+                rec.currency_source_id = False
+
+                rec.currency_target_id = to_target_currency
+                rec.currency_source_id = to_source_currency
+                rec.amount_received = to_source_amount
+                
+            elif rec.currency_source_id and rec.currency_target_id:
                 temp = rec.currency_source_id
                 rec.currency_source_id = rec.currency_target_id
                 rec.currency_target_id = temp
-            if rec.amount_received and rec.amount_delivered:
-                temp = rec.amount_received
-                rec.amount_received = rec.amount_delivered
-                rec.amount_delivered = temp
+            
