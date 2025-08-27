@@ -5,7 +5,7 @@ def get_base_rate(from_currency, to_currency):
     URL = f"https://api.frankfurter.dev/v1/latest?base={from_currency}&symbols={to_currency}"
     
     try:
-         rate = requests.get(URL).json()["rates"][to_currency]
+        rate = requests.get(URL).json()["rates"][to_currency]
     except requests.exceptions.RequestException as e:
         raise UserError(f"Error al intentar convertir la cantidad a la moneda seleccionada. No se pudo obtener el tipo de cambio: {e}")
     except KeyError:

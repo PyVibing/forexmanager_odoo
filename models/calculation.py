@@ -1,6 +1,7 @@
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
-from decimal import Decimal, ROUND_DOWN
+from decimal import Decimal, ROUND_HALF_UP
+import itertools
 from ..utils import notification
 
 
@@ -66,6 +67,11 @@ class Calculation(models.Model):
     buy_rate = fields.Float(compute="_compute_rate", store=True)
     sell_rate = fields.Float(compute="_compute_rate", store=True)
 
+    received_amount_under = fields.Float(store=False, default=0)
+    received_amount_over = fields.Float(store=False, default=0)
+    delivered_amount_under = fields.Float(store=False, default=0)
+    delivered_amount_over = fields.Float(store=False, default=0)
+
     # Technical fields - currency real (res.currency) for showing right symbol in the views for the monetary fields
     source_currency_real_id = fields.Many2one(related="currency_source_id.currency_id", readonly=True)
     target_currency_real_id = fields.Many2one(related="currency_target_id.currency_id", readonly=True)
@@ -73,37 +79,36 @@ class Calculation(models.Model):
     def recalculate_amount(self, currency_id, amount, up_down):
         # Recalculate having in consideration accepted bills and coins (in breakdown model)
         for rec in self:
+            amount = Decimal(str(amount)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             breakdown_recs = self.env["forexmanager.breakdown"].search([
-                ("currency_real_id", "=",currency_id)
-                ])
-            bills = [i.bill_value for i in breakdown_recs if i.bill_value>0] if breakdown_recs else []
-            coins = [i.coin_value for i in breakdown_recs if i.coin_value>0] if breakdown_recs else []
+                ("currency_real_id", "=", currency_id)
+            ])
+            bills = [Decimal(str(i.bill_value)) for i in breakdown_recs if i.bill_value > 0] if breakdown_recs else []
+            coins = [Decimal(str(i.coin_value)) for i in breakdown_recs if i.coin_value > 0] if breakdown_recs else []
             if not bills and not coins:
                 raise ValidationError("No existe desglose de billetes ni monedas admitidos para una de las monedas seleccionadas.")
-            
             values = bills + coins
-            to_substract = []
-
+            remainders = []
             for value in values:
-                remainder = amount % value
+                remainder = (amount % value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
                 if remainder == 0:
-                    return amount, False
+                    return float(amount), False
                 else:
                     if up_down == "down":
-                        to_substract.append(remainder)
+                        remainders.append(remainder)
                     elif up_down == "up":
-                        to_substract.append(value - remainder)
+                        remainders.append(value - remainder)
                     else:
                         raise ValidationError("Parámetro incorrecto. No se pudo completar el cálculo. Contacte con su equipo técnico para solucionarlo.")
             
             if up_down == "down":
-                new_amount = amount - min(to_substract)
-            else: # if 'up'
-                new_amount = amount + min(to_substract)
+                new_amount = amount - min(remainders)
+            else:  # if 'up'
+                new_amount = amount + min(remainders)
+            # if min(remainders) < Decimal("0.01"):
+            #     return float(new_amount), False  # Omit a very small difference to avoid looping forever in currencies with no small coins
+            return float(new_amount), True
 
-            if min(to_substract) < 0.02:
-                    return new_amount, False # Omit a very small difference to avoid looping forever in currencies with no small coins
-            return new_amount, True
     
     def aux_calc_amount_received(self):
         for rec in self:
@@ -115,18 +120,18 @@ class Calculation(models.Model):
                 if rec.target_currency_real_id == rec.currency_base_id: # If clients buys base_currency
                     amount_received = amount_delivered * rec.sell_rate
                 else: # If clients offers base_currency                    
-                    amount_received = amount_delivered / rec.buy_rate               
+                    amount_received = amount_delivered / rec.buy_rate            
                 
                 # Recalculate amount_received and adjust it depending on the accepted bills and coins
                 amount_received, recalculated_received = rec.recalculate_amount(rec.source_currency_real_id, amount_received, up_down)
-
+                
                 while recalculated_received: # while amount_delivered is recalculated and readjusted
                     # Calculate amount_delivered back from recalculated amount_received
                     if rec.source_currency_real_id == rec.currency_base_id: # If clients offers base_currency
                         amount_delivered = amount_received * rec.buy_rate
                     else: # If clients buys base_currency
                         amount_delivered = amount_received / rec.sell_rate
-
+                    
                     # Recalculate amount_delivered and adjust it depending on the accepted bills and coins
                     amount_delivered, recalculated_delivered = rec.recalculate_amount(
                         rec.target_currency_real_id, amount_delivered, up_down
@@ -145,9 +150,29 @@ class Calculation(models.Model):
                         rec.source_currency_real_id, amount_received, up_down
                         )
                     
-                return amount_received, amount_delivered
+                return round(amount_received, 2), round(amount_delivered, 2)
+            
+            initial_received_amount = rec.amount_received
+            initial_delivered_amount = rec.amount_delivered
+            amount_received, amount_delivered = calculate("down")
 
-            rec.amount_received, rec.amount_delivered = calculate("down")
+            # Let's give an over_value and under_value of the initial amounts, depending in bills and coins accepted
+            # for both currencies
+            if (initial_received_amount > 0 and initial_received_amount != amount_received) or (
+                initial_delivered_amount > 0 and initial_delivered_amount != amount_delivered):
+                # Pair 1 (under)
+                rec.received_amount_under, rec.delivered_amount_under = calculate("down")
+                # Pair 2 (over)
+                rec.received_amount_over, rec.delivered_amount_over = calculate("up")
+            
+            if rec.received_amount_under == rec.received_amount_over:
+                rec.received_amount_under = 0
+                rec.received_amount_over = 0
+            if rec.delivered_amount_under == rec.delivered_amount_over:
+                rec.delivered_amount_under = 0
+                rec.delivered_amount_over = 0
+
+            rec.amount_received, rec.amount_delivered = amount_received, amount_delivered
                          
     
     @api.depends("amount_delivered", "target_currency_real_id", "buy_rate", "sell_rate")
@@ -161,7 +186,7 @@ class Calculation(models.Model):
             def calculate(up_down):
                 # Recalculate amount_received and adjust it depending on the accepted bills and coins
                 amount_received, recalculated_received = rec.recalculate_amount(rec.source_currency_real_id, rec.amount_received, up_down)
-
+                
                 # Calculate amount_delivered from amount_received
                 if rec.source_currency_real_id == rec.currency_base_id: # If clients offers base_currency
                     amount_delivered = amount_received * rec.buy_rate
@@ -170,7 +195,7 @@ class Calculation(models.Model):
 
                 # Recalculate amount_delivered and adjust it depending on the accepted bills and coins
                 amount_delivered, recalculated_delivered = rec.recalculate_amount(rec.target_currency_real_id, amount_delivered, up_down)
-
+                
                 while recalculated_delivered: # while amount_delivered is recalculated and readjusted
                     # Calculate amount_received back from recalculated amount_delivered
                     if rec.target_currency_real_id == rec.currency_base_id: # If clients buys base_currency
@@ -195,10 +220,28 @@ class Calculation(models.Model):
                     amount_delivered, recalculated_delivered = rec.recalculate_amount(
                         rec.target_currency_real_id, amount_delivered, up_down
                         )
-                    
+                
                 return amount_received, amount_delivered
-        
-            rec.amount_received, rec.amount_delivered = calculate("down")
+            
+            amount_received, amount_delivered = calculate("down")
+
+            # Let's give an over_value and under_value of the initial amounts, depending in bills and coins accepted
+            # for both currencies
+            if (rec.amount_received > 0 and rec.amount_received != amount_received) or (
+                rec.amount_delivered > 0 and rec.amount_delivered != amount_delivered):
+                # Pair 1 (under)
+                rec.received_amount_under, rec.delivered_amount_under = calculate("down")
+                # Pair 2 (over)
+                rec.received_amount_over, rec.delivered_amount_over = calculate("up")
+            
+            if rec.received_amount_under == rec.received_amount_over:
+                rec.received_amount_under = 0
+                rec.received_amount_over = 0
+            if rec.delivered_amount_under == rec.delivered_amount_over:
+                rec.delivered_amount_under = 0
+                rec.delivered_amount_over = 0
+                    
+            rec.amount_received, rec.amount_delivered = amount_received, amount_delivered
 
     @api.depends("amount_received", "source_currency_real_id", "buy_rate", "sell_rate")
     def _compute_amount_delivered(self):
@@ -254,12 +297,12 @@ class Calculation(models.Model):
                     sell_no_discount_rate = rec.base_rate * rec.MARGIN
                     sell_difference = sell_no_discount_rate - currency.base_rate
                     sell_add_to_base = sell_difference * ((100 - int(rec.discount)) / 100) # Discount is applied to difference between base and commercial rate
-                    rec.sell_rate = rec.base_rate + sell_add_to_base                    
+                    rec.sell_rate = round(rec.base_rate + sell_add_to_base, 2)                   
 
                     buy_no_discount_rate = rec.base_rate / rec.MARGIN
                     buy_difference = currency.base_rate - buy_no_discount_rate
                     buy_substract_from_base = buy_difference * ((100 - int(rec.discount)) / 100) # Discount is applied to difference between base and commercial rate
-                    rec.buy_rate = rec.base_rate - buy_substract_from_base
+                    rec.buy_rate = round(rec.base_rate - buy_substract_from_base, 2)
                 # If currency_base is NOT one of the two values, means is a double change (not allowed, must be done in 2 parts)
                 else:
                     rec.base_rate = False
