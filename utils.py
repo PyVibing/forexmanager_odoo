@@ -21,6 +21,6 @@ def notification(self, title, body, message_type, sticky=False):
             "type": f"{message_type}",
             "title": f"{title}",
             "message": f"{body}",
-            "sticky": False
+            "sticky": sticky
             },
         ) 

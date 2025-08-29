@@ -1,33 +1,35 @@
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 from decimal import Decimal, ROUND_HALF_UP
-import itertools
+import datetime
 from ..utils import notification
 
 
 class Calculation(models.Model):
     _name = "forexmanager.calculation"
-    _description = "A model for calculating from source to destination currency."
+    _description = "A model for calculating the conversion from source to destination currency."
 
     MARGIN = 1.4 # Commercial margin over the base rate (official rate)
     currency_base_id = fields.Many2one("res.currency", default=125, readonly=True, required=True) # EUR by default
 
-    name = fields.Char(compute="_compute_name", store=True, string="Nombre")
-    date = fields.Date(string="Fecha", readonly=True, copy=False) # compute datetime.now().date() and readonly True
+    name = fields.Char(compute="_compute_name", store=True, string="Nombre", copy=False)
+    date = fields.Date(string="Fecha", readonly=True, copy=False, default=lambda self: datetime.datetime.now().date())
     user_id = fields.Many2one("res.users", string="Empleado", default=lambda self: self.env.uid, readonly=True, copy=False)
+
     # Relation with Operation
-    operation_id = fields.Many2one("forexmanager.operation")
-    operation_ref = fields.Integer(related="operation_id.id", string="ID Op.", store=True)    
-    # Currency and amount
-    currency_source_id = fields.Many2one("forexmanager.currency", string="Moneda ofrecida", required=True)
-    currency_target_id = fields.Many2one("forexmanager.currency", string="Moneda solicitada", required=True)
+    operation_id = fields.Many2one("forexmanager.operation", copy=False)
+    operation_ref = fields.Integer(related="operation_id.id", string="ID Op.", store=True, copy=False)
+
+    # Currency, amount, rates
+    currency_source_id = fields.Many2one("forexmanager.currency", string="Divisa ofrecida", required=True)
+    currency_target_id = fields.Many2one("forexmanager.currency", string="Divisa solicitada", required=True)
     amount_received = fields.Monetary(
         string="Cantidad recibida",
         currency_field="source_currency_real_id",
         compute="_compute_amount_received",
         inverse="_inverse_amount_received",
         store=True,
-        )
+        )        
     amount_delivered = fields.Monetary(
         string="Cantidad entregada",
         currency_field="target_currency_real_id",
@@ -59,22 +61,45 @@ class Calculation(models.Model):
     payment_type = fields.Selection([
         ("cash", "Efectivo"),
         ("card", "Tarjeta")
-        ], string="Método de pago", default="cash", required=True)
+        ], string="Pago en", default="cash", required=True)
     delivery_type = fields.Selection([
         ("cash", "Efectivo")
-        ], string="Método de entrega", default="cash", required=True)
-    base_rate = fields.Float(compute="_compute_rate", store=True)
-    buy_rate = fields.Float(compute="_compute_rate", store=True)
-    sell_rate = fields.Float(compute="_compute_rate", store=True)
+        ], string="Entrega en", default="cash", required=True)
+    base_rate = fields.Float(compute="_compute_rate", store=True, digits=(16, 6), copy=False)
+    buy_rate = fields.Float(compute="_compute_rate", store=True, digits=(16, 6), copy=False)
+    sell_rate = fields.Float(compute="_compute_rate", store=True, digits=(16, 6), copy=False)
 
-    received_amount_under = fields.Float(store=False, default=0)
-    received_amount_over = fields.Float(store=False, default=0)
-    delivered_amount_under = fields.Float(store=False, default=0)
-    delivered_amount_over = fields.Float(store=False, default=0)
+    # Images of admitted bills and coins (for source_currency)
+    images_ids = fields.One2many("forexmanager.image", compute="_compute_images_ids", string="Libro de billetes")
+
+    # Value pair under the original amount
+    received_amount_under = fields.Float(default=0, readonly=True, store=False)
+    delivered_amount_under = fields.Float(default=0, readonly=True, store=False)
+    # Value pair over the original amount
+    received_amount_over = fields.Float(default=0, readonly=True, store=False)
+    delivered_amount_over = fields.Float(default=0, readonly=True, store=False)
+
+    # These fields will take the value after clicking the button to select the right amount (under or over the original amount)
+    # when original amount doesn't match the bills and coins breakdown. This will trigger the compute_method
+    # for amount_received and amount_delivered
+    new_received_value = fields.Float(default=0, readonly=True, store=False)
+    new_delivered_value = fields.Float(default=0, readonly=True, store=False)
 
     # Technical fields - currency real (res.currency) for showing right symbol in the views for the monetary fields
-    source_currency_real_id = fields.Many2one(related="currency_source_id.currency_id", readonly=True)
-    target_currency_real_id = fields.Many2one(related="currency_target_id.currency_id", readonly=True)
+    source_currency_real_id = fields.Many2one(related="currency_source_id.currency_id", readonly=True, store=False)
+    target_currency_real_id = fields.Many2one(related="currency_target_id.currency_id", readonly=True, store=False)
+
+    # Boolean buttons (to avoid auto-save when clicking)
+    switch_button = fields.Boolean(default=False, store=False)
+    bills_book = fields.Boolean(default=False, store=False)
+    over_value_button = fields.Boolean(default=False, store=False)
+    under_value_button = fields.Boolean(default=False, store=False)
+
+    @api.depends("currency_source_id.units_ids.image_ids")
+    def _compute_images_ids(self):
+        for rec in self:
+            # concatenar todas las imágenes de todas las unidades
+            rec.images_ids = rec.currency_source_id.units_ids.mapped("image_ids")
 
     def recalculate_amount(self, currency_id, amount, up_down):
         # Recalculate having in consideration accepted bills and coins (in breakdown model)
@@ -83,11 +108,12 @@ class Calculation(models.Model):
             breakdown_recs = self.env["forexmanager.breakdown"].search([
                 ("currency_real_id", "=", currency_id)
             ])
-            bills = [Decimal(str(i.bill_value)) for i in breakdown_recs if i.bill_value > 0] if breakdown_recs else []
-            coins = [Decimal(str(i.coin_value)) for i in breakdown_recs if i.coin_value > 0] if breakdown_recs else []
+            bills = [Decimal(str(i.value)) for i in breakdown_recs if i.value > 0] if breakdown_recs else []
+            coins = [Decimal(str(i.value)) for i in breakdown_recs if i.value > 0] if breakdown_recs else []
             if not bills and not coins:
                 raise ValidationError("No existe desglose de billetes ni monedas admitidos para una de las monedas seleccionadas.")
             values = bills + coins
+
             remainders = []
             for value in values:
                 remainder = (amount % value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -105,8 +131,7 @@ class Calculation(models.Model):
                 new_amount = amount - min(remainders)
             else:  # if 'up'
                 new_amount = amount + min(remainders)
-            # if min(remainders) < Decimal("0.01"):
-            #     return float(new_amount), False  # Omit a very small difference to avoid looping forever in currencies with no small coins
+            
             return float(new_amount), True
 
     
@@ -152,34 +177,40 @@ class Calculation(models.Model):
                     
                 return round(amount_received, 2), round(amount_delivered, 2)
             
-            initial_received_amount = rec.amount_received
-            initial_delivered_amount = rec.amount_delivered
-            amount_received, amount_delivered = calculate("down")
+            amount_received, amount_delivered = calculate("down") # By default
 
             # Let's give an over_value and under_value of the initial amounts, depending in bills and coins accepted
             # for both currencies
-            if (initial_received_amount > 0 and initial_received_amount != amount_received) or (
-                initial_delivered_amount > 0 and initial_delivered_amount != amount_delivered):
+            if (rec.amount_received > 0 and rec.amount_received != amount_received) or (
+            rec.amount_delivered > 0 and rec.amount_delivered != amount_delivered):
                 # Pair 1 (under)
-                rec.received_amount_under, rec.delivered_amount_under = calculate("down")
+                rec.received_amount_under, rec.delivered_amount_under = amount_received, amount_delivered
                 # Pair 2 (over)
                 rec.received_amount_over, rec.delivered_amount_over = calculate("up")
-            
-            if rec.received_amount_under == rec.received_amount_over:
-                rec.received_amount_under = 0
-                rec.received_amount_over = 0
-            if rec.delivered_amount_under == rec.delivered_amount_over:
-                rec.delivered_amount_under = 0
-                rec.delivered_amount_over = 0
-
-            rec.amount_received, rec.amount_delivered = amount_received, amount_delivered
+            else:
+                rec.amount_received, rec.amount_delivered = amount_received, amount_delivered
                          
     
-    @api.depends("amount_delivered", "target_currency_real_id", "buy_rate", "sell_rate")
+    @api.depends("amount_delivered", "target_currency_real_id", "buy_rate", "sell_rate", "new_received_value", "new_delivered_value")
     def _compute_amount_received(self):
         for rec in self:
             if rec.amount_delivered and rec.target_currency_real_id:
-                rec.aux_calc_amount_received()                
+                if rec.new_received_value or rec.new_delivered_value:
+                    rec.amount_received = rec.new_received_value  
+                    rec.amount_delivered = rec.new_delivered_value
+
+                    # Restart values
+                    rec.new_received_value = 0
+                    rec.new_delivered_value = 0
+                    rec.received_amount_under = 0
+                    rec.received_amount_over = 0
+                    rec.delivered_amount_under = 0
+                    rec.delivered_amount_over = 0
+                    rec.over_value_button = False
+                    rec.under_value_button = False              
+                else:
+                    if rec.amount_delivered:
+                        rec.aux_calc_amount_received()   
 
     def aux_calc_amount_delivered(self):
         for rec in self:
@@ -223,31 +254,39 @@ class Calculation(models.Model):
                 
                 return amount_received, amount_delivered
             
-            amount_received, amount_delivered = calculate("down")
+            amount_received, amount_delivered = calculate("down") # By default
 
             # Let's give an over_value and under_value of the initial amounts, depending in bills and coins accepted
             # for both currencies
             if (rec.amount_received > 0 and rec.amount_received != amount_received) or (
                 rec.amount_delivered > 0 and rec.amount_delivered != amount_delivered):
                 # Pair 1 (under)
-                rec.received_amount_under, rec.delivered_amount_under = calculate("down")
+                rec.received_amount_under, rec.delivered_amount_under = amount_received, amount_delivered
                 # Pair 2 (over)
                 rec.received_amount_over, rec.delivered_amount_over = calculate("up")
+            else:
+                rec.amount_received, rec.amount_delivered = amount_received, amount_delivered                    
             
-            if rec.received_amount_under == rec.received_amount_over:
-                rec.received_amount_under = 0
-                rec.received_amount_over = 0
-            if rec.delivered_amount_under == rec.delivered_amount_over:
-                rec.delivered_amount_under = 0
-                rec.delivered_amount_over = 0
-                    
-            rec.amount_received, rec.amount_delivered = amount_received, amount_delivered
 
-    @api.depends("amount_received", "source_currency_real_id", "buy_rate", "sell_rate")
+    @api.depends("amount_received", "source_currency_real_id", "buy_rate", "sell_rate", "new_received_value", "new_delivered_value")
     def _compute_amount_delivered(self):
         for rec in self:
-            if rec.amount_received:
-                rec.aux_calc_amount_delivered()                                  
+            if rec.new_received_value or rec.new_delivered_value:
+                rec.amount_received = rec.new_received_value  
+                rec.amount_delivered = rec.new_delivered_value
+
+                # Restart values
+                rec.new_received_value = 0
+                rec.new_delivered_value = 0
+                rec.received_amount_under = 0
+                rec.received_amount_over = 0
+                rec.delivered_amount_under = 0
+                rec.delivered_amount_over = 0
+                rec.over_value_button = False
+                rec.under_value_button = False           
+            else:
+                if rec.amount_received:
+                    rec.aux_calc_amount_delivered()                           
     
     # --- Inverse ---
     def _inverse_amount_received(self):
@@ -285,24 +324,22 @@ class Calculation(models.Model):
                     if rec.source_currency_real_id != rec.currency_base_id:
                         currency = self.env["forexmanager.currency"].search([
                                 ("currency_id", "=", rec.source_currency_real_id)
-                                ], limit=1)
-                        
+                                ], limit=1)                        
                     elif rec.target_currency_real_id != rec.currency_base_id:
                         currency = self.env["forexmanager.currency"].search([
                                 ("currency_id", "=", rec.target_currency_real_id)
-                                ], limit=1)
-                    
+                                ], limit=1)                    
                     rec.base_rate = currency.base_rate
                         
                     sell_no_discount_rate = rec.base_rate * rec.MARGIN
                     sell_difference = sell_no_discount_rate - currency.base_rate
                     sell_add_to_base = sell_difference * ((100 - int(rec.discount)) / 100) # Discount is applied to difference between base and commercial rate
-                    rec.sell_rate = round(rec.base_rate + sell_add_to_base, 2)                   
+                    rec.sell_rate = rec.base_rate + sell_add_to_base           
 
                     buy_no_discount_rate = rec.base_rate / rec.MARGIN
                     buy_difference = currency.base_rate - buy_no_discount_rate
                     buy_substract_from_base = buy_difference * ((100 - int(rec.discount)) / 100) # Discount is applied to difference between base and commercial rate
-                    rec.buy_rate = round(rec.base_rate - buy_substract_from_base, 2)
+                    rec.buy_rate = rec.base_rate - buy_substract_from_base
                 # If currency_base is NOT one of the two values, means is a double change (not allowed, must be done in 2 parts)
                 else:
                     rec.base_rate = False
@@ -310,26 +347,36 @@ class Calculation(models.Model):
                     rec.sell_rate = False
                     notification(rec, f"Debe incluir {rec.currency_base_id.name}", 
                                  f"""Las dos monedas no pueden ser distintas a {rec.currency_base_id.name}. 
-                                    Si se trata de un doble cambio, agruegue las dos líneas de cambio por separado.""", 
-                                 "warning")
+                                    Si se trata de un doble cambio, agregue las dos líneas de cambio por separado.""", 
+                                 "warning", sticky=True)
     
+    # ------------- METHODS CALLED FROM BUTTONS ------------- #
+    @api.onchange("switch_button")
     def reverse_fields(self):
-        for rec in self:
-            if rec.amount_received and rec.amount_delivered and rec.currency_source_id and rec.currency_target_id:
-                to_source_amount = rec.amount_delivered
-                to_source_currency = rec.currency_target_id
-                to_target_currency = rec.currency_source_id
-
-                rec.amount_delivered = False # So its calculated from the amount_received amount
-                rec.currency_target_id = False
-                rec.currency_source_id = False
-
-                rec.currency_target_id = to_target_currency
-                rec.currency_source_id = to_source_currency
-                rec.amount_received = to_source_amount
-                
-            elif rec.currency_source_id and rec.currency_target_id:
+        for rec in self:                
+            if rec.currency_source_id and rec.currency_target_id:
                 temp = rec.currency_source_id
                 rec.currency_source_id = rec.currency_target_id
-                rec.currency_target_id = temp
-            
+                rec.currency_target_id = temp            
+            elif rec.currency_source_id and not rec.currency_target_id:
+                temp = rec.currency_source_id
+                rec.currency_source_id = False
+                rec.currency_target_id = temp            
+            elif rec.currency_target_id and not rec.currency_source_id:
+                temp = rec.currency_target_id
+                rec.currency_target_id = False
+                rec.currency_source_id = temp            
+            else:
+                rec.switch_button = False
+    
+    @api.onchange("under_value_button")
+    def get_under_values(self):
+        for rec in self:
+            rec.new_received_value = rec.received_amount_under
+            rec.new_delivered_value = rec.delivered_amount_under
+    
+    @api.onchange("over_value_button")
+    def get_over_values(self):
+        for rec in self:
+            rec.new_received_value = rec.received_amount_over
+            rec.new_delivered_value = rec.delivered_amount_over
