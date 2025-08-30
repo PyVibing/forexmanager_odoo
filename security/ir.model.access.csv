@@ -4,5 +4,7 @@ access_forexmanager_currency,forexmanager.currency,model_forexmanager_currency,,
 access_forexmanager_calculation,forexmanager.calculation,model_forexmanager_calculation,,1,1,1,1
 access_forexmanager_operation,forexmanager.operation,model_forexmanager_operation,,1,1,1,1
 access_forexmanager_breakdown,forexmanager.breakdown,model_forexmanager_breakdown,,1,1,1,1
-
+access_forexmanager_image,forexmanager.image,model_forexmanager_image,,1,1,1,1
+access_forexmanager_customer,forexmanager.customer,model_forexmanager_customer,,1,1,1,1
+access_forexmanager_passport,forexmanager.passport,model_forexmanager_passport,,1,1,1,1
 

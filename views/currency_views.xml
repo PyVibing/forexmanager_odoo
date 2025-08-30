@@ -15,7 +15,7 @@
                                 <label for="currency_id" string="Añadir moneda"/>
                             </div>
                             <div style="display: table-cell">
-                                <field name="currency_id" options="{'no_create': True}" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                                <field name="currency_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black; margin-left: 15px;"/>
                             </div>                            
                         </div>
                         <div style="display: table;">
@@ -35,18 +35,60 @@
                                         <field name="unit" style="border: 1px black solid; margin-left: 5px;"/>
                                     </div>
                                     <div style="float: left; margin-left: 5px; margin-top: 10px;">
-                                        <label for="bill_value" string="Valor:" />
+                                        <label for="value" string="Valor:" />
                                     </div>                                    
                                     <div style="float: left; margin-left: 5px; margin-top: 10px; margin-bottom: 5px;">                                            
-                                        <div invisible="unit == 'coin'">                                                
-                                            <field name="bill_value" style="border: 1px black solid; margin-left: 5px;"/>
-                                        </div>
+                                        <field name="value" style="border: 1px black solid; margin-left: 5px;"/>
                                     </div>
-                                    <div style="float: left; margin-left: 5px; margin-top: 10px; margin-bottom: 5px;">
-                                        <div invisible="unit == 'bill'">                                                
-                                            <field name="coin_value" style="border: 1px black solid; margin-left: 0px;"/>
-                                        </div>
-                                    </div>                                    
+                                    <field name="image_ids">
+                                        <form>
+                                            <div style="padding: 15px; background-color: #ffffff; border-radius: 8px;
+                                                        box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 4px solid #007bff;
+                                                        margin-bottom: 15px; display:flex; gap:20px;">
+
+                                                <!-- Anverso -->
+                                                <div style="width:100px; display:flex; flex-direction:column;">
+                                                    <div style="
+                                                            font-weight:600;
+                                                            color:#007bff;
+                                                            padding:2px 6px;
+                                                            border-radius:3px;
+                                                            display:block;
+                                                            margin-bottom:5px;
+                                                            font-size:0.95rem;
+                                                            text-shadow: 0 1px 1px rgba(0,0,0,0.1);">
+                                                        ANVERSO
+                                                    </div>
+
+                                                    <div style="width:300px; height:150px; display:flex; align-items:center; justify-content:center;
+                                                                border:1px solid #ccc; border-radius:4px; padding:2px;">
+                                                        <field name="image_front" widget="image" style="padding-top: 5px;"/>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Reverso -->
+                                                <div style="width:100px; display:flex; flex-direction:column; margin-left: 250px;">
+                                                    <div style="
+                                                            font-weight:600;
+                                                            color:#007bff;
+                                                            padding:2px 6px;
+                                                            border-radius:3px;
+                                                            display:block;
+                                                            margin-bottom:5px;
+                                                            font-size:0.95rem;
+                                                            text-shadow: 0 1px 1px rgba(0,0,0,0.1);">
+                                                        REVERSO
+                                                    </div>
+                                                    <div style="width:300px; height:150px; display:flex; align-items:center; justify-content:center;
+                                                                border:1px solid #ccc; border-radius:4px; padding:2px;">
+                                                        <field name="image_back" widget="image" style="padding-top: 5px;"/>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </form>
+                                    </field>                                
                                 </sheet>
                                 
                             </form>

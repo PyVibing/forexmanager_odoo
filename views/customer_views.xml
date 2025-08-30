@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <!-- Form view of forexmanager.customer -->
+    <record id="forexmanager_customer_form_view" model="ir.ui.view">
+        <field name="name">Forex Manager customer form view</field>
+        <field name="model">forexmanager.customer</field>
+        <field name="arch" type="xml">
+            <form>
+                <div style="padding: 15px; background-color: #ffffff; border-radius: 8px;
+                            box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 4px solid #007bff;
+                            margin-bottom: 15px; max-width: 650px;">
+                    
+                    <!-- Personal Info -->
+                    <div style="margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
+                        <label for="first_name_1" string="Nombre completo" style="font-weight:600; color:#007bff;"/>
+                        <div style="display:flex; gap:10px; margin-top:5px;">
+                            <field name="first_name_1" widget="char" placeholder="Primer nombre" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                            <field name="first_name_2" widget="char" placeholder="Segundo(s) nombre(s)" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                            <field name="last_name_1" widget="char" placeholder="Primer apellido" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                            <field name="last_name_2" widget="char" placeholder="Segundo(s) apellido(s)" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                        </div>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div style="margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
+                        <label for="email" string="Contacto" style="font-weight:600; color:#007bff;"/>
+                        <div style="display:flex; gap:10px; margin-top:5px;">
+                            <field name="email" widget="char" placeholder="Email" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                            <field name="phone" widget="char" placeholder="Teléfono" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                        </div>
+                    </div>
+
+                    <!-- Birth Info -->
+                    <div style="margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
+                        <label for="birth_country_id" string="Nacimiento" style="font-weight:600; color:#007bff;"/>
+                        <div style="display:flex; gap:10px; margin-top:5px;">
+                            <field name="birth_country_id" widget="char" placeholder="País de nacimiento" options="{'no_create': True}" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                            <field name="birth_date" widget="char" placeholder="Fecha de nacimiento" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                            <field name="gender" widget="char" placeholder="Género" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div style="margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
+                        <label for="country_id" string="Dirección de estancia" style="font-weight:600; color:#007bff;"/>
+                        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:5px;">
+                            <field name="country_id" options="{'no_create': True}" style="flex:1; min-width:150px; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                            <field name="province_id" widget="char" placeholder="Provincia" options="{'no_create': True}" style="flex:1; min-width:150px; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                            <field name="street" widget="char" placeholder="Calle" style="flex:2; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                            <field name="number" widget="char" placeholder="Número" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                        </div>
+                    </div>
+
+                    <!-- Passport -->
+                    <div style="margin-bottom: 0px;">
+                        <label for="passport_id" string="Pasaporte" style="font-weight:600; color:#007bff;"/>
+                        <field name="passport_id" widget="char" placeholder="Número" options="{'no_create': True}" style="border:1px solid #ccc; border-radius:4px; padding:4px 8px; width:200px;"/>
+                    </div>
+
+                </div>
+            </form>
+        </field>
+    </record>
+
+</odoo>

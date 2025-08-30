@@ -8,6 +8,7 @@
     "data": [
         "security/ir.model.access.csv",
         "views/calculation_views.xml",
+        "views/customer_views.xml",
         "views/operation_views.xml",
         "views/currency_views.xml",
         "views/menu_views.xml",
