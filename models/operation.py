@@ -4,10 +4,11 @@ from passporteye import read_mrz
 import base64
 from datetime import datetime
 from io import BytesIO
+from ..utils import notification
 
 # Eliminar luego, solo development
-import warnings
-warnings.filterwarnings("ignore")
+# import warnings
+# warnings.filterwarnings("ignore")
 
 class Operation(models.Model):
     _name = "forexmanager.operation"
@@ -21,64 +22,120 @@ class Operation(models.Model):
     # customer_id = fields.Many2one("forexmanager.customer", string="Cliente")
 
     # CUSTOMER DATA
-    first_name_1 = fields.Char(string="Primer nombre")
+    first_name_1 = fields.Char(string="Primer nombre", required=True)
     first_name_2 = fields.Char(string="Segundo(s) nombre(s)")
-    last_name_1 = fields.Char(string="Primer apellido")
+    last_name_1 = fields.Char(string="Primer apellido", required=True)
     last_name_2 = fields.Char(string="Segundo(s) apellido(s)")
-    birth_country_id = fields.Many2one("res.country", string="País de nacimiento")
-    birth_date = fields.Date(string="Fecha de nacimiento") # Must be not under 18
+    birth_country_id = fields.Many2one("res.country", string="País de nacimiento", required=True)
+    birth_date = fields.Date(string="Fecha de nacimiento", required=True) # Must be not under 18
     sex = fields.Selection([
         ("female", "Mujer"),
         ("male", "Hombre"),
         ("undefined", "Indefinido")
-        ], string="Sexo")
+        ], string="Sexo", required=True)
     email = fields.Char(string="Email")
     
     # Customer address
-    country_id = fields.Many2one("res.country", string="País de residencia", default=68)
-    province_id = fields.Many2one("res.country.state", string="Provincia")
-    city = fields.Char(string="Localidad")
-    street = fields.Char(string="Calle")
-    number = fields.Char(string="Número")
-    other = fields.Char(string="Piso/escalera/portal/etc...")
-
-    # Relation with Passport model
-    passport_id = fields.Many2one("forexmanager.passport", string="Pasaporte")
+    country_id = fields.Many2one("res.country", string="País", default=68, required=True)
+    province_id = fields.Many2one("res.country.state", string="Provincia", required=True)
+    city = fields.Char(string="Localidad", required=True)
+    street = fields.Char(string="Calle", required=True)
+    number = fields.Char(string="Número", required=True)
+    other = fields.Char(string="Piso/portal/etc...")
+    postal_code = fields.Integer(string="Código postal")
 
     # ID DATA
+    passport_id = fields.Many2one("forexmanager.passport")
     ID_type = fields.Selection([
             ("p", "Pasaporte"),
             ("id", "DNI"),
             ("other", "Otro")
-        ])
-    ID_country = fields.Many2one("res.country", string="País de emisión")
-    nationality = fields.Many2one("res.country", string="Nacionalidad")
-    ID_expiration = fields.Date(string="Fecha de vencimiento")
-    ID_number = fields.Char(string="Número")
-    image_1 = fields.Image(string="Imagen 1", attachment=True) # Solo esta required=True
+        ], string="Tipo de documento", required=True)
+    ID_country = fields.Many2one("res.country", string="País emisor", required=True)
+    nationality = fields.Many2one("res.country", string="Nacionalidad", required=True)
+    ID_expiration = fields.Date(string="Fecha de vencimiento", required=True)
+    ID_number = fields.Char(string="Número de documento", required=True)
+    image_1 = fields.Image(string="Imagen 1", attachment=True, required=True)
     image_2 = fields.Image(string="Imagen 2")
     image_3 = fields.Image(string="Imagen 3")
     image_4 = fields.Image(string="Imagen 4")
-    read_ID = fields.Boolean(default=False)
+
+    # Checkboxs
+    read_ID = fields.Boolean(default=False, store=False) # Checkbox on the view to read data from id document
+    search_ID = fields.Boolean(string="Buscar cliente", default=False, store=False) # Checkbox on the view to look in the DB
+
+    # Let's store this field to know if the info was taken from DB or current document read.
+    # In case first time the info was wrongly taken, we know the agent who made the mistake.
+    data_from_db = fields.Boolean(string="Datos del cliente encontrados en la BBDD", default=False)
+
 
     @api.onchange("read_ID", "image_1")
     def get_passport_info(self):
         for rec in self:
+            def clean_images():
+                rec.image_1 = False
+                rec.image_2 = False
+                rec.image_3 = False
+                rec.image_4 = False
+                rec.read_ID = False
+                
+            def clean_data():
+                # CUSTOMER DATA
+                rec.first_name_1 = False
+                rec.first_name_2 = False
+                rec.last_name_1 = False
+                rec.last_name_2 = False
+                rec.birth_country_id = False
+                rec.birth_date = False
+                rec.sex = False
+
+                # CONTACT DATA
+                rec.email = False
+
+                # Customer address
+                rec.country_id = False
+                rec.province_id = False
+                rec.city = False
+                rec.street = False
+                rec.number = False
+                rec.other = False
+                rec.postal_code = False
+
+                # ID DATA
+                rec.ID_type = False
+                rec.ID_country = False
+                rec.nationality = False
+                rec.ID_expiration = False
+                rec.ID_number = False
+
+                rec.search_ID = False
+                rec.data_from_db = False
+
             if not rec.image_1:
-                if rec.read_ID:
-                    rec.read_ID = False
+                # If deleting the first image or clicking the checkbox with no first image loaded
+                clean_data()
+                clean_images()                
+            
+            elif rec.image_1 and not rec.read_ID:
+                # When loading the first image after filling manually the data
+                clean_data()
+
             elif rec.image_1 and rec.read_ID:
+                # When reading the data from the image
+                clean_data()
+
                 try:
                     img_bytes = base64.b64decode(rec.image_1)
                     img_stream = BytesIO(img_bytes)
                     mrz = read_mrz(img_stream)
                     mrz_dict = mrz.to_dict()
-                    print(mrz_dict)
-                    print("--------------------------")
-                    print("--------------------------")
-                    print("--------------------------")
+                    # print(mrz_dict)
+                    # print("--------------------------")
+                    # print("--------------------------")
+                    # print("--------------------------")
                 except Exception:
                     raise ValidationError("No se pudo leer la información del documento. Por favor, rellene los datos manualmente.")
+                
                 valid_score = mrz_dict["valid_score"]
                 mrz_type = mrz_dict["mrz_type"].replace("<", "") # TD1 (card-size documents) or TD3 (passport type). TD2 not allowed
 
@@ -95,53 +152,191 @@ class Operation(models.Model):
                 valid_birth_date = mrz_dict["valid_date_of_birth"]
                 sex = mrz_dict["sex"].replace("<", "")
 
-                print(ID_type, ID_country, ID_number, ID_expiration_date, names, last_names, nationality, birth_date, sex)
-
-                # Assign values to variables
-                country_rec = self.env['res.country'].search([('code', '=', ID_country)], limit=1)
-                if country_rec:
-                    rec.ID_country = country_rec
-
-                rec.ID_number = ID_number
-
-                expiration_date = datetime.strptime(ID_expiration_date, "%y%m%d").date() if valid_expiration_date else None
-                if expiration_date:
-                    rec.ID_expiration = expiration_date
-
-                first_names = names.split()
-                first_name_1 = first_names[0]
-                first_name_2 = first_names[1:] if len(first_names) > 1 else None
-                full_first_name_2 = ""
-                if first_name_2:
-                    for n in first_name_2:
-                        full_first_name_2 += n + " "
-                    full_first_name_2 = full_first_name_2.strip()
-                rec.first_name_1 = first_name_1
-                rec.first_name_2 = full_first_name_2
                 
-                last_names = last_names.split()
-                last_name_1 = last_names[0]
-                last_name_2 = last_names[1:] if len(last_names) > 1 else None
-                full_last_name_2 = ""
-                if last_name_2:
-                    full_last_name_2 = ""
-                    for n in last_name_2:
-                        full_last_name_2 += n + " "
-                    full_last_name_2 = full_last_name_2.strip()
-                rec.last_name_1 = last_name_1
-                rec.last_name_2 = full_last_name_2
+                if valid_score > 50:
+                    # Assign values to variables
+                    rec.ID_number = ID_number
 
-                nationality_rec = self.env['res.country'].search([('code', '=', nationality)], limit=1)
-                if nationality_rec:
-                    rec.nationality = nationality_rec
+                    rec.search_passport()
 
-                birth_date = datetime.strptime(birth_date, "%y%m%d").date() if valid_birth_date else None
-                if birth_date:
-                    rec.birth_date = birth_date
+                    if not rec.passport_id: # Assign values from document read
+                        if ID_type == "P":
+                            rec.ID_type = "p"
+                        elif ID_type == "ID":
+                            rec.ID_type = "id"
+                        else:
+                            rec.ID_type = "other"
 
-                if sex == "F":
-                    rec.sex = "female"
-                elif sex == "M":
-                    rec.sex = "male"
+                        country_rec = self.env['res.country'].search([('code', '=', ID_country)], limit=1)
+                        if country_rec:
+                            rec.ID_country = country_rec
+                        
+                        expiration_date = datetime.strptime(ID_expiration_date, "%y%m%d").date() if valid_expiration_date else None
+                        if expiration_date:
+                            rec.ID_expiration = expiration_date
+
+                        first_names = names.split()
+                        first_name_1 = first_names[0]
+                        first_name_2 = first_names[1:] if len(first_names) > 1 else None
+                        full_first_name_2 = ""
+                        if first_name_2:
+                            for n in first_name_2:
+                                full_first_name_2 += n + " "
+                            full_first_name_2 = full_first_name_2.strip()
+                        rec.first_name_1 = first_name_1
+                        rec.first_name_2 = full_first_name_2
+                        
+                        last_names = last_names.split()
+                        last_name_1 = last_names[0]
+                        last_name_2 = last_names[1:] if len(last_names) > 1 else None
+                        full_last_name_2 = ""
+                        if last_name_2:
+                            full_last_name_2 = ""
+                            for n in last_name_2:
+                                full_last_name_2 += n + " "
+                            full_last_name_2 = full_last_name_2.strip()
+                        rec.last_name_1 = last_name_1
+                        rec.last_name_2 = full_last_name_2
+
+                        nationality_rec = self.env['res.country'].search([('code', '=', nationality)], limit=1)
+                        if nationality_rec:
+                            rec.nationality = nationality_rec
+
+                        birth_date = datetime.strptime(birth_date, "%y%m%d").date() if valid_birth_date else None
+                        if birth_date:
+                            rec.birth_date = birth_date
+
+                        if sex == "F":
+                            rec.sex = "female"
+                        elif sex == "M":
+                            rec.sex = "male"
+                        else:
+                            rec.sex = "undefined"
+                    
                 else:
-                    rec.sex = "undefined"
+                    notification(rec, "Lectura de documento poco fiable", 
+                                 "Por favor, introduzca manualmente el número de pasaporte y busque los datos " \
+                                 "del cliente en la Base de Datos.",
+                                 "warning")                        
+                    rec.read_ID = False
+
+    def assign_values_from_db(self, ID_exists):
+        for rec in self:
+            # CUSTOMER DATA
+            rec.first_name_1 = ID_exists.customer_id.first_name_1
+            rec.first_name_2 = ID_exists.customer_id.first_name_2
+            rec.last_name_1 = ID_exists.customer_id.last_name_1
+            rec.last_name_2 = ID_exists.customer_id.last_name_2
+            rec.birth_country_id = ID_exists.customer_id.birth_country_id
+            rec.birth_date = ID_exists.customer_id.birth_date
+            rec.sex = ID_exists.customer_id.sex
+
+            # CONTACT DATA
+            rec.email = ID_exists.customer_id.email
+
+            # Customer address
+            rec.country_id = ID_exists.customer_id.country_id.id
+            rec.province_id = ID_exists.customer_id.province_id.id
+            rec.city = ID_exists.customer_id.city
+            rec.street = ID_exists.customer_id.street
+            rec.number = ID_exists.customer_id.number
+            rec.other = ID_exists.customer_id.other
+            rec.postal_code = ID_exists.customer_id.postal_code
+
+            # ID DATA
+            rec.ID_type = ID_exists.ID_type
+            rec.ID_country = ID_exists.ID_country
+            rec.nationality = ID_exists.nationality
+            rec.ID_expiration = ID_exists.ID_expiration
+            rec.ID_number = ID_exists.ID_number
+                   
+    @api.onchange("search_ID")
+    def activate_search_passport(self):
+        for rec in self:
+            if rec.search_ID and not rec.read_ID:
+                if rec.ID_number:
+                    rec.search_passport()
+                else:
+                    rec.search_ID = False
+
+    def search_passport(self):
+        for rec in self:
+            ID_exists = self.env["forexmanager.passport"].search([
+                ("ID_number", "=", rec.ID_number)
+                ])
+            
+            rec.passport_id = ID_exists
+            rec.search_ID = True # This disables the button when TRUE
+
+            if rec.passport_id:
+                notification(rec, "Datos encontrados", 
+                             "Se cargaron los datos del cliente desde la Base de Datos. Sus datos principales no pueden ser modificados", 
+                             "info")
+                rec.assign_values_from_db(rec.passport_id)
+            else:
+                if not rec.read_ID: # Means that there is no image or is not readable (low valid_score assign False to read_ID)
+                    notification(rec, "Cliente no encontrado en la Base de Datos", 
+                                "Rellene manualmente los datos solicitados. " \
+                                "Asegúrese de que sean correctos antes de continuar con la operación.", 
+                                "warning")
+                else: # Values are inserted from current document read
+                    notification(rec, "Cliente no encontrado en la Base de Datos", 
+                                "Se rellenaron los campos requeridos con la información obtenida al leer el documento. " \
+                                "Verifique que sean correctos antes de continuar con la operación", 
+                                "warning")
+
+    @api.model
+    def create(self, vals_list):
+        for vals in vals_list: # is a list of dict
+            # VALIDATE DATA
+            operation = super(Operation, self).create(vals)
+            
+            if not operation.passport_id:
+                # Creating customer record in Customer model
+                customer = self.env["forexmanager.customer"].create({
+                    "first_name_1": operation.first_name_1,
+                    "first_name_2": operation.first_name_2,
+                    "last_name_1": operation.last_name_1,
+                    "last_name_2": operation.last_name_2,
+                    "birth_country_id": operation.birth_country_id.id,
+                    "birth_date": operation.birth_date,
+                    "sex": operation.sex,
+                    "email": operation.email,
+                    "country_id": operation.country_id.id,
+                    "province_id": operation.province_id.id,
+                    "city": operation.city,
+                    "street": operation.street,
+                    "number": operation.number,
+                    "other": operation.other,
+                    "postal_code": operation.postal_code,
+                    })
+            
+                # Creating passport record in Passport model
+                passport = self.env["forexmanager.passport"].create({
+                    "customer_id": customer.id,
+                    "ID_type": operation.ID_type,
+                    "ID_country": operation.ID_country.id,
+                    "nationality": operation.nationality.id,
+                    "ID_expiration": operation.ID_expiration,
+                    "ID_number": operation.ID_number
+                    })
+            
+            else:
+                # Lets update the info that can be updated (address, email), accesing the customer through his passport/ID
+                customer = self.env["forexmanager.passport"].search([
+                    ("ID_number", "=", operation.ID_number)
+                    ], limit=1).customer_id
+                
+                customer.write({
+                    "email": vals["email"],
+                    "country_id": vals["country_id"],
+                    "province_id": vals["province_id"],
+                    "city": vals["city"],
+                    "street": vals["street"],
+                    "number": vals["number"],
+                    "other": vals["other"],
+                    "postal_code": vals["postal_code"],
+                    })
+            
+            return operation
+            

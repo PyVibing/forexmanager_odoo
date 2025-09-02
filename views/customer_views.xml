@@ -27,7 +27,6 @@
                         <label for="email" string="Contacto" style="font-weight:600; color:#007bff;"/>
                         <div style="display:flex; gap:10px; margin-top:5px;">
                             <field name="email" widget="char" placeholder="Email" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
-                            <field name="phone" widget="char" placeholder="Teléfono" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
                         </div>
                     </div>
 
@@ -37,7 +36,7 @@
                         <div style="display:flex; gap:10px; margin-top:5px;">
                             <field name="birth_country_id" widget="char" placeholder="País de nacimiento" options="{'no_create': True}" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
                             <field name="birth_date" widget="char" placeholder="Fecha de nacimiento" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
-                            <field name="gender" widget="char" placeholder="Género" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
+                            <field name="sex" widget="char" placeholder="Sexo" style="flex:1; border:1px solid #ccc; border-radius:4px; padding:4px 8px;"/>
                         </div>
                     </div>
 
@@ -54,8 +53,8 @@
 
                     <!-- Passport -->
                     <div style="margin-bottom: 0px;">
-                        <label for="passport_id" string="Pasaporte" style="font-weight:600; color:#007bff;"/>
-                        <field name="passport_id" widget="char" placeholder="Número" options="{'no_create': True}" style="border:1px solid #ccc; border-radius:4px; padding:4px 8px; width:200px;"/>
+                        <label for="passport_ids" string="Pasaporte" style="font-weight:600; color:#007bff;"/>
+                        <field name="passport_ids" widget="char" placeholder="Número" options="{'no_create': True}" style="border:1px solid #ccc; border-radius:4px; padding:4px 8px; width:200px;"/>
                     </div>
 
                 </div>

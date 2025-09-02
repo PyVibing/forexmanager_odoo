@@ -297,21 +297,30 @@
 
                                         <div class="field-row" style="display: flex; gap: 10px;">
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="ID_country">País de emisión</label>
-                                                <field name="ID_country" options="{'no_create': True, 'no_open': True}" class="field-input"/>
+                                                <label for="ID_number"/>
+                                                <field name="ID_number" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="ID_number">Número de documento</label>
-                                                <field name="ID_number" class="field-input"/>
+                                                <label for="ID_type"/>
+                                                <field name="ID_type" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="nationality">Nacionalidad</label>
-                                                <field name="nationality" class="field-input"/>
+                                                <label for="ID_country"/>
+                                                <field name="ID_country" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="ID_expiration">Fecha de expiración</label>
-                                                <field name="ID_expiration" class="field-input"/>
+                                                <label for="nationality"/>
+                                                <field name="nationality" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
+                                            <div style="display: flex; flex-direction: column; flex: 1;">
+                                                <label for="ID_expiration"/>
+                                                <field name="ID_expiration" class="field-input" readonly="passport_id" force_save="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="field-row" style="display: flex; gap: 10px;">
+                                            <label for="search_ID"/>
+                                            <field name="search_ID" readonly="search_ID"/>
+                                            <field name="passport_id" invisible="1" force_save="1"/>
                                         </div>
                                     </div>
 
@@ -322,20 +331,20 @@
 
                                         <div class="field-row" style="display: flex; gap: 10px;">
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="first_name_1">Primer nombre</label>
-                                                <field name="first_name_1" class="field-input"/>
+                                                <label for="first_name_1"/>
+                                                <field name="first_name_1" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="first_name_2">Segundo(s) nombre(s)</label>
-                                                <field name="first_name_2" class="field-input"/>
+                                                <label for="first_name_2"/>
+                                                <field name="first_name_2" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="last_name_1">Primer apellido</label>
-                                                <field name="last_name_1" class="field-input"/>
+                                                <label for="last_name_1"/>
+                                                <field name="last_name_1" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="last_name_2">Segundo(s) apellido(s)</label>
-                                                <field name="last_name_2" class="field-input"/>
+                                                <label for="last_name_2"/>
+                                                <field name="last_name_2" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
                                         </div>
                                     </div>
@@ -346,16 +355,16 @@
 
                                         <div class="field-row" style="display: flex; gap: 10px;">
                                             <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
-                                                <label for="birth_country_id">País de nacimiento</label>
-                                                <field name="birth_country_id" options="{'no_create': True, 'no_open': True}" class="field-input"/>
+                                                <label for="birth_country_id"/>
+                                                <field name="birth_country_id" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="birth_date">Fecha de nacimiento</label>
-                                                <field name="birth_date" class="field-input"/>
+                                                <label for="birth_date"/>
+                                                <field name="birth_date" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1;">
                                                 <label for="sex">Sexo</label>
-                                                <field name="sex" class="field-input"/>
+                                                <field name="sex" class="field-input" readonly="passport_id" force_save="1"/>
                                             </div>
                                         </div>
                                     </div>
@@ -367,30 +376,34 @@
 
                                         <div class="field-row" style="display: flex; gap: 10px;">
                                             <div style="display: flex; flex-direction: column; flex: 2;">
-                                                <label for="street">Calle</label>
+                                                <label for="street"/>
                                                 <field name="street" class="field-input"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="number">Número</label>
+                                                <label for="number"/>
                                                 <field name="number" class="field-input"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="other">Piso/escalera/portal/etc...</label>
+                                                <label for="other"/>
                                                 <field name="other" class="field-input"/>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; flex: 1;">
+                                                <label for="postal_code"/>
+                                                <field name="postal_code" widget="char" class="field-input"/>
                                             </div>
                                         </div>
 
                                         <div class="field-row" style="display: flex; gap: 10px;">
                                             <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
-                                                <label for="country_id">País</label>
+                                                <label for="country_id"/>
                                                 <field name="country_id" options="{'no_create': True, 'no_open': True}" class="field-input"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
-                                                <label for="province_id">Provincia</label>
+                                                <label for="province_id"/>
                                                 <field name="province_id" domain="[('country_id', '=', country_id)]" options="{'no_create': True}" class="field-input"/>
                                             </div>
                                             <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
-                                                <label for="city">Localidad</label>
+                                                <label for="city"/>
                                                 <field name="city" class="field-input"/>
                                             </div>
                                         </div>
@@ -402,7 +415,7 @@
 
                                         <div class="field-row" style="display: flex; gap: 10px;">
                                             <div style="display: flex; flex-direction: column; flex: 1;">
-                                                <label for="email">Email</label>
+                                                <label for="email"/>
                                                 <field name="email" class="field-input" style="width: 30%"/>
                                             </div>
                                         </div>                                            
