@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <!-- Form view of forexmanager.desk -->
+    <record id="forexmanager_desk_form_view" model="ir.ui.view">
+        <field name="name">ForexManager desk form view</field>
+        <field name="model">forexmanager.desk</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+
+                    <h1 class="bg-primary text-white p-2 rounded fs-3">ADMINISTRAR VENTANILLAS</h1>
+                    <div style="float: left; margin-top: 50px;">
+
+                        <div style="display: table;">
+                            <div style="display: table-cell; width: 200px;">
+                                <label for="name"/>
+                            </div>
+                            <div style="display: table-cell">
+                                <field name="name" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                            </div>                            
+                        </div>
+                        <div style="display: table;">
+                            <div style="display: table-cell; width: 200px;">
+                                <label for="workcenter_id"/>
+                            </div>
+                            <div style="display: table-cell">
+                                <field name="workcenter_id" style="border-bottom: 1px solid black; margin-left: 15px;"
+                                        options="{'no_create': True, 'no_open': True}"/>
+                            </div>                            
+                        </div>
+                                          
+                    </div>
+                    <notebook>
+                        <page string="Balance de divisas">
+                            <field name="cashcount_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="currency_id"/>
+                                    <field name="balance"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- List view of forexmanager.desk -->
+    <record id="forexmanager_desk_list_view" model="ir.ui.view">
+        <field name="name">ForexManager desk list view</field>
+        <field name="model">forexmanager.desk</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="workcenter_id"/>
+                <field name="cashcount_ids"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    
+
+
+
+    <!-- Action of forexmanager.desk -->
+    <record id="forexmanager_config_desks_action" model="ir.actions.act_window">
+        <field name="name">ADMINISTRAR VENTANILLAS</field>
+        <field name="res_model">forexmanager.desk</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

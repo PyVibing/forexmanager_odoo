@@ -7,8 +7,8 @@ from io import BytesIO
 from ..utils import notification
 
 # Eliminar luego, solo development
-# import warnings
-# warnings.filterwarnings("ignore")
+import warnings
+warnings.filterwarnings("ignore")
 
 class Operation(models.Model):
     _name = "forexmanager.operation"
@@ -77,7 +77,10 @@ class Operation(models.Model):
                 rec.image_2 = False
                 rec.image_3 = False
                 rec.image_4 = False
+
                 rec.read_ID = False
+                rec.passport_id = False
+                
                 
             def clean_data():
                 # CUSTOMER DATA
@@ -109,12 +112,12 @@ class Operation(models.Model):
                 rec.ID_number = False
 
                 rec.search_ID = False
-                rec.data_from_db = False
+                rec.passport_id = False
 
             if not rec.image_1:
                 # If deleting the first image or clicking the checkbox with no first image loaded
                 clean_data()
-                clean_images()                
+                clean_images()        
             
             elif rec.image_1 and not rec.read_ID:
                 # When loading the first image after filling manually the data

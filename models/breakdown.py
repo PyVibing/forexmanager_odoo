@@ -5,11 +5,11 @@ class Breakdown(models.Model):
     _description = "A model for defyning the bills and coins for a currency."
 
     name = fields.Char(compute="_compute_name") # agregar compute
-    currency_id = fields.Many2one("forexmanager.currency", string="Divisa", required=True)
+    currency_id = fields.Many2one("forexmanager.currency", string="Divisa")
     unit = fields.Selection([
         ("bill", "Billete"),
         ("coin", "Moneda")
-        ], required=True, default="bill")    
+        ], required=True, default="bill", string="Billete/moneda")    
     value = fields.Float(string="Valor del billete/moneda")
     image_ids = fields.One2many("forexmanager.image", "breakdown_id")
 

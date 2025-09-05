@@ -6,3 +6,6 @@ from . import breakdown
 from . import image
 from . import passport
 from . import customer
+from . import desk
+from . import cashcount
+from . import workcenter

@@ -18,15 +18,7 @@
                                 <field name="currency_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black; margin-left: 15px;"/>
                             </div>                            
                         </div>
-                        <div style="display: table;">
-                            <div style="display: table-cell; width:100px;">
-                                <label for="initial_balance" string="Balance inicial"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="initial_balance" style="border-bottom: 1px solid black; margin-left: 15px;"/>
-                            </div>                            
-                        </div>
-                        <field name="units_ids">
+                        <field name="unit_ids">
                             <form>
                                 <sheet>
                                     <h1 class="bg-primary text-white rounded fs-3" style="margin-left: 5px;">NUEVO BILLETE / MONEDA</h1>
@@ -93,10 +85,23 @@
                                 
                             </form>
                             <list>
-
+                                <field name="name"/>
+                                <field name="currency_id"/>
+                                <field name="unit"/>
+                                <field name="value"/>
                             </list>
                         </field>
                     </div>
+                    <notebook>
+                        <page string="Centros que utilizan esta moneda">
+                            <field name="workcenter_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="desk_ids"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>

@@ -7,4 +7,6 @@ access_forexmanager_breakdown,forexmanager.breakdown,model_forexmanager_breakdow
 access_forexmanager_image,forexmanager.image,model_forexmanager_image,,1,1,1,1
 access_forexmanager_customer,forexmanager.customer,model_forexmanager_customer,,1,1,1,1
 access_forexmanager_passport,forexmanager.passport,model_forexmanager_passport,,1,1,1,1
-
+access_forexmanager_desk,forexmanager.desk,model_forexmanager_desk,,1,1,1,1
+access_forexmanager_cashcount,forexmanager.cashcount,model_forexmanager_cashcount,,1,1,1,1
+access_forexmanager_workcenter,forexmanager.workcenter,model_forexmanager_workcenter,,1,1,1,1

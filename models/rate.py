@@ -1,5 +1,6 @@
 from odoo import fields, models
 
+# delete later, not used
 class Rate(models.Model):
     _name = "forexmanager.rate"
     _description = "A model for stablishing the commercial rates, based on the oficial rates."

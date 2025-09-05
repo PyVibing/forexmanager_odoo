@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <!-- Form view of forexmanager.cashcount -->
+    <!-- <record id="forexmanager_cashcount_form_view" model="ir.ui.view">
+        <field name="name">ForexManager cashcount form view</field>
+        <field name="model">forexmanager.cashcount</field>
+        <field name="arch" type="xml"> -->
+            <!-- <form>
+                <sheet>
+
+                    <h1 class="bg-primary text-white p-2 rounded fs-3">ADMINISTRAR INVENTARIO</h1>
+                    <div style="float: left;">
+
+                        <div style="display: table;">
+                            <div style="display: table-cell; width: 200px;">
+                                <label for="name"/>
+                            </div>
+                            <div style="display: table-cell">
+                                <field name="name" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                            </div>                            
+                        </div>
+                        <div style="display: table;">
+                            <div style="display: table-cell; width: 200px;">
+                                <label for="workcenter_id"/>
+                            </div>
+                            <div style="display: table-cell">
+                                <field name="workcenter_id" style="border-bottom: 1px solid black; margin-left: 15px;"
+                                        options="{'no_create': True, 'no_open': True}"/>
+                            </div>                            
+                        </div>
+                        <div style="display: table;">
+                            <div style="display: table-cell; width: 200px;">
+                                <label for="desk_id"/>
+                            </div>
+                            <div style="display: table-cell">
+                                <field name="desk_id" style="border-bottom: 1px solid black; margin-left: 15px;"
+                                        options="{'no_create': True, 'no_open': True}" domain="[('workcenter_id', '=', workcenter_id)]"/>
+                            </div>                            
+                        </div>
+                        <div style="display: table;">
+                            <div style="display: table-cell; width: 200px;">
+                                <label for="currency_id"/>
+                            </div>
+                            <div style="display: table-cell">
+                                <field name="currency_id" style="border-bottom: 1px solid black; margin-left: 15px;"
+                                        options="{'no_create': True, 'no_open': True}"/>
+                            </div>                            
+                        </div>
+                        <div style="display: table;">
+                            <div style="display: table-cell; width: 200px;">
+                                <label for="balance"/>
+                            </div>
+                            <div style="display: table-cell">
+                                <field name="balance" style="border-bottom: 1px solid black; margin-left: 15px;"/>
+                            </div>                            
+                        </div>
+                                          
+                    </div>
+                </sheet>
+            </form> -->            
+        <!-- </field>
+    </record> -->
+
+
+
+    <!-- Action of forexmanager.cashcount -->
+    <record id="forexmanager_config_cashcounts_action" model="ir.actions.act_window">
+        <field name="name">ADMINISTRAR INVENTARIOS</field>
+        <field name="res_model">forexmanager.cashcount</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

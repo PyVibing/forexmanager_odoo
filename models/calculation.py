@@ -95,11 +95,11 @@ class Calculation(models.Model):
     over_value_button = fields.Boolean(default=False, store=False)
     under_value_button = fields.Boolean(default=False, store=False)
 
-    @api.depends("currency_source_id.units_ids.image_ids")
+    @api.depends("currency_source_id.unit_ids.image_ids")
     def _compute_images_ids(self):
         for rec in self:
             # concatenar todas las imágenes de todas las unidades
-            rec.images_ids = rec.currency_source_id.units_ids.mapped("image_ids")
+            rec.images_ids = rec.currency_source_id.unit_ids.mapped("image_ids")
 
     def recalculate_amount(self, currency_id, amount, up_down):
         # Recalculate having in consideration accepted bills and coins (in breakdown model)
