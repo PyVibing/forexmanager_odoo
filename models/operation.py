@@ -17,7 +17,11 @@ class Operation(models.Model):
     name = fields.Char(default="Cambio de moneda", readonly=True)
     date = fields.Date(string="Fecha de hoy", readonly=True, copy=False) # compute datetime.now().date() and readonly True
     user_id = fields.Many2one("res.users", string="Empleado", default=lambda self: self.env.uid, readonly=True, copy=False)
+    desk_id = fields.Many2one("forexmanager.desk", string="Ventanilla actual", required=True)
+    worksession_id = fields.Many2one("forexmanager.worksession", compute="_compute_worksession_id", store=True, string="Sesión")
+    opening_desk_id = fields.Many2one(related="worksession_id.opening_desk_id", string="Ventanilla de apertura", store=True)
 
+    
     calculation_ids = fields.One2many("forexmanager.calculation", "operation_id", string="Línea de cambio")
     # customer_id = fields.Many2one("forexmanager.customer", string="Cliente")
 
@@ -67,6 +71,54 @@ class Operation(models.Model):
     # Let's store this field to know if the info was taken from DB or current document read.
     # In case first time the info was wrongly taken, we know the agent who made the mistake.
     data_from_db = fields.Boolean(string="Datos del cliente encontrados en la BBDD", default=False)
+
+    # @api.depends("worksession_id")
+    # def _compute_opening_desk_id(self)
+
+    @api.depends("desk_id")
+    def _compute_worksession_id(self):
+        for rec in self:
+            if rec.desk_id:
+                # Get open (checkin) session associated to this desk and user (must be only one)
+                session = self.env["forexmanager.worksession"].search([
+                        ("user_id", "=", rec.user_id), 
+                        ("session_status", "=", "open"), 
+                        ("session_type", "=", "checkin"),
+                        ("desk_id", "=", rec.desk_id.id),
+                        ], limit=1)
+                
+                # Get all oepn (checkin) sessions (main and secondaries) for this user
+                all_sessions = self.env["forexmanager.worksession"].search([
+                        ("user_id", "=", rec.user_id), 
+                        ("session_status", "=", "open"), 
+                        ("session_type", "=", "checkin"),
+                        ])
+
+                for s in all_sessions:
+                    if session.desk_id == session.opening_desk_id: # We are operating in our opening_desk
+                            rec.worksession_id = session if session.balances_checked_ended else False
+                    else: # We are in a temporary desk, must check if balance check is finished in the associated opening desk
+                        rec.worksession_id = session if all_sessions[0].balances_checked_ended else False
+                        break # Only check in one of many possibles secondary sessions
+                  
+                    
+                
+
+    # @api.depends("user_id")
+    # def _compute_worksession_id(self):
+    #     for rec in self:
+    #         if rec.user_id:
+    #             session = self.env["forexmanager.worksession"].search([
+    #                 ("user_id", "=", rec.user_id),
+    #                 ("session_status", "=", "open"),
+    #                 ("desk_id", "=", rec.user_id.opening_desk_id),
+    #                 ("balances_checked_ended", "=", True)
+    #                 ])
+    #             print(session)
+    #             rec.worksession_id = session
+    #         else:
+    #             rec.worksession_id = False
+
 
 
     @api.onchange("read_ID", "image_1")

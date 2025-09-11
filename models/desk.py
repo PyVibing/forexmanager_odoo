@@ -1,7 +1,7 @@
 from odoo import fields, models, api
 
 
-class Desk(models.Model):
+class Desk(models.Model): 
     _name = "forexmanager.desk"
     _description = "A model for defyning the desks (physical workplaces). Only for admins."
 
@@ -9,7 +9,8 @@ class Desk(models.Model):
     workcenter_id = fields.Many2one("forexmanager.workcenter", string="Centro de trabajo", required=True)
     note = fields.Char(string="Notas")
 
-    cashcount_ids = fields.One2many("forexmanager.cashcount", "desk_id", string="Balances de divisas")
+    cashcount_ids = fields.One2many("forexmanager.cashcount", "desk_id", string="Balances de divisas") # One2one
+    worksession_ids = fields.One2many("forexmanager.worksession", "desk_id", string="Sesiones en esta ventanilla")
     
 
     @api.model

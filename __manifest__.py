@@ -14,6 +14,7 @@
         "views/cashcount_views.xml",
         "views/desk_views.xml",
         "views/workcenter_views.xml",
+        "views/worksession_views.xml",
         "views/menu_views.xml",
     ],
     "post_init_hook": "initial_config",

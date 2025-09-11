@@ -10,3 +10,5 @@ access_forexmanager_passport,forexmanager.passport,model_forexmanager_passport,,
 access_forexmanager_desk,forexmanager.desk,model_forexmanager_desk,,1,1,1,1
 access_forexmanager_cashcount,forexmanager.cashcount,model_forexmanager_cashcount,,1,1,1,1
 access_forexmanager_workcenter,forexmanager.workcenter,model_forexmanager_workcenter,,1,1,1,1
+access_forexmanager_worksession,forexmanager.worksession,model_forexmanager_worksession,,1,1,1,1
+access_forexmanager_checkbalance,forexmanager.checkbalance,model_forexmanager_checkbalance,,1,1,1,1
