@@ -340,58 +340,64 @@ class Operation(models.Model):
                                 "Verifique que sean correctos antes de continuar con la operación", 
                                 "warning")
 
-    @api.model
-    def create(self, vals_list):
-        for vals in vals_list: # is a list of dict
-            # VALIDATE DATA
-            operation = super(Operation, self).create(vals)
+    def create(self, vals):
+        print("create operation")        
+        # VALIDATE DATA
+        operation = super(Operation, self).create(vals)
+        
+        if not operation.passport_id:
+            # Creating customer record in Customer model
+            customer = self.env["forexmanager.customer"].create({
+                "first_name_1": operation.first_name_1,
+                "first_name_2": operation.first_name_2,
+                "last_name_1": operation.last_name_1,
+                "last_name_2": operation.last_name_2,
+                "birth_country_id": operation.birth_country_id.id,
+                "birth_date": operation.birth_date,
+                "sex": operation.sex,
+                "email": operation.email,
+                "country_id": operation.country_id.id,
+                "province_id": operation.province_id.id,
+                "city": operation.city,
+                "street": operation.street,
+                "number": operation.number,
+                "other": operation.other,
+                "postal_code": operation.postal_code,
+                })
+        
+            # Creating passport record in Passport model
+            passport = self.env["forexmanager.passport"].create({
+                "customer_id": customer.id,
+                "ID_type": operation.ID_type,
+                "ID_country": operation.ID_country.id,
+                "nationality": operation.nationality.id,
+                "ID_expiration": operation.ID_expiration,
+                "ID_number": operation.ID_number
+                })
+        
+        else:
+            # Lets update the info that can be updated (address, email), accesing the customer through his passport/ID
+            customer = self.env["forexmanager.passport"].search([
+                ("ID_number", "=", operation.ID_number)
+                ], limit=1).customer_id
             
-            if not operation.passport_id:
-                # Creating customer record in Customer model
-                customer = self.env["forexmanager.customer"].create({
-                    "first_name_1": operation.first_name_1,
-                    "first_name_2": operation.first_name_2,
-                    "last_name_1": operation.last_name_1,
-                    "last_name_2": operation.last_name_2,
-                    "birth_country_id": operation.birth_country_id.id,
-                    "birth_date": operation.birth_date,
-                    "sex": operation.sex,
-                    "email": operation.email,
-                    "country_id": operation.country_id.id,
-                    "province_id": operation.province_id.id,
-                    "city": operation.city,
-                    "street": operation.street,
-                    "number": operation.number,
-                    "other": operation.other,
-                    "postal_code": operation.postal_code,
-                    })
+            customer.write({
+                "email": vals["email"],
+                "country_id": vals["country_id"],
+                "province_id": vals["province_id"],
+                "city": vals["city"],
+                "street": vals["street"],
+                "number": vals["number"],
+                "other": vals["other"],
+                "postal_code": vals["postal_code"],
+                })
+        
+        return operation
             
-                # Creating passport record in Passport model
-                passport = self.env["forexmanager.passport"].create({
-                    "customer_id": customer.id,
-                    "ID_type": operation.ID_type,
-                    "ID_country": operation.ID_country.id,
-                    "nationality": operation.nationality.id,
-                    "ID_expiration": operation.ID_expiration,
-                    "ID_number": operation.ID_number
-                    })
-            
-            else:
-                # Lets update the info that can be updated (address, email), accesing the customer through his passport/ID
-                customer = self.env["forexmanager.passport"].search([
-                    ("ID_number", "=", operation.ID_number)
-                    ], limit=1).customer_id
-                
-                customer.write({
-                    "email": vals["email"],
-                    "country_id": vals["country_id"],
-                    "province_id": vals["province_id"],
-                    "city": vals["city"],
-                    "street": vals["street"],
-                    "number": vals["number"],
-                    "other": vals["other"],
-                    "postal_code": vals["postal_code"],
-                    })
-            
+    def write(self, vals):
+        for rec in self:
+            print("write operation")
+
+            operation = super().write(vals)
+
             return operation
-            

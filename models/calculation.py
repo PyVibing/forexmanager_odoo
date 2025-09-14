@@ -2,6 +2,7 @@ from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 from decimal import Decimal, ROUND_HALF_UP
 import datetime
+import time
 from ..utils import notification
 
 
@@ -85,6 +86,8 @@ class Calculation(models.Model):
     new_received_value = fields.Float(default=0, readonly=True, store=False)
     new_delivered_value = fields.Float(default=0, readonly=True, store=False)
 
+    up_down = fields.Char(store=False, readonly=True)
+
     # Technical fields - currency real (res.currency) for showing right symbol in the views for the monetary fields
     source_currency_real_id = fields.Many2one(related="currency_source_id.currency_id", readonly=True, store=False)
     target_currency_real_id = fields.Many2one(related="currency_target_id.currency_id", readonly=True, store=False)
@@ -100,6 +103,14 @@ class Calculation(models.Model):
         for rec in self:
             # concatenar todas las imágenes de todas las unidades
             rec.images_ids = rec.currency_source_id.unit_ids.mapped("image_ids")
+    
+    def check_availability(self, currency_id, amount):
+        # Check (from opening_desk_id, even if user is in a secondary desk) if there is enough currency to deliver to client
+        cashcount = self.env["forexmanager.cashcount"].search([
+            ("currency_id", "=", currency_id),
+            ("desk_id", "=", self.operation_id.worksession_id.opening_desk_id)
+            ], limit=1)
+        return cashcount.balance >= amount if cashcount else False
 
     def recalculate_amount(self, currency_id, amount, up_down):
         # Recalculate having in consideration accepted bills and coins (in breakdown model)
@@ -129,7 +140,7 @@ class Calculation(models.Model):
             
             if up_down == "down":
                 new_amount = amount - min(remainders)
-            else:  # if 'up'
+            else:  # if "up"
                 new_amount = amount + min(remainders)
             
             return float(new_amount), True
@@ -140,12 +151,11 @@ class Calculation(models.Model):
             def calculate(up_down):
                 # Recalculate amount_delivered and adjust it depending on the accepted bills and coins
                 amount_delivered, recalculated_delivered = rec.recalculate_amount(rec.target_currency_real_id, rec.amount_delivered, up_down)
-                
                 # Calculate amount_received from amount_delivered
                 if rec.target_currency_real_id == rec.currency_base_id: # If clients buys base_currency
                     amount_received = amount_delivered * rec.sell_rate
                 else: # If clients offers base_currency                    
-                    amount_received = amount_delivered / rec.buy_rate            
+                    amount_received = amount_delivered / rec.buy_rate      
                 
                 # Recalculate amount_received and adjust it depending on the accepted bills and coins
                 amount_received, recalculated_received = rec.recalculate_amount(rec.source_currency_real_id, amount_received, up_down)
@@ -168,7 +178,7 @@ class Calculation(models.Model):
                     if rec.target_currency_real_id == rec.currency_base_id: # If clients buys base_currency
                         amount_received = amount_delivered * rec.sell_rate
                     else: # If clients offers base_currency                    
-                        amount_received = amount_delivered / rec.buy_rate               
+                        amount_received = amount_delivered / rec.buy_rate       
                     
                     # Recalculate amount_received and adjust it depending of the accepted bills and coins
                     amount_received, recalculated_received = rec.recalculate_amount(
@@ -177,27 +187,40 @@ class Calculation(models.Model):
                     
                 return round(amount_received, 2), round(amount_delivered, 2)
             
-            amount_received, amount_delivered = calculate("down") # By default
+            if rec.up_down: # If has a value, means the user already click on the upper or under value of original amount
+                amount_received, amount_delivered = calculate(rec.up_down)
+            else:
+                amount_received, amount_delivered = calculate("down") # By default
 
             # Let's give an over_value and under_value of the initial amounts, depending in bills and coins accepted
             # for both currencies
-            if (rec.amount_received > 0 and rec.amount_received != amount_received) or (
-            rec.amount_delivered > 0 and rec.amount_delivered != amount_delivered):
-                # Pair 1 (under)
-                rec.received_amount_under, rec.delivered_amount_under = amount_received, amount_delivered
-                # Pair 2 (over)
-                rec.received_amount_over, rec.delivered_amount_over = calculate("up")
+            if (rec.amount_delivered > 0 and rec.amount_delivered != amount_delivered):
+                amount_received, amount_delivered = calculate("up") # Let's check now "up"
+                if (rec.amount_delivered > 0 and rec.amount_delivered != amount_delivered):
+                    # Pair 1 (under)
+                    rec.received_amount_under, rec.delivered_amount_under = calculate("down")
+                    # Pair 2 (over)
+                    rec.received_amount_over, rec.delivered_amount_over = calculate("up")
+                else:
+                    rec.amount_received, rec.amount_delivered = amount_received, amount_delivered
+                    if not rec.check_availability(rec.currency_target_id, rec.amount_delivered):
+                        notification(rec, "No hay suficiente balance", "No existe suficiente balance de la divisa solicitada", "warning")
             else:
                 rec.amount_received, rec.amount_delivered = amount_received, amount_delivered
+                if not rec.check_availability(rec.currency_target_id, rec.amount_delivered):
+                    notification(rec, "No hay suficiente balance", "No existe suficiente balance de la divisa solicitada", "warning")
                          
     
-    @api.depends("amount_delivered", "target_currency_real_id", "buy_rate", "sell_rate", "new_received_value", "new_delivered_value")
+    @api.depends("amount_delivered", "target_currency_real_id", "buy_rate", "sell_rate", "new_delivered_value")
     def _compute_amount_received(self):
         for rec in self:
             if rec.amount_delivered and rec.target_currency_real_id:
                 if rec.new_received_value or rec.new_delivered_value:
                     rec.amount_received = rec.new_received_value  
                     rec.amount_delivered = rec.new_delivered_value
+
+                    if not rec.check_availability(rec.currency_target_id, rec.amount_delivered):
+                        notification(rec, "No hay suficiente balance", "No existe suficiente balance de la divisa solicitada", "warning")
 
                     # Restart values
                     rec.new_received_value = 0
@@ -209,8 +232,8 @@ class Calculation(models.Model):
                     rec.over_value_button = False
                     rec.under_value_button = False              
                 else:
-                    if rec.amount_delivered:
-                        rec.aux_calc_amount_received()   
+                    if rec.amount_delivered and not rec.up_down: # if rec.up_down has a value, means amounts were recalculated, so it's not recalculated again
+                        rec.aux_calc_amount_received() 
 
     def aux_calc_amount_delivered(self):
         for rec in self:
@@ -254,39 +277,48 @@ class Calculation(models.Model):
                 
                 return amount_received, amount_delivered
             
-            amount_received, amount_delivered = calculate("down") # By default
+            if rec.up_down: # If has a value, means the user already click on the upper or under value of original amount
+                amount_received, amount_delivered = calculate(rec.up_down)
+            else:
+                amount_received, amount_delivered = calculate("down") # By default
 
             # Let's give an over_value and under_value of the initial amounts, depending in bills and coins accepted
             # for both currencies
-            if (rec.amount_received > 0 and rec.amount_received != amount_received) or (
-                rec.amount_delivered > 0 and rec.amount_delivered != amount_delivered):
+            if (rec.amount_received > 0 and rec.amount_received != amount_received):         
                 # Pair 1 (under)
-                rec.received_amount_under, rec.delivered_amount_under = amount_received, amount_delivered
+                rec.received_amount_under, rec.delivered_amount_under = calculate("down")
                 # Pair 2 (over)
                 rec.received_amount_over, rec.delivered_amount_over = calculate("up")
             else:
-                rec.amount_received, rec.amount_delivered = amount_received, amount_delivered                    
-            
+                rec.amount_received, rec.amount_delivered = amount_received, amount_delivered
 
-    @api.depends("amount_received", "source_currency_real_id", "buy_rate", "sell_rate", "new_received_value", "new_delivered_value")
+                if not rec.check_availability(rec.currency_target_id, rec.amount_delivered):
+                    notification(rec, "No hay suficiente balance", "No existe suficiente balance de la divisa solicitada", "warning")       
+            
+    @api.depends("amount_received", "source_currency_real_id", "buy_rate", "sell_rate", "new_received_value")
     def _compute_amount_delivered(self):
         for rec in self:
-            if rec.new_received_value or rec.new_delivered_value:
-                rec.amount_received = rec.new_received_value  
-                rec.amount_delivered = rec.new_delivered_value
+            if rec.amount_received and rec.source_currency_real_id:
+                if rec.new_received_value or rec.new_delivered_value:
+                    rec.amount_received = rec.new_received_value  
+                    rec.amount_delivered = rec.new_delivered_value
 
-                # Restart values
-                rec.new_received_value = 0
-                rec.new_delivered_value = 0
-                rec.received_amount_under = 0
-                rec.received_amount_over = 0
-                rec.delivered_amount_under = 0
-                rec.delivered_amount_over = 0
-                rec.over_value_button = False
-                rec.under_value_button = False           
-            else:
-                if rec.amount_received:
-                    rec.aux_calc_amount_delivered()                           
+                    # Restart values
+                    rec.new_received_value = 0
+                    rec.new_delivered_value = 0
+                    rec.received_amount_under = 0
+                    rec.received_amount_over = 0
+                    rec.delivered_amount_under = 0
+                    rec.delivered_amount_over = 0
+                    rec.over_value_button = False
+                    rec.under_value_button = False
+
+                    if not rec.check_availability(rec.currency_target_id, rec.amount_delivered):
+                        notification(rec, "No hay suficiente balance", "No existe suficiente balance de la divisa solicitada", "warning")
+                        
+                else:
+                    if rec.amount_received and not rec.up_down: # if rec.up_down has a value, means amounts were recalculated, so it's not recalculated again
+                        rec.aux_calc_amount_delivered()                     
     
     # --- Inverse ---
     def _inverse_amount_received(self):
@@ -372,11 +404,17 @@ class Calculation(models.Model):
     @api.onchange("under_value_button")
     def get_under_values(self):
         for rec in self:
+            rec.up_down = "down"
             rec.new_received_value = rec.received_amount_under
             rec.new_delivered_value = rec.delivered_amount_under
     
     @api.onchange("over_value_button")
     def get_over_values(self):
         for rec in self:
+            rec.up_down = "up"
             rec.new_received_value = rec.received_amount_over
             rec.new_delivered_value = rec.delivered_amount_over
+
+    def create(self, vals):
+        calculation = super().create(vals)
+        return calculation
