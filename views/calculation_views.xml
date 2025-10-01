@@ -1,109 +1,258 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
-    <!-- Form view of forexmanager.calculation
-    <record id="forexmanager_operation_form_view" model="ir.ui.view">
-        <field name="name">ForexManager operation form view</field>
-        <field name="model">forexmanager.operation</field>
+    <!-- Form view of forexmanager.calculation -->
+    <record id="forexmanager_calculation_form_view" model="ir.ui.view">
+        <field name="name">ForexManager calculation form view</field>
+        <field name="model">forexmanager.calculation</field>
         <field name="arch" type="xml">
             <form>
-                <style>
-                    .subtitle {
-                        font-size: 15px;
-                    }
-                </style>
                 <sheet>
-                    <h1 class="bg-primary text-white p-2 rounded fs-3">CAMBIO DE MONEDA</h1>
-                    <notebook>
-                        <page string="Moneda y cantidad" class="subtitle">
-                            <field name="calculation_ids">
-                                <form>
-                                    <style>
-                                        .subtitle {
-                                            font-size: 15px;
-                                        }
-                                    </style>
-                                    <sheet>
-                                        <h1 class="bg-primary text-white rounded fs-3" style="margin-left: 5px;">MONEDA Y CANTIDAD</h1>
-                                                                                                
-                                            <div style="float: left; margin-left: 5px; margin-top: 10px; margin-bottom: 10px;">
-                                                <div style="margin-bottom: 20px; border-bottom: 1px black solid;">
-                                                    <label for="discount" string="Descuento:"/>
-                                                    <field name="discount" style="border: 1px black solid; margin-left: 5px;"/>
-                                                </div>
-                                                <label for="currency_source_id" string="Ofrecido por el cliente"/>
-                                                <div style="display: table; margin-bottom: 20px;">
-                                                    <div style="display: table-cell">
-                                                        <field name="currency_source_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black;"/>
-                                                        <field name="source_currency_real_id" invisible="True"/>
-                                                    </div>
-                                                    <div style="display: table-cell;">
-                                                        <field name="amount_received" style="border-bottom: 1px solid black; margin-left: 15px;"/>
-                                                    </div>
-                                                </div>
-                                                <label for="currency_target_id" string="Entregar al cliente"/>
-                                                <div style="display: table; margin-bottom: 20px;">
-                                                    <div style="display: table-cell">
-                                                        <field name="currency_target_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black;"/>
-                                                        <field name="target_currency_real_id" invisible="True"/>
-                                                    </div>
-                                                    <div style="display: table-cell">
-                                                        <field name="amount_delivered" style="border-bottom: 1px solid black; margin-left: 15px;"/>
-                                                    </div>
-                                                </div>
-                                            </div>
+                    <h1 style="background-color: #ffffff; color: #007bff; border-left: 4px solid #007bff; border-radius: 8px; padding: 8px 12px; margin-left: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-size: 1.75rem;">
+                        Nueva línea de cambio
+                    </h1>
+                    <div style="display: flex; flex-wrap: wrap;">
+                        <!-- Main form  -->
+                        <div invisible="(received_amount_under and delivered_amount_under) or (received_amount_over or delivered_amount_over)"
+                            style="width: 450px; float: left; margin-left: 5px; margin-right: 5px; margin-top: 10px; margin-bottom: 10px; padding: 15px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 4px solid #007bff;">
+                            <!-- Discount  -->
+                            <div style="margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
+                                <label for="discount" string="Descuento:" style="font-weight:600; color:#007bff;"/>
+                                <field name="discount" style="border: 1px solid #ccc; border-radius:4px; padding:4px 8px; margin-left: 5px;"/>
+                            </div>
+                            <!-- Offered by client  -->
+                            <label for="currency_source_id" string="Ofrecido por el cliente" style="font-weight:600; color:#007bff; margin-bottom:5px; display:block;"/>
+                            <div style="display: table; margin-bottom: 15px;">
+                                <div style="display: table-cell;">
+                                    <field name="payment_type" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid #ccc; padding:2px 5px; width: 80px;"/>
+                                </div>
+                                <div style="display: table-cell;">
+                                    <field name="currency_source_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid #ccc; margin-left: 15px; padding:2px 5px; width: 180px;"/>
+                                    <field name="source_currency_real_id" invisible="True"/>
+                                </div>
+                                <div style="display: table-cell;">
+                                    <field name="amount_received" style="border-bottom: 1px solid #ccc; margin-left: 15px; padding:2px 5px; width: 120px;"/>
+                                </div>
+                            </div>
+                            <!-- Switch button  -->
+                            <div style="display: table; margin-left: 150px;">
+                                <div style="display: table-cell;;">
+                                    <i class="fa fa-arrows-v" style="margin-right: 0px; color:#007bff; font-size:16px;"/>
+                                    <field name="switch_button"  style="padding:4px 8px; border-radius:4px;"/>
+                                </div>
+                            </div>
+                            <!-- Deliver to client  -->
+                            <label for="currency_target_id" string="Entregar al cliente" style="font-weight:600; color:#007bff; margin-bottom:5px; display:block;"/>
+                            <div style="display: table; margin-bottom: 20px;">
+                                <div style="display: table-cell;">
+                                    <field name="delivery_type" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid #ccc; padding:2px 5px; width: 80px;"/>
+                                </div>
+                                <div style="display: table-cell;">
+                                    <field name="currency_target_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid #ccc; margin-left: 15px; padding:2px 5px; width: 180px;"/>
+                                    <field name="target_currency_real_id" invisible="True"/>
+                                </div>
+                                <div style="display: table-cell;">
+                                    <field name="amount_delivered" style="border-bottom: 1px solid #ccc; margin-left: 15px; padding:2px 5px; width: 120px;"/>
+                                </div>
+                            </div>                                                
+                            <!-- Other info  -->
+                            <div style="display: table; width: 100%;">
+                                <div style="display: table-cell; min-width: 40%; width: 50%">
+                                    <div style="display: table; margin-bottom: 20px;">
+                                        <div style="display: table-cell;">
+                                            <p style="font-weight:600; color:#007bff;">Tasa de cambio:</p>
+                                        </div>
+                                        <div invisible="(target_currency_real_id == currency_base_id) or not (source_currency_real_id and target_currency_real_id) or not buy_rate">
+                                            <field name="buy_rate" style="margin-left: 5px; padding: 4px 10px;"/>
+                                        </div>
+                                        <div invisible="(source_currency_real_id == currency_base_id) or not (source_currency_real_id and target_currency_real_id) or not sell_rate">
+                                            <field name="sell_rate" style="margin-left: 5px; padding: 4px 10px;"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: table-cell;">
+                                    <div style="display: table; margin-bottom: 20px;" invisible="not source_currency_real_id">
+                                        <div style="display: table-cell;">
+                                            <p style="font-weight:600; color:#007bff;">Libro de billetes:</p>
+                                        </div>
+                                        <div style="display: table-cell;;">
+                                            <field name="bills_book"  style="padding:4px 8px; border-radius:4px;"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    </sheet>
-                                </form>
-                                <list>
-                                    <field name="amount_received" string="Recibido"/>
-                                    <field name="currency_source_id" string="Moneda"/>
-                                    <field name="amount_delivered" string="Entregado"/>
-                                    <field name="currency_target_id" string="Moneda"/>
-                                    <field name="discount"/>
-                                    <field name="operation_ref"/>
-                                </list>
-                            </field>
-                        </page>
+                        <!-- Bills and coins book  -->
+                        <div invisible="not bills_book or ((received_amount_under and delivered_amount_under) or (received_amount_over or delivered_amount_over))"
+                            style="flex: 0 0 450px; float: left; margin-left: 5px; margin-top: 10px; margin-bottom: 10px; padding: 15px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 4px solid #ffc107;">
+                            <label for="images_ids" string="Imágenes"/>
+                            <div style="max-height: 250px; overflow-y: auto;">
+                                <field name="images_ids" >
+                                    <kanban>
+                                        <templates>
+                                            <t t-name="card" style="max-width: 50%;">
+                                                <t t-name="kanban-box">
+                                                    <field name="image_front" widget="image"/>
+                                                    <field name="image_back" widget="image"/>
+                                                </t>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
+                            </div>
+                        </div>
 
-                        <page string="Datos del cliente" class="subtitle">
-
-                        </page>
-
-                        <page string="Finalizar" class="subtitle">
-
-                        </page>
-                    </notebook>
+                        <!-- Alert (when bills and coins breakdown don't match the original amount)  -->
+                        <div class="bg-primary rounded shadow-sm" invisible="not (received_amount_under and delivered_amount_under or received_amount_over and delivered_amount_over)"
+                            style="flex: 1; float: left; margin: 10px; border-left: 6px solid #ffc107; padding: 15px; background: linear-gradient(135deg, #0069d9, #0056b3); max-width: 650px;">
+                            <!-- Title  -->
+                            <h1 class="text-white fs-3" style="padding: 0 10px; padding-top: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                                LAS CANTIDADES NO COINCIDEN
+                            </h1>
+                            <!-- Text  -->
+                            <p class="text-white fs-5" style="padding: 0 10px; line-height:1.4; opacity:0.9;">
+                                Las cantidades no se corresponden con el desglose de billetes y monedas.<br/>
+                                Seleccione un par de valores por debajo o por encima.
+                            </p>
+                            <!-- Amounts (over values and under values)  -->
+                            <div style="padding: 0 10px; padding-bottom: 10px;">    
+                                <!-- Over values -->
+                                <div class="text-white fs-4" style="padding: 0;">
+                                    <h2 class="text-white fs-4" style="padding-top: 20px; margin-bottom: 0px; text-shadow: 1px 1px 1px rgba(0,0,0,0.4);">
+                                        <i class="fa fa-chevron-circle-up" style="margin-right:5px; color:#ffc107; font-size:18px;"/>
+                                        Por encima:
+                                    </h2>
+                                    <div style="display:flex; width:100%; margin-top:8px; gap:10px;">                                                            
+                                        <!-- Column 1 -->
+                                        <div style="flex:1;">
+                                            <div>Ofrece:</div>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <field name="source_currency_real_id"
+                                                style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"
+                                                options="{'no_open': True}"/>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <field name="received_amount_over"
+                                                style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"/>
+                                        </div>                                                            
+                                        <!-- Column 2 -->
+                                        <div style="flex:1; margin-left: 30px;">
+                                            <div>Demanda:</div>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <field name="target_currency_real_id"
+                                                style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"
+                                                options="{'no_open': True}"/>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <field name="delivered_amount_over"
+                                                style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"/>
+                                        </div>                                                            
+                                        <!-- Column 3 (button) -->
+                                        <div style="flex:1; display:flex; align-items:center; justify-content:flex-start; margin-left: 30px;">
+                                            
+                                            <span style="background-color:#1f3a93; color:white; padding:0px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; font-weight:600; font-size:14px;">
+                                                Seleccionar:
+                                                <field name="over_value_button"  style="padding-left:7px; padding-top:7px;" 
+                                                        readonly="delivered_amount_over &lt;= 0 or received_amount_over &lt;= 0"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Under values -->
+                                <div class="text-white fs-4" style="margin-top:15px;">
+                                    <h2 class="text-white fs-4" style="margin-top:10px; margin-bottom:0px; text-shadow:1px 1px 1px rgba(0,0,0,0.4);">
+                                        <i class="fa fa-chevron-circle-down" style="margin-right:5px; color:#ffc107; font-size:18px;"/>
+                                        Por debajo:
+                                    </h2>
+                                    <div style="display:flex; width:100%; margin-top:8px; gap:10px;">                                                            
+                                        <!-- Column 1 -->
+                                        <div style="flex:1;">
+                                            <div>Ofrece:</div>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <field name="source_currency_real_id"
+                                                style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"
+                                                options="{'no_open': True}"/>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <field name="received_amount_under"
+                                                style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"/>
+                                        </div>                                                            
+                                        <!-- Column 2 -->
+                                        <div style="flex:1; margin-left: 30px;">
+                                            <div>Demanda:</div>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <field name="target_currency_real_id"
+                                                style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"
+                                                options="{'no_open': True}"/>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <field name="delivered_amount_under"
+                                                style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"/>
+                                        </div>                                                            
+                                        <!-- Column 3 (button) -->
+                                        <div style="flex:1; display:flex; align-items:center; justify-content:flex-start; margin-left: 30px;">
+                                            <span style="background-color:#1f3a93; color:white; padding:0px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; font-weight:600; font-size:14px;">
+                                                Seleccionar:
+                                                <field name="under_value_button"  style="padding-left:7px; padding-top:7px;" 
+                                                        readonly="delivered_amount_under &lt;= 0 or received_amount_under &lt;= 0"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </sheet>
+                <footer replace="0" invisible="not available or repeated_line or amount_received &lt;= 0 or amount_delivered &lt;= 0 or 
+                                    not currency_source_id or not currency_target_id or received_amount_under or delivered_amount_under or 
+                                    received_amount_over or delivered_amount_over"/>                
             </form>
         </field>
-    </record> -->
+    </record>
 
     <!-- List view of forexmanager.calculation -->
     <record id="forexmanager_calculation_list_view" model="ir.ui.view">
         <field name="name">ForexManager calculation list view</field>
         <field name="model">forexmanager.calculation</field>
         <field name="arch" type="xml">
-            <list>
-                <field name="id"/>
-                <field name="name"/>
-                <field name="amount_received" string="Recibido"/>
-                <field name="currency_source_id" string="Moneda"/>
-                <field name="amount_delivered" string="Entregado"/>
-                <field name="currency_target_id" string="Moneda"/>
-                <field name="discount"/>
-                <field name="date"/>
-                <field name="operation_ref"/>
-                <field name="user_id"/>
+            <list delete="0" duplicate="0" create="0">
+                <field name="id" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="name" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="amount_received" string="Recibido" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="currency_source_id" string="Moneda" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="amount_delivered" string="Entregado" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="currency_target_id" string="Moneda" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="discount" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="date" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="operation_ref" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="user_id" groups="forexmanager.group_forexmanager_admin"/>
             </list>
         </field>
     </record>
 
-    <!-- Action of forexmanager.operation -->
-    <record id="forexmanager_history_calculation_action" model="ir.actions.act_window">
-        <field name="name">HISTORIAL</field>
-        <field name="res_model">forexmanager.calculation</field>
-        <field name="view_mode">list</field>
-        <field name="context">{'create': False}</field>
+    <!-- Search view of forexmanager.calculation-->
+     <record id="forexmanager_calculation_search_view" model="ir.ui.view">
+        <field name="name">ForexManager calculation search view</field>
+        <field name="model">forexmanager.calculation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="id"/>
+                <field name="name"/>
+                <field name="currency_source_id"/>
+                <field name="currency_target_id"/>
+                <field name="amount_received"/>
+                <field name="amount_delivered"/>
+                <field name="discount"/>
+                <field name="payment_type"/>
+                <field name="delivery_type"/>
+            </search>
+        </field>
     </record>
+
 </odoo>

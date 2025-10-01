@@ -2,36 +2,31 @@ from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 from ..utils import get_base_rate, notification, create_initial_inventories
 
+
 class Currency(models.Model):
+    """A model for defining the allowed currencies for this exchange company, and balance. Only for admins."""
     _name = "forexmanager.currency"
-    _description = "A model for defining the allowed currencies for this exchange company, and balance. Only for admins."
+    _description = "Divisas"
 
+    # MAIN FIELDS
     currency_base_id = fields.Many2one("res.currency", default=125, readonly=True, required=True) # EUR by default
-
-    name = fields.Char(default="Nueva moneda", compute="_compute_name", store=True, required=True)
-
-    currency_id = fields.Many2one("res.currency", string="Añadir moneda", required=True)
-    initials = fields.Char(related="currency_id.name", readonly=True, store=True)
-    symbol = fields.Char(related="currency_id.symbol", readonly=True, store=True)
-    short_name = fields.Char(related="currency_id.full_name", readonly=True, store=True)
+    name = fields.Char(default="Nueva divisa", compute="_compute_name", store=True, required=True, string="Nombre completo")
+    currency_id = fields.Many2one("res.currency", string="ID original", required=True,)
+    initials = fields.Char(related="currency_id.name", readonly=True, store=True, string="Iniciales")
+    symbol = fields.Char(related="currency_id.symbol", readonly=True, store=True, string="Símbolo")
+    short_name = fields.Char(related="currency_id.full_name", readonly=True, store=True, string="Nombre")
     base_rate = fields.Float(compute="_compute_base_rate") # currency_id related to currency_base_id
-    # Units_ids must be mandatory in create()
-    unit_ids = fields.One2many("forexmanager.breakdown", "currency_id", string="Billetes y monedas aceptadas") # Bill and coins 
 
+    # OTHER FIELDS
+    # Units_ids is mandatory in create()
+    unit_ids = fields.One2many("forexmanager.breakdown", "currency_id", string="Billetes y monedas aceptadas") # Bill and coins
     workcenter_ids = fields.Many2many(
         comodel_name="forexmanager.workcenter",
         relation="workcenter_currency_rel",
         column1="currency_id",
         column2="workcenter_id",
-        string="WorkCenters que usan esta moneda"
+        string="Centros que usan esta moneda"
         )
-
-    # initial_balance = fields.Monetary(currency_field="currency_id", string="Saldo inicial", default=0.00, required=True) # can't be updated
-    # current_balance = fields.Monetary(currency_field="currency_id", string="Saldo actual") # add compute, readonly
-      
-
-    active = fields.Boolean(default=True, string="Activa")
-
 
     @api.depends("currency_id")
     def _compute_name(self):
@@ -39,10 +34,11 @@ class Currency(models.Model):
             if rec.currency_id:
                 rec.name = f"{rec.currency_id.name}  ({rec.currency_id.full_name})"
             else:
-                rec.name = "Nueva moneda"
+                rec.name = "Nueva divisa"
     
     @api.depends("currency_id")
     def _compute_base_rate(self):
+        # Some currencies are not suported by the current api
         for rec in self:
             if rec.currency_id:
                 if rec.currency_id != rec.currency_base_id:
@@ -51,8 +47,7 @@ class Currency(models.Model):
                     rec.base_rate = 1
             else:
                 rec.base_rate = 0
-            
-    
+
     def create(self, vals):
         currency = super().create(vals)
         if not currency.unit_ids:
@@ -63,8 +58,6 @@ class Currency(models.Model):
                     "warning")
 
         # Add the new currency to every desk cashcount (inventory) for every desk in workcenter_ids
-        # If the currency is not associated to a desk when creating it, we create the cashcount inventory from a button 
-        # on list view in workcenter model
         desk_ids = currency.workcenter_ids.desk_ids
         if desk_ids:
             for desk_id in desk_ids:
@@ -73,13 +66,11 @@ class Currency(models.Model):
                     "desk_id": desk_id.id,
                     "currency_id": currency.id,
                     "balance": 0,
-                    })
-            
+                    })            
         return currency
 
     def write(self, vals):
-        for rec in self:            
-
+        for rec in self:
             if "workcenter_ids" in vals: # Means user is editing this field
                 wc_vals = vals["workcenter_ids"]
                 for wc in wc_vals:
@@ -100,7 +91,6 @@ class Currency(models.Model):
                                     raise ValidationError(f"No puede desvincular este centro de trabajo de la divisa {currency.name} mientras existan ventanillas con saldo de esta divisa mayor que 0.00 {currency.initials}")
                                 else:
                                     cashcount_rec.unlink()
-
                     elif wc[0] == 4:
                         # Means the user is adding this currency to a new workcenter
                         # So let's create the initial inventory (cashcount) for this currency and desk
@@ -121,5 +111,5 @@ class Currency(models.Model):
                 breakdown.unlink()
 
             currency = super().unlink()
-
         return currency
+    

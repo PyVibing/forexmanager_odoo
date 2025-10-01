@@ -1,4 +1,3 @@
-from . import rate
 from . import currency
 from . import calculation
 from . import operation
@@ -12,3 +11,4 @@ from . import workcenter
 from . import worksession
 from . import checkbalance
 from . import user
+from . import currentdesktransient

@@ -6,108 +6,286 @@
         <field name="name">ForexManager currency form view</field>
         <field name="model">forexmanager.currency</field>
         <field name="arch" type="xml">
-            <form>
+            <form groups="forexmanager.group_forexmanager_admin">
+                <style>
+                        /* --------------------------------------------- */
+                        /* Contenedor general tipo tarjeta */
+                        /* --------------------------------------------- */
+                        .fm-card {
+                            flex: 1;
+                            margin: 10px 5px;
+                            padding: 15px;
+                            background-color: #ffffff;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                            border-left: 4px solid #007bff;
+                        }
+
+                        /* --------------------------------------------- */
+                        /* Título principal */
+                        /* --------------------------------------------- */
+                        .fm-title {
+                            background-color: #ffffff;
+                            color: #007bff;
+                            border-left: 4px solid #007bff;
+                            border-radius: 8px;
+                            padding: 8px 12px;
+                            margin-left: 5px;
+                            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                            font-size: 1.75rem;
+                            line-height: 1;
+                        }
+
+                        /* --------------------------------------------- */
+                        /* Subtítulos de secciones */
+                        /* --------------------------------------------- */
+                        .fm-subtitle {
+                            font-weight: 600;
+                            color: #007bff;
+                            display: block;
+                            margin-bottom: 10px;
+                            line-height: 1;
+                        }
+
+                        /* --------------------------------------------- */
+                        /* Sección con separador inferior */
+                        /* --------------------------------------------- */
+                        .fm-section {
+                            display: flex;
+                            line-height: 1;
+                            margin-bottom: 20px;
+                            border-bottom: 1px solid #e0e0e0;
+                            padding-bottom: 10px;
+                        }
+
+                        /* --------------------------------------------- */
+                        /* Label de campos */
+                        /* --------------------------------------------- */
+                        .fm-label {
+                            font-weight: 600;
+                            color: #007bff;
+                            display: block;
+                            margin-bottom: 5px;
+                            line-height: 1;
+                        }
+
+                        /* --------------------------------------------- */
+                        /* Inputs de campos */
+                        /* --------------------------------------------- */
+                        .fm-input {
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
+                            padding: 4px 8px;
+                            margin-left: 10px;
+                        }
+
+                        /* --------------------------------------------- */
+                        /* Contenedor de imágenes */
+                        /* --------------------------------------------- */
+                        .fm-image-container {
+                            padding: 15px;
+                            background-color: #ffffff;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                            border-left: 4px solid #007bff;
+                            margin-bottom: 15px;
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 20px;
+                        }
+
+                        /* Bloques de imagen individuales (Anverso/Reverso) */
+                        .fm-image-block {
+                            width: 100px;
+                            display: flex;
+                            flex: 1 1 300px;
+                            min-width: 250px;
+                            flex-direction: column;
+                        }
+
+                        /* Margen extra para Reverso */
+                        .fm-image-block-reverse {
+                            margin-left: 0;
+                        }
+
+                        /* Label de imagen */
+                        .fm-image-label {
+                            font-weight: 600;
+                            color: #007bff;
+                            padding: 2px 6px;
+                            border-radius: 3px;
+                            display: block;
+                            margin-bottom: 5px;
+                            font-size: 0.95rem;
+                            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+                            line-height: 1;
+                        }
+
+                        /* Contenedor del campo de imagen */
+                        .fm-image-box {
+                            width: 300px;
+                            height: 150px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
+                            padding: 2px;
+                        }
+
+                        /* Ajuste extra para la imagen dentro del widget */
+                        .fm-image-field {
+                            padding-top: 5px;
+                        }
+                </style>
                 <sheet>
-                    <h1 class="bg-primary text-white p-2 rounded fs-3">ADMINISTRAR MONEDAS</h1>
-                    <div style="float: left;">
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 100px;">
-                                <label for="currency_id" string="Añadir moneda"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="currency_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid black; margin-left: 15px;"/>
-                            </div>                            
+                    <!-- Título -->
+                    <h1 class="fm-title">
+                        ADMINISTRAR MONEDAS
+                    </h1>
+
+                    <!-- Contenedor principal en tarjeta -->
+                    <div class="fm-card">
+                        <!-- Añadir moneda -->
+                        <div class="fm-section">
+                            <label for="currency_id" string="DIVISA" class="fm-label"/>
+                            <field name="currency_id" options="{'no_create': True, 'no_open': True}" readonly="id" class="fm-input"/>
                         </div>
-                        <field name="unit_ids">
-                            <form>
-                                <sheet>
-                                    <h1 class="bg-primary text-white rounded fs-3" style="margin-left: 5px;">NUEVO BILLETE / MONEDA</h1>
-                                    <div style="margin-left: 5px; margin-top: 10px; margin-bottom: 10px;">
-                                        <label for="unit" string="Tipo de unidad:"/>
-                                        <field name="unit" style="border: 1px black solid; margin-left: 5px;"/>
-                                    </div>
-                                    <div style="float: left; margin-left: 5px; margin-top: 10px;">
-                                        <label for="value" string="Valor:" />
-                                    </div>                                    
-                                    <div style="float: left; margin-left: 5px; margin-top: 10px; margin-bottom: 5px;">                                            
-                                        <field name="value" style="border: 1px black solid; margin-left: 5px;"/>
-                                    </div>
-                                    <field name="image_ids">
-                                        <form>
-                                            <div style="padding: 15px; background-color: #ffffff; border-radius: 8px;
-                                                        box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 4px solid #007bff;
-                                                        margin-bottom: 15px; display:flex; gap:20px;">
 
-                                                <!-- Anverso -->
-                                                <div style="width:100px; display:flex; flex-direction:column;">
-                                                    <div style="
-                                                            font-weight:600;
-                                                            color:#007bff;
-                                                            padding:2px 6px;
-                                                            border-radius:3px;
-                                                            display:block;
-                                                            margin-bottom:5px;
-                                                            font-size:0.95rem;
-                                                            text-shadow: 0 1px 1px rgba(0,0,0,0.1);">
-                                                        ANVERSO
-                                                    </div>
-
-                                                    <div style="width:300px; height:150px; display:flex; align-items:center; justify-content:center;
-                                                                border:1px solid #ccc; border-radius:4px; padding:2px;">
-                                                        <field name="image_front" widget="image" style="padding-top: 5px;"/>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Reverso -->
-                                                <div style="width:100px; display:flex; flex-direction:column; margin-left: 250px;">
-                                                    <div style="
-                                                            font-weight:600;
-                                                            color:#007bff;
-                                                            padding:2px 6px;
-                                                            border-radius:3px;
-                                                            display:block;
-                                                            margin-bottom:5px;
-                                                            font-size:0.95rem;
-                                                            text-shadow: 0 1px 1px rgba(0,0,0,0.1);">
-                                                        REVERSO
-                                                    </div>
-                                                    <div style="width:300px; height:150px; display:flex; align-items:center; justify-content:center;
-                                                                border:1px solid #ccc; border-radius:4px; padding:2px;">
-                                                        <field name="image_back" widget="image" style="padding-top: 5px;"/>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-
-                                        </form>
-                                    </field>                                
-                                </sheet>
-                                
-                            </form>
+                        <!-- Desglose de billetes -->
+                        <span class="fm-subtitle">
+                            DESGLOSE DE BILLETES Y MONEDAS
+                        </span>
+                        <field name="unit_ids" mode="list,form"
+                            views="[(ref('view_unit_ids_inline_list'),'list'),
+                                    (ref('view_unit_ids_form'),'form')]"/>
+                    </div>
+                  
+                    <div class="fm-card">
+                        <span class="fm-subtitle">
+                            CENTROS QUE UTILIZAN ESTA DIVISA
+                        </span>
+                        <field name="workcenter_ids">
                             <list>
-                                <field name="name"/>
-                                <field name="currency_id"/>
-                                <field name="unit"/>
-                                <field name="value"/>
+                                <field name="id" width="20"/>
+                                <field name="name" width="300"/>
+                                <field name="desk_ids" width="100"/>
+                                <field name="currency_ids" width="150"/>
+                                <field name="note" width="400"/>
                             </list>
                         </field>
                     </div>
-                    <notebook>
-                        <page string="Centros que utilizan esta moneda">
-                            <field name="workcenter_ids">
-                                <list>
-                                    <field name="name"/>
-                                    <field name="desk_ids"/>
-                                </list>
-                            </field>
-                        </page>
-                    </notebook>
                 </sheet>
             </form>
         </field>
     </record>
 
+    <record id="forexmanager_currency_list_view" model="ir.ui.view">
+        <field name="name">Forexmanager currency list view</field>
+        <field name="model">forexmanager.currency</field>
+        <field name="arch" type="xml">
+            <list duplicate="0">
+                <field name="id" width="10" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="name" width="350" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="initials" width="20" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="symbol" width="20" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="workcenter_ids" width="1000" groups="forexmanager.group_forexmanager_admin"/>
+            </list>
+        </field>
+    </record>
 
+    
+    <record id="view_unit_ids_inline_list" model="ir.ui.view">
+        <field name="name">Forexmanager unit ids inline list</field>
+        <field name="model">forexmanager.breakdown</field>
+        <field name="arch" type="xml">
+            <list duplicate="0">
+                <field name="name" width="300" string="Unidad"/>
+                <field name="unit" width="50"/>
+                <field name="value" width="100"/>
+                <field name="currency_id" width="100"/>
+                <field name="note" width="300"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_unit_ids_form" model="ir.ui.view">
+        <field name="name">Forexmanager unit ids form view</field>
+        <field name="model">forexmanager.breakdown</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <!-- Título -->
+                    <h1 class="fm-title">NUEVO BILLETE / MONEDA</h1>
+
+                    <!-- Contenedor principal -->
+                    <div class="fm-card">
+                        
+                        <!-- Required -->
+                         <div class="fm-section">
+                            <label for="value" class="fm-label"/>
+                            <field name="value" class="fm-input"/>
+                        </div>
+                        <div class="fm-section">
+                            <label for="unit" class="fm-label"/>
+                            <field name="unit" class="fm-input"/>
+                        </div>                       
+
+                        <!-- One2many images -->
+                        <span class="fm-subtitle">Imágenes del billete / moneda</span>
+                        <field name="image_ids" mode="list,form"
+                            views="[(ref('view_image_ids_list'),'list'),
+                                    (ref('view_image_ids_form'),'form')]"/>
+                    </div>
+                </sheet>
+                <footer replace="0" invisible="value &lt;= 0 or not unit or repeated_line"/>
+            </form>
+
+        </field>
+    </record>
+
+    <record id="view_image_ids_list" model="ir.ui.view">
+        <field name="name">Forexmanager image list</field>
+        <field name="model">forexmanager.image</field>
+        <field name="arch" type="xml">
+            <list duplicate="0">
+                <field name="name" width="300"/>
+                <field name="unit_type" width="100"/>
+                <field name="unit_value" width="100"/>
+                <field name="currency_id" width="100"/>
+                <field name="image_front" widget="image" options="{'size': [70, 70]}"/>
+                <field name="image_back" widget="image" options="{'size': [70, 70]}"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_image_ids_form" model="ir.ui.view">
+        <field name="name">Forexmanager image form</field>
+        <field name="model">forexmanager.image</field>
+        <field name="arch" type="xml">
+            <form>
+                <div class="fm-image-container">
+
+                    <!-- Anverso -->
+                    <div class="fm-image-block">
+                        <div class="fm-image-label">ANVERSO</div>
+                        <div class="fm-image-box">
+                            <field name="image_front" widget="image" class="fm-image-field"/>
+                        </div>
+                    </div>
+
+                    <!-- Reverso -->
+                    <div class="fm-image-block fm-image-block-reverse">
+                        <div class="fm-image-label">REVERSO</div>
+                        <div class="fm-image-box">
+                            <field name="image_back" widget="image" class="fm-image-field"/>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </field>
+    </record>
 
     <!-- Action of forexmanager.currency -->
     <record id="forexmanager_config_currencies_action" model="ir.actions.act_window">

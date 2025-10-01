@@ -1,32 +1,33 @@
-from odoo import fields, models, api
+from odoo import fields, models
 from odoo.exceptions import ValidationError
 from ..utils import create_initial_inventories
 
 
 class WorkCenter(models.Model):
+    """A model for defyning all the workcenters for the Exchange Currency Company."""
     _name = "forexmanager.workcenter"
-    _description = "A model for defyning all the workcenters for the Exchange Currency Company. Only for admins."
+    _description = "Centro de trabajo"
 
+    # MAIN FIELDS
     name = fields.Char(string="Nombre del centro", required=True)
     desk_ids = fields.One2many("forexmanager.desk", "workcenter_id", string="Ventanillas")
     note = fields.Char(string="Notas")
 
+    # OTHER FIELDS
     currency_ids = fields.Many2many(
         comodel_name="forexmanager.currency",
         relation="workcenter_currency_rel",
         column1="workcenter_id",
         column2="currency_id",
-        string="Monedas aceptadas"
+        string="Divisas aceptadas"
         )
 
-    # Call from button in list view ONLY FOR DEV --- DELETE
+    # To create initial inventories (balance: 0.00) if for any reason it was deleted
     def create_inventories(self):
-        create_initial_inventories(self)
-        
+        create_initial_inventories(self)        
     
     def write(self, vals):
         for rec in self:
-
             if "currency_ids" in vals: # Means user is editing this field
                 currency_vals = vals["currency_ids"]
                 for currency_val in currency_vals:

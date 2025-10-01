@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <record id="forexmanager_currentdesktransient_form_view" model="ir.ui.view">
+        <field name="name">ForexManager currentdesktransient form view</field>
+        <field name="model">forexmanager.currentdesktransient</field>
+        <field name="arch" type="xml">
+            <form>
+                <style>
+                    .o_form_button_save.btn-light {
+                        display: None;
+                    }
+                    
+                    .card-container {
+                        flex: 1;
+                        margin-left: 5px;
+                        margin-top: 10px;
+                        margin-bottom: 10px;
+                        padding: 15px;
+                        background-color: #ffffff;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                        border-left: 4px solid #007bff;
+                    }
+
+                    .field-group {
+                        margin-bottom: 20px;
+                        border-bottom: 1px solid #e0e0e0;
+                        padding-bottom: 10px;
+                        margin-left: 10px;
+                    }
+
+                    .field-label {
+                        font-weight: 600;
+                        color: #007bff;
+                        display: block;
+                        margin-bottom: 5px;
+                        margin-right: 10px;
+                    }
+
+                    .field-input {
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        padding: 4px 8px;
+                        min-width: 100px;
+                        min-height: 25px;
+                    }
+
+                    .field-upload {
+                        max-width: 200px;
+                    }
+
+                    .btn-link {
+                        margin-left: 15px;
+                        padding: 4px 10px;
+                        border: none;
+                        border-radius: 4px;
+                        background-color: #007bff;
+                        color: white;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: background-color 0.2s ease;
+                    }
+
+                    .btn-link:hover {
+                        background-color: #0056b3;
+                        color: white;
+                    }
+
+                    .main-title {
+                        display: block;
+                        text-align: center;
+                        font-size: 22px;
+                        font-weight: 800;
+                        color: #fff;
+                        background: linear-gradient(135deg, #007bff, #0056b3);
+                        padding: 10px 24px;
+                        border-radius: 12px;
+                        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+                        letter-spacing: 1px;
+                        margin-bottom: 25px;
+                    }
+                </style>
+
+                <sheet>
+                    <div class="card-container">
+                        <span class="main-title">VINCULAR VENTANILLA</span>
+
+                        <!-- Usuario -->
+                        <div class="field-group">
+                            <label for="user_id" class="field-label"/>
+                            <field name="user_id" class="field-input"
+                                options="{'no_open': True, 'no_create': True}"/>
+                        </div>
+
+                        <!-- Ventanilla actual -->
+                        <div class="field-group">
+                            <label for="current_desk" class="field-label"/>
+                            <field name="current_desk" class="field-input"
+                                options="{'no_open': True, 'no_create': True}"/>
+                        </div>
+
+                        <!-- Código de ventanilla -->
+                        <div class="field-group" invisible="id">
+                            <label for="desk_code" class="field-label"/>
+                            <field name="desk_code" class="field-upload" readonly="id"/>
+                            <button name="update_current_desk" type="object" string="VINCULAR"
+                                    class="btn-link"/>
+                        </div>
+
+                    </div>
+                </sheet>
+            </form>
+
+        </field>
+    </record>
+
+    <record id="forexmanager_currentdesktransient_action" model="ir.actions.act_window">
+        <field name="name">VINCULAR VENTANILLA</field>
+        <field name="res_model">forexmanager.currentdesktransient</field>
+        <field name="view_mode">form</field>
+    </record>
+</odoo>

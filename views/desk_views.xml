@@ -6,42 +6,112 @@
         <field name="name">ForexManager desk form view</field>
         <field name="model">forexmanager.desk</field>
         <field name="arch" type="xml">
-            <form>
+            <form groups="forexmanager.group_forexmanager_admin">
+                <style>
+                    /* Contenedor tipo tarjeta */
+                    .card-container {
+                        flex: 1;
+                        margin: 10px 5px;
+                        padding: 15px;
+                        background-color: #ffffff;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                        border-left: 4px solid #007bff;
+                    }
+
+                    /* Título principal */
+                    .title {
+                        background-color: #ffffff;
+                        color: #007bff;
+                        border-left: 4px solid #007bff;
+                        border-radius: 8px;
+                        padding: 8px 12px;
+                        margin-left: 5px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                        font-size: 1.75rem;
+                        line-height: 1.2;
+                    }
+
+                    /* Sección de campo individual */
+                    .field-section {
+                        margin-bottom: 20px;
+                        border-bottom: 1px solid #e0e0e0;
+                        padding-bottom: 10px;
+                    }
+
+                    /* Label de campo */
+                    .field-label {
+                        font-weight: 600;
+                        color: #007bff;
+                        display: block;
+                        margin-bottom: 5px;
+                    }
+
+                    /* Input/field */
+                    .field-input {
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        padding: 4px 8px;
+                    }
+
+                    .subtitle {
+                        font-weight: 600;
+                        color: #007bff;
+                        display: block;
+                        margin-bottom: 10px;
+                        line-height: 1;
+                    }
+                </style>
                 <sheet>
+                    <!-- Título -->
+                    <h1 class="title">ADMINISTRAR VENTANILLAS</h1>
 
-                    <h1 class="bg-primary text-white p-2 rounded fs-3">ADMINISTRAR VENTANILLAS</h1>
-                    <div style="float: left; margin-top: 50px;">
+                    <!-- Contenedor principal de campos -->
+                    <div class="card-container">
 
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="name"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="name" style="border-bottom: 1px solid black; margin-left: 15px;"/>
-                            </div>                            
+                        <!-- Campo Nombre -->
+                        <div class="field-section">
+                            <label for="name" class="field-label">Nombre</label>
+                            <field name="name" class="field-input"/>
                         </div>
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="workcenter_id"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="workcenter_id" style="border-bottom: 1px solid black; margin-left: 15px;"
-                                        options="{'no_create': True, 'no_open': True}"/>
-                            </div>                            
+
+                        <!-- Campo Centro de Trabajo -->
+                        <div class="field-section">
+                            <label for="workcenter_id" class="field-label">Centro de Trabajo</label>
+                            <field name="workcenter_id" class="field-input"
+                                options="{'no_create': True, 'no_open': True}" readonly="id"/>
                         </div>
-                                          
+
+                        <!-- Campo Código de Ventanilla -->
+                        <div class="field-section">
+                            <label for="desk_code" class="field-label">Código de Ventanilla</label>
+                            <field name="desk_code" class="field-input"/>
+                        </div>
+
+                        <!-- Campo Nota -->
+                        <div class="field-section">
+                            <label for="note" class="field-label">Nota</label>
+                            <field name="note" class="field-input"/>
+                        </div>
+
                     </div>
-                    <notebook>
-                        <page string="Balance de divisas">
-                            <field name="cashcount_ids" readonly="1">
-                                <list>
-                                    <field name="name"/>
-                                    <field name="currency_id"/>
-                                    <field name="balance"/>
-                                </list>
-                            </field>
-                        </page>
-                    </notebook>
+
+                    <!-- Balance de divisas -->
+                    <div class="card-container">
+                        <span class="subtitle">
+                            BALANCE DE DIVISAS
+                        </span>
+                        <field name="cashcount_ids" readonly="1" style="pointer-events: none;">
+                            <list>
+                                <field name="id" width="5"/>
+                                <field name="name" width="500"/>
+                                <field name="balance" width="50"/>
+                                <field name="currency_id" width="200"/>     
+                                <field name="workcenter_id" width="100"/>
+                                <field name="desk_id" width="100"/>                           
+                            </list>
+                        </field>
+                        </div>
                 </sheet>
             </form>
         </field>
@@ -53,18 +123,15 @@
         <field name="name">ForexManager desk list view</field>
         <field name="model">forexmanager.desk</field>
         <field name="arch" type="xml">
-            <list>
-                <field name="name"/>
-                <field name="workcenter_id"/>
-                <field name="cashcount_ids"/>
-                <field name="note"/>
+            <list duplicate="0">
+                <field name="id" width="5" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="name" width="500" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="workcenter_id" width="100" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="cashcount_ids" width="100" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="note" width="600" groups="forexmanager.group_forexmanager_admin"/>
             </list>
         </field>
     </record>
-
-    
-
-
 
     <!-- Action of forexmanager.desk -->
     <record id="forexmanager_config_desks_action" model="ir.actions.act_window">

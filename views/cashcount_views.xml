@@ -1,68 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
-    <!-- Form view of forexmanager.cashcount -->
-    <!-- <record id="forexmanager_cashcount_form_view" model="ir.ui.view">
-        <field name="name">ForexManager cashcount form view</field>
+    <!-- List view of forexmanager.cashcount -->
+    <record id="forexmanager_cashcount_list_view" model="ir.ui.view">
+        <field name="name">ForexManager cashcount list view</field>
         <field name="model">forexmanager.cashcount</field>
-        <field name="arch" type="xml"> -->
-            <!-- <form>
-                <sheet>
-
-                    <h1 class="bg-primary text-white p-2 rounded fs-3">ADMINISTRAR INVENTARIO</h1>
-                    <div style="float: left;">
-
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="name"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="name" style="border-bottom: 1px solid black; margin-left: 15px;"/>
-                            </div>                            
-                        </div>
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="workcenter_id"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="workcenter_id" style="border-bottom: 1px solid black; margin-left: 15px;"
-                                        options="{'no_create': True, 'no_open': True}"/>
-                            </div>                            
-                        </div>
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="desk_id"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="desk_id" style="border-bottom: 1px solid black; margin-left: 15px;"
-                                        options="{'no_create': True, 'no_open': True}" domain="[('workcenter_id', '=', workcenter_id)]"/>
-                            </div>                            
-                        </div>
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="currency_id"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="currency_id" style="border-bottom: 1px solid black; margin-left: 15px;"
-                                        options="{'no_create': True, 'no_open': True}"/>
-                            </div>                            
-                        </div>
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="balance"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="balance" style="border-bottom: 1px solid black; margin-left: 15px;"/>
-                            </div>                            
-                        </div>
-                                          
-                    </div>
-                </sheet>
-            </form> -->            
-        <!-- </field>
-    </record> -->
-
-
+        <field name="arch" type="xml">
+            <list create="0" duplicate="0">
+                <field name="id" width="5" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="name" width="600" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="balance" width="50" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="currency_id" width="200" groups="forexmanager.group_forexmanager_admin"/>     
+                <field name="workcenter_id" width="100" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="desk_id" width="500" groups="forexmanager.group_forexmanager_admin"/>
+            </list>
+        </field>
+    </record>
 
     <!-- Action of forexmanager.cashcount -->
     <record id="forexmanager_config_cashcounts_action" model="ir.actions.act_window">

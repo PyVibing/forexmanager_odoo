@@ -8,307 +8,140 @@
         <field name="arch" type="xml">
             <form>
                 <style>
-                    #id_info .img-fluid {
-                        width: 100%;
-                        height: 100%;
+                    .o_form_button_save.btn-light {
+                        display: None;
+                    }
+                    
+                    .o_field_x2many_list_row_add {
+                        display: table-header-group;
                     }
 
-                        .personal-card {
-                            flex: 1;
-                            min-width: 320px;
-                            padding: 15px;
-                            background-color: #ffffff;
-                            border-radius: 8px;
-                            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-                            border-left: 4px solid #007bff;
-                            margin-bottom: 15px;
-                            max-width: 65%;
-                        }
+                    .personal-card {
+                        flex: 1 1 auto;
+                        padding: 15px;
+                        background-color: #ffffff;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                        border-left: 4px solid #007bff;
+                        margin-bottom: 15px;
+                    }
 
-                        .section {
-                            margin-bottom: 20px;
-                            border-bottom: 1px solid #e0e0e0;
-                            padding-bottom: 10px;
-                        }
+                    .image-card {
+                        flex: 1;
+                        min-width: 300px;
+                        padding: 15px;
+                        background-color: #ffffff;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                        border-left: 4px solid #ffc107;
+                        margin-bottom: 15px;
+                    }
 
-                        .section label {
-                            font-weight: 600;
-                        }
+                    .section {
+                        margin-bottom: 20px;
+                        border-bottom: 1px solid #e0e0e0;
+                        padding-bottom: 10px;
+                    }
 
-                        .field-row {
-                            display: flex;
-                            gap: 10px;
-                            margin-top: 5px;
-                            flex-wrap: wrap;
-                        }
+                    .section label {
+                        font-weight: 600;
+                    }
 
-                        .field-input {
-                            border: 1px solid #ccc;
-                            border-radius: 4px;
-                            padding: 4px 8px;
-                            min-width: 80px;
-                            height: 30px;
-                        }
+                    .field-row {
+                        display: flex;
+                        gap: 10px;
+                        margin-top: 5px;
+                        flex-wrap: wrap;
+                    }
 
-                        .flex-1 { flex: 1; }
-                        .flex-2 { flex: 2; }
-                        .min-150 { 
-                            min-width: 150px; 
-                        }
+                    .field-input {
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        padding: 4px 8px;
+                        min-width: max-content;
+                        height: 30px;
+                    }
 
-                        .section-title {
-                            display: block;
-                            font-size: 14px;
-                            font-weight: 700;
-                            color: #007bff;
-                            margin-bottom: 8px;
-                        }
+                    .flex-1 { flex: 1; }
+                    .flex-2 { flex: 2; }
+                    .min-150 { 
+                        min-width: 150px; 
+                    }
 
-                        .error-message {
-                            display:flex; 
-                            justify-content:center; 
-                            width:100%;
-                            background-color: #a72828ff;
-                            border-radius:8px;
-                            padding:12px 16px; 
-                            display:flex; 
-                            align-items:center; 
-                            gap:10px;
-                            color: #fcfcfcff; 
-                            font-weight:600; 
-                            font-size:16px;
-                        }
+                    .section-title {
+                        display: block;
+                        font-size: 14px;
+                        font-weight: 700;
+                        color: #007bff;
+                        margin-bottom: 8px;
+                    }
+
+                    .error-message {
+                        display:flex; 
+                        justify-content:center; 
+                        width:100%;
+                        background-color: #a72828ff;
+                        border-radius:8px;
+                        padding:12px 16px; 
+                        display:flex; 
+                        align-items:center; 
+                        gap:10px;
+                        color: #fcfcfcff; 
+                        font-weight:600; 
+                        font-size:16px;
+                    }
+
+                    label {
+                        min-width: max-content;
+                    }
+
+                    .field-images {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 10px;
+                    }
+
+                    .field-images field {
+                        height: 150px;
+                        width: 300px;
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                    }
+
+                    #id_info .img-fluid {
+                        width: 300px;
+                        height: 150px;
+                    }
+
+                    .main-title {
+                        display: block;
+                        text-align: center;
+                        font-size: 22px;
+                        font-weight: 800;
+                        color: #fff;
+                        background: linear-gradient(135deg, #007bff, #0056b3);
+                        padding: 10px 24px;
+                        border-radius: 12px;
+                        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+                        letter-spacing: 1px;
+                        margin-bottom: 25px;
+                    }
                 </style>
-                <sheet>
-                    <div class="section" style="display: flex; flex-direction: column;">
-                        <div>
-                            <span class="section-title">VINCULAR SESIÓN</span>
-                        </div>
-                        <div style="display: flex;">
-                            <div class="field-row" style="display: flex; flex-direction: column; flex: 1;">
-                                <label for="desk_id"/>
-                                <field name="desk_id" options="{'no_create': True, 'no_open': True}" class="field-input"/>
-                            </div>
-                            <div class="field-row" style="display: flex; flex-direction: column; flex: 1; margin-left: 15px;">
-                                <label for="worksession_id"/>
-                                <field name="worksession_id" options="{'no_create': True, 'no_open': True}" class="field-input"/>
-                            </div>
-                            <div class="field-row" style="display: flex; flex-direction: column; flex: 1; margin-left: 15px;">
-                                <label for="opening_desk_id"/>
-                                <field name="opening_desk_id" options="{'no_create': True, 'no_open': True}" class="field-input"/>
-                            </div>
-                        </div>
-                    </div>
+                <sheet style="min-width: 100%;">
                     <div invisible="worksession_id or not desk_id">
-                        <span class="error-message">No puedes operar en esta ventanilla. Primeramente debes iniciar sesión y realizar el arqueo de entrada.</span>
+                        <span class="error-message">No puedes operar en esta ventanilla. Primeramente debes iniciar sesión y realizar, si aún no lo has hecho, el arqueo de entrada.</span>
                     </div>
-                    <div invisible="not worksession_id">
-                        <h1 class="bg-primary text-white p-2 rounded fs-3">CAMBIO DE MONEDA</h1>
+                    <div invisible="desk_id">
+                        <span class="error-message">No has vinculado ninguna ventanilla. Ve al menú VINCULAR VENTANILLA y hazlo, para que puedas operar.</span>
+                    </div>
+                    <div invisible="not worksession_id or not desk_id or not (closing_session_check_started and not closing_session_check_ended)">
+                        <span class="error-message">Tienes el arqueo de salida iniciado. Ya no puedes seguir operando.</span>
+                    </div>
+                    <div invisible="not worksession_id or (closing_session_check_started and not closing_session_check_ended)">
+                        <h1 class="main-title">CAMBIO DE MONEDA</h1>
                         <notebook>
-                            <page string="Moneda y cantidad" class="subtitle">
-                                <field name="calculation_ids">
-                                    <form>
-                                        <sheet>
-                                            <h1 style="background-color: #ffffff; color: #007bff; border-left: 4px solid #007bff; border-radius: 8px; padding: 8px 12px; margin-left: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-size: 1.75rem;">
-                                                Nueva línea de cambio
-                                            </h1>
-                                            <div style="display: flex;">
-                                                <!-- Main form  -->
-                                                <div invisible="(received_amount_under and delivered_amount_under) or (received_amount_over or delivered_amount_over)"
-                                                    style="max-width: 50%; flex: 1; float: left; margin-left: 5px; margin-top: 10px; margin-bottom: 10px; padding: 15px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 4px solid #007bff;">
-                                                    <!-- Discount  -->
-                                                    <div style="margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
-                                                        <label for="discount" string="Descuento:" style="font-weight:600; color:#007bff;"/>
-                                                        <field name="discount" style="border: 1px solid #ccc; border-radius:4px; padding:4px 8px; margin-left: 5px;"/>
-                                                    </div>
-                                                    <!-- Offered by client  -->
-                                                    <label for="currency_source_id" string="Ofrecido por el cliente" style="font-weight:600; color:#007bff; margin-bottom:5px; display:block;"/>
-                                                    <div style="display: table; margin-bottom: 15px;">
-                                                        <div style="display: table-cell;">
-                                                            <field name="payment_type" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid #ccc; padding:2px 5px;"/>
-                                                        </div>
-                                                        <div style="display: table-cell;">
-                                                            <field name="currency_source_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid #ccc; margin-left: 15px; padding:2px 5px;"/>
-                                                            <field name="source_currency_real_id" invisible="True"/>
-                                                        </div>
-                                                        <div style="display: table-cell;">
-                                                            <field name="amount_received" style="border-bottom: 1px solid #ccc; margin-left: 15px; padding:2px 5px;"/>
-                                                        </div>
-                                                    </div>
-                                                    <!-- Switch button  -->
-                                                    <div style="display: table; margin-left: 150px;">
-                                                        <div style="display: table-cell;;">
-                                                            <i class="fa fa-arrows-v" style="margin-right: 0px; color:#007bff; font-size:16px;"/>
-                                                            <field name="switch_button" widget="boolean_button" style="padding:4px 8px; border-radius:4px;"/>
-                                                        </div>
-                                                    </div>
-                                                    <!-- Deliver to client  -->
-                                                    <label for="currency_target_id" string="Entregar al cliente" style="font-weight:600; color:#007bff; margin-bottom:5px; display:block;"/>
-                                                    <div style="display: table; margin-bottom: 20px;">
-                                                        <div style="display: table-cell;">
-                                                            <field name="delivery_type" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid #ccc; padding:2px 5px;"/>
-                                                        </div>
-                                                        <div style="display: table-cell;">
-                                                            <field name="currency_target_id" options="{'no_create': True, 'no_open': True}" style="border-bottom: 1px solid #ccc; margin-left: 15px; padding:2px 5px;"/>
-                                                            <field name="target_currency_real_id" invisible="True"/>
-                                                        </div>
-                                                        <div style="display: table-cell;">
-                                                            <field name="amount_delivered" style="border-bottom: 1px solid #ccc; margin-left: 15px; padding:2px 5px;"/>
-                                                        </div>
-                                                    </div>                                                
-                                                    <!-- Other info  -->
-                                                    <div style="display: table; width: 100%;">
-                                                        <div style="display: table-cell; min-width: 40%; width: 50%">
-                                                            <div style="display: table; margin-bottom: 20px;">
-                                                                <div style="display: table-cell;">
-                                                                    <p style="font-weight:600; color:#007bff;">Tasa de cambio:</p>
-                                                                </div>
-                                                                <div invisible="(target_currency_real_id == currency_base_id) or not (source_currency_real_id and target_currency_real_id) or not buy_rate">
-                                                                    <field name="buy_rate" style="margin-left: 5px; padding: 4px 10px;"/>
-                                                                </div>
-                                                                <div invisible="(source_currency_real_id == currency_base_id) or not (source_currency_real_id and target_currency_real_id) or not sell_rate">
-                                                                    <field name="sell_rate" style="margin-left: 5px; padding: 4px 10px;"/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div style="display: table-cell;">
-                                                            <div style="display: table; margin-bottom: 20px;" invisible="not source_currency_real_id">
-                                                                <div style="display: table-cell;">
-                                                                    <p style="font-weight:600; color:#007bff;">Libro de billetes:</p>
-                                                                </div>
-                                                                <div style="display: table-cell;;">
-                                                                    <field name="bills_book" widget="boolean_button" style="padding:4px 8px; border-radius:4px;"/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Bills and coins book  -->
-                                                <div invisible="not bills_book or ((received_amount_under and delivered_amount_under) or (received_amount_over or delivered_amount_over))"
-                                                    style="max-width: 50%; flex: 1; float: left; margin-left: 10px; margin-top: 10px; margin-bottom: 10px; padding: 15px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 4px solid #ffc107;">
-                                                    <label for="images_ids" string="Imágenes"/>
-                                                    <div style="max-height: 250px; overflow-y: auto;">
-                                                        <field name="images_ids" widget="one2many_kanban">
-                                                            <kanban>
-                                                                <templates>
-                                                                    <t t-name="card" style="max-width: 50%;">
-                                                                        <t t-name="kanban-box">
-                                                                            <field name="image_front" widget="image" style="max-width: 100%;"/>
-                                                                            <field name="image_back" widget="image" style="max-width: 100%;"/>
-                                                                        </t>
-                                                                    </t>
-                                                                </templates>
-                                                            </kanban>
-                                                        </field>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Alert (when bills and coins breakdown don't match the original amount)  -->
-                                                <div class="bg-primary rounded shadow-sm" invisible="not (received_amount_under and delivered_amount_under and received_amount_over and delivered_amount_over)"
-                                                    style="flex: 1; float: left; margin: 10px; border-left: 6px solid #ffc107; padding: 15px; background: linear-gradient(135deg, #0069d9, #0056b3); max-width: 650px;">
-                                                    <!-- Title  -->
-                                                    <h1 class="text-white fs-3" style="padding: 0 10px; padding-top: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
-                                                        LAS CANTIDADES NO COINCIDEN
-                                                    </h1>
-                                                    <!-- Text  -->
-                                                    <p class="text-white fs-5" style="padding: 0 10px; line-height:1.4; opacity:0.9;">
-                                                        Las cantidades no se corresponden con el desglose de billetes y monedas.<br/>
-                                                        Seleccione un par de valores por debajo o por encima.
-                                                    </p>
-                                                    <!-- Amounts (over values and under values)  -->
-                                                    <div style="padding: 0 10px; padding-bottom: 10px;">    
-                                                        <!-- Over values -->
-                                                        <div class="text-white fs-4" style="padding: 0;">
-                                                            <h2 class="text-white fs-4" style="padding-top: 20px; margin-bottom: 0px; text-shadow: 1px 1px 1px rgba(0,0,0,0.4);">
-                                                                <i class="fa fa-chevron-circle-up" style="margin-right:5px; color:#ffc107; font-size:18px;"/>
-                                                                Por encima:
-                                                            </h2>
-                                                            <div style="display:flex; width:100%; margin-top:8px; gap:10px;">                                                            
-                                                                <!-- Column 1 -->
-                                                                <div style="flex:1;">
-                                                                    <div>Ofrece:</div>
-                                                                </div>
-                                                                <div style="flex:1;">
-                                                                    <field name="source_currency_real_id"
-                                                                        style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"
-                                                                        options="{'no_open': True}"/>
-                                                                </div>
-                                                                <div style="flex:1;">
-                                                                    <field name="received_amount_over"
-                                                                        style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"/>
-                                                                </div>                                                            
-                                                                <!-- Column 2 -->
-                                                                <div style="flex:1; margin-left: 30px;">
-                                                                    <div>Demanda:</div>
-                                                                </div>
-                                                                <div style="flex:1;">
-                                                                    <field name="target_currency_real_id"
-                                                                        style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"
-                                                                        options="{'no_open': True}"/>
-                                                                </div>
-                                                                <div style="flex:1;">
-                                                                    <field name="delivered_amount_over"
-                                                                        style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"/>
-                                                                </div>                                                            
-                                                                <!-- Column 3 (button) -->
-                                                                <div style="flex:1; display:flex; align-items:center; justify-content:flex-start; margin-left: 30px;">
-                                                                    
-                                                                    <span style="background-color:#1f3a93; color:white; padding:0px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; font-weight:600; font-size:14px;">
-                                                                        Seleccionar:
-                                                                        <field name="over_value_button" widget="boolean_button" style="padding-left:7px; padding-top:7px;"/>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <!-- Under values -->
-                                                        <div class="text-white fs-4" style="margin-top:15px;">
-                                                            <h2 class="text-white fs-4" style="margin-top:10px; margin-bottom:0px; text-shadow:1px 1px 1px rgba(0,0,0,0.4);">
-                                                                <i class="fa fa-chevron-circle-down" style="margin-right:5px; color:#ffc107; font-size:18px;"/>
-                                                                Por debajo:
-                                                            </h2>
-                                                            <div style="display:flex; width:100%; margin-top:8px; gap:10px;">                                                            
-                                                                <!-- Column 1 -->
-                                                                <div style="flex:1;">
-                                                                    <div>Ofrece:</div>
-                                                                </div>
-                                                                <div style="flex:1;">
-                                                                    <field name="source_currency_real_id"
-                                                                        style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"
-                                                                        options="{'no_open': True}"/>
-                                                                </div>
-                                                                <div style="flex:1;">
-                                                                    <field name="received_amount_under"
-                                                                        style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"/>
-                                                                </div>                                                            
-                                                                <!-- Column 2 -->
-                                                                <div style="flex:1; margin-left: 30px;">
-                                                                    <div>Demanda:</div>
-                                                                </div>
-                                                                <div style="flex:1;">
-                                                                    <field name="target_currency_real_id"
-                                                                        style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"
-                                                                        options="{'no_open': True}"/>
-                                                                </div>
-                                                                <div style="flex:1;">
-                                                                    <field name="delivered_amount_under"
-                                                                        style="color:#fff; background-color:rgba(255,255,255,0.1); border-radius:4px; padding:2px 4px;"/>
-                                                                </div>                                                            
-                                                                <!-- Column 3 (button) -->
-                                                                <div style="flex:1; display:flex; align-items:center; justify-content:flex-start; margin-left: 30px;">
-                                                                    <span style="background-color:#1f3a93; color:white; padding:0px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; font-weight:600; font-size:14px;">
-                                                                        Seleccionar:
-                                                                        <field name="under_value_button" widget="boolean_button" style="padding-left:7px; padding-top:7px;"/>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </sheet>
-                                    </form>
+                            <page string="Moneda y cantidad">
+                                <field name="calculation_ids" readonly="id">
                                     <list>
                                         <field name="name" width="300px;"/>
                                         <field name="payment_type" width="100"/>
@@ -321,12 +154,15 @@
                                         <field name="operation_ref" width="50"/>
                                     </list>
                                 </field>
+                                <div>
+                                    <field name="summary" readonly="1" widget="html" force_save="1"/>
+                                </div>
                             </page>
 
                             <!-- Customer data -->
-                            <page string="Datos del cliente" class="subtitle">
+                            <page string="Datos del cliente">
 
-                                <div style="display:flex; gap:20px; flex-wrap:wrap; width: 100%;">
+                                <div style="display: flex; gap:20px; flex-wrap:wrap; width: 100%;">
 
                                     <!-- Main Info -->
                                     <div class="personal-card">
@@ -338,32 +174,31 @@
                                             <div class="field-row" style="display: flex; gap: 10px;">
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="ID_number"/>
-                                                    <field name="ID_number" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="ID_number" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="ID_type"/>
-                                                    <field name="ID_type" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="ID_type" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="ID_country"/>
-                                                    <field name="ID_country" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="ID_country" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="nationality"/>
-                                                    <field name="nationality" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="nationality" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="ID_expiration"/>
-                                                    <field name="ID_expiration" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="ID_expiration" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                             </div>
                                             <div class="field-row" style="display: flex; gap: 10px;">
                                                 <label for="search_ID"/>
-                                                <field name="search_ID" readonly="search_ID"/>
-                                                <field name="passport_id" invisible="1" force_save="1"/>
+                                                <field name="search_ID" readonly="search_ID or id"/>
+                                                <field name="passport_id" invisible="1" force_save="1"/> <!-- We must have this field so we can use it in readonly and invisible  -->
                                             </div>
                                         </div>
-
 
                                         <!-- Name -->
                                         <div class="section">
@@ -372,19 +207,19 @@
                                             <div class="field-row" style="display: flex; gap: 10px;">
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="first_name_1"/>
-                                                    <field name="first_name_1" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="first_name_1" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="first_name_2"/>
-                                                    <field name="first_name_2" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="first_name_2" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="last_name_1"/>
-                                                    <field name="last_name_1" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="last_name_1" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="last_name_2"/>
-                                                    <field name="last_name_2" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="last_name_2" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -396,15 +231,15 @@
                                             <div class="field-row" style="display: flex; gap: 10px;">
                                                 <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
                                                     <label for="birth_country_id"/>
-                                                    <field name="birth_country_id" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="birth_country_id" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="birth_date"/>
-                                                    <field name="birth_date" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="birth_date" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="sex">Sexo</label>
-                                                    <field name="sex" class="field-input" readonly="passport_id" force_save="1"/>
+                                                    <field name="sex" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -417,34 +252,34 @@
                                             <div class="field-row" style="display: flex; gap: 10px;">
                                                 <div style="display: flex; flex-direction: column; flex: 2;">
                                                     <label for="street"/>
-                                                    <field name="street" class="field-input"/>
+                                                    <field name="street" class="field-input"  readonly="id"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="number"/>
-                                                    <field name="number" class="field-input"/>
+                                                    <field name="number" class="field-input" readonly="id"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="other"/>
-                                                    <field name="other" class="field-input"/>
+                                                    <field name="other" class="field-input" readonly="id"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="postal_code"/>
-                                                    <field name="postal_code" widget="char" class="field-input"/>
+                                                    <field name="postal_code" widget="char" class="field-input" readonly="id"/>
                                                 </div>
                                             </div>
 
                                             <div class="field-row" style="display: flex; gap: 10px;">
                                                 <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
                                                     <label for="country_id"/>
-                                                    <field name="country_id" options="{'no_create': True, 'no_open': True}" class="field-input"/>
+                                                    <field name="country_id" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="id"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
                                                     <label for="province_id"/>
-                                                    <field name="province_id" domain="[('country_id', '=', country_id)]" options="{'no_create': True}" class="field-input"/>
+                                                    <field name="province_id" domain="[('country_id', '=', country_id)]" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="id"/>
                                                 </div>
                                                 <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
                                                     <label for="city"/>
-                                                    <field name="city" class="field-input"/>
+                                                    <field name="city" class="field-input" readonly="id"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -456,7 +291,7 @@
                                             <div class="field-row" style="display: flex; gap: 10px;">
                                                 <div style="display: flex; flex-direction: column; flex: 1;">
                                                     <label for="email"/>
-                                                    <field name="email" class="field-input" style="width: 30%"/>
+                                                    <field name="email" class="field-input" style="width: 30%" readonly="id"/>
                                                 </div>
                                             </div>                                            
                                         </div>
@@ -464,20 +299,27 @@
                                     </div>
 
                                     <!-- ID images -->
-                                    <div id="id_info" style="flex:1; min-width:320px; padding: 15px; background-color: #ffffff; border-radius: 8px;
-                                                box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 4px solid #ffc107;
-                                                margin-bottom: 15px; max-width: 35%;">
+                                    <div id="id_info" class="image-card">
                                         
                                         <div style="margin-bottom: 20px; padding-bottom: 10px;">
                                             <label for="image_1" string="Imágenes del documento" style="font-weight:600; color:#ffc107;"/>
-                                            <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:5px; height: 150px;">
-                                                <field name="image_1" widget="image" style="flex:1; min-width:45%; max-height: 150px; border:1px solid #ccc; border-radius:4px;"/>
-                                                <field name="image_2" widget="image" style="flex:1; min-width:45%; max-height: 150px; border:1px solid #ccc; border-radius:4px;"/>
-                                                <field name="image_3" widget="image" style="flex:1; min-width:45%; max-height: 150px; border:1px solid #ccc; border-radius:4px;"/>
-                                                <field name="image_4" widget="image" style="flex:1; min-width:45%; max-height: 150px; border:1px solid #ccc; border-radius:4px;"/>
-                                            
-                                                <label for="read_ID" string="Leer datos"/>
-                                                <field name="read_ID"/>
+                                            <div class="field-images">
+                                                <div style="display: flex; flex-direction: column;">
+                                                    <field name="image_1" widget="image" readonly="id"/>
+                                                    <div>
+                                                        <label for="read_ID" string="Leer datos"/>
+                                                        <field name="read_ID" readonly="id" style="margin-left: 10px;"/>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <field name="image_2" widget="image" readonly="id"/>
+                                                </div>
+                                                <div>
+                                                    <field name="image_3" widget="image" readonly="id"/>
+                                                </div>    
+                                                <div>
+                                                    <field name="image_4" widget="image" readonly="id"/>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -486,9 +328,19 @@
                             
                             </page>
 
-
-                            <page string="Finalizar" class="subtitle">
-
+                            <page string="Finalizar">
+                                <div>
+                                    <field name="diff_calc_summary" readonly="1" widget="html" force_save="1"/>
+                                </div>
+                                <div style="display: flex; align-items: center; margin-left: 200px; width: 300px; align-items: baseline;" 
+                                        invisible="id or not diff_calc_summary">
+                                    <h4 style="font-size: 14px; font-weight: 700; color: #007bff; margin: 0 10px 0 0;">
+                                        TODO LISTO
+                                    </h4>
+                                    <field name="confirm"/>
+                                    <div style="flex-grow: 1;"/>
+                                    <button type="object" string="CONFIRMAR" class="btn btn-primary"/>
+                                </div>
                             </page>
                         </notebook>
                     </div>
@@ -497,20 +349,45 @@
         </field>
     </record>
 
-    <!-- List view of forexmanager.operation -->
-    <!-- <record id="forexmanager_operation_list_view" model="ir.ui.view">
-        <field name="name">ForexManager operation list view</field>
+    <record id="forexmanager_operation_list_view" model="ir.ui.view">
+        <field name="name">Forexmanager operation list view</field>
         <field name="model">forexmanager.operation</field>
         <field name="arch" type="xml">
-            <list>
+            <list delete="0" duplicate="0">
                 <field name="id"/>
                 <field name="name"/>
-                <field name="date"/>
+                <field name="worksession_id"/>
                 <field name="user_id"/>
-                <field name="calculation_ids"/>
+                <field name="desk_id" string="Ventanilla"/>
+                <field name="opening_desk_id" string="Ventanilla de arqueo"/>
+                <field name="date" string="Fecha"/>
+                <field name="calculation_ids" string="Divisas cambiadas"/>
+                <field name="passport_id" string="Cliente en BD"/>            
             </list>
         </field>
-    </record> -->
+    </record>
+
+    <record id="forexmanager_operation_search_view" model="ir.ui.view">
+        <field name="name">Forexmanager operation search view</field>
+        <field name="model">forexmanager.operation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="id"/>
+                <field name="user_id"/>
+                <field name="desk_id"/>
+                <field name="worksession_id"/>
+                <field name="opening_desk_id"/>
+                <field name="calculation_ids"/>
+                <field name="passport_id"/>
+                <!-- Groups -->
+                <filter name="group_by_worksession_id" context="{'group_by': 'worksession_id'}"/>
+                <filter name="group_by_user_id" context="{'group_by': 'user_id'}"/>
+                <filter name="group_by_desk_id" context="{'group_by': 'desk_id'}"/>
+                <filter name="group_by_opening_desk_id" context="{'group_by': 'opening_desk_id'}"/>
+                <filter name="group_by_date" context="{'group_by': 'date:day'}"/>
+            </search>
+        </field>
+    </record>
 
     <!-- Action of forexmanager.operation -->
     <record id="forexmanager_new_operation_action" model="ir.actions.act_window">
@@ -519,11 +396,21 @@
         <field name="view_mode">form</field>
     </record>
 
-    <!-- Action of forexmanager.operation -->
-    <!-- <record id="forexmanager_history_operation_action" model="ir.actions.act_window">
-        <field name="name">HISTORIAL</field>
+    <!-- For user - user history for current session -->
+    <record id="forexmanager_user_history_operation_action" model="ir.actions.act_window">
+        <field name="name">MI HISTORIAL</field>
         <field name="res_model">forexmanager.operation</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'create': False}</field>
-    </record> -->
+        <field name="domain">[("user_id", "=", uid), ("worksession_id.session_status", "=", "open"), ("worksession_id.session_type", "=", "checkin")]</field>
+    </record>
+
+    <!-- For admins - full history -->
+    <record id="forexmanager_history_operation_action" model="ir.actions.act_window">
+        <field name="name">HISTORIAL DE OPERACIONES</field>
+        <field name="res_model">forexmanager.operation</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">
+            {"search_default_group_by_date": 1}
+        </field>
+    </record>
 </odoo>

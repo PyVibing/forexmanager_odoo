@@ -6,46 +6,95 @@
         <field name="name">ForexManager workcenter form view</field>
         <field name="model">forexmanager.workcenter</field>
         <field name="arch" type="xml">
-            <form>
+            <form groups="forexmanager.group_forexmanager_admin">
+                <style>
+                    /* Contenedor tipo tarjeta */
+                    .fm-card {
+                        flex: 1;
+                        margin: 10px 5px;
+                        padding: 15px;
+                        background-color: #ffffff;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                        border-left: 4px solid #007bff;
+                    }
+
+                    /* Título principal */
+                    .fm-title {
+                        background-color: #ffffff;
+                        color: #007bff;
+                        border-left: 4px solid #007bff;
+                        border-radius: 8px;
+                        padding: 8px 12px;
+                        margin-left: 5px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                        font-size: 1.75rem;
+                        line-height: 1;
+                    }
+
+                    /* Subtítulos de secciones */
+                    .fm-subtitle {
+                        font-weight: 600;
+                        color: #007bff;
+                        display: block;
+                        margin-bottom: 10px;
+                    }
+
+                    /* Grupo de campo */
+                    .fm-field-group {
+                        margin-bottom: 20px;
+                        border-bottom: 1px solid #e0e0e0;
+                        padding-bottom: 10px;
+                    }
+
+                    /* Label de campo */
+                    .fm-field-label {
+                        font-weight: 600;
+                        color: #007bff;
+                        display: block;
+                        margin-bottom: 5px;
+                        margin-right: 10px;
+                    }
+
+                    /* Input/campo */
+                    .fm-field-input {
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        padding: 4px 8px;
+                        line-height: 1;
+                        min-width: 100px;
+                        min-height: 30px;
+                    }
+                </style>
                 <sheet>
+                    <!-- Título -->
+                    <h1 class="fm-title">ADMINISTRAR CENTROS DE TRABAJO</h1>
 
-                    <h1 class="bg-primary text-white p-2 rounded fs-3">ADMINISTRAR CENTROS DE TRABAJO</h1>
-                    <div style="float: left;">
+                    <!-- Contenedor principal -->
+                    <div class="fm-card">
+                        <!-- Nombre -->
+                        <div class="fm-field-group">
+                            <label for="name" class="fm-field-label"/>
+                            <field name="name" class="fm-field-input"/>
+                        </div>
 
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="name"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="name" style="border-bottom: 1px solid black; margin-left: 15px;"/>
-                            </div>                            
+                        <!-- Escritorios -->
+                        <div class="fm-field-group">
+                            <label for="desk_ids" class="fm-field-label"/>
+                            <field name="desk_ids" class="fm-field-input" widget="many2many_tags" readonly="1"/>
                         </div>
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="desk_ids"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="desk_ids" style="border-bottom: 1px solid black; margin-left: 15px;"
-                                        readonly="1"/>
-                            </div>                            
+
+                        <!-- Monedas -->
+                        <div class="fm-field-group">
+                            <label for="currency_ids" class="fm-field-label"/>
+                            <field name="currency_ids" class="fm-field-input" widget="many2many_tags" options="{'no_create': True}"/>
                         </div>
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="note"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="note" style="border-bottom: 1px solid black; margin-left: 15px;"/>
-                            </div>                            
+
+                        <!-- Nota -->
+                        <div class="fm-field-group">
+                            <label for="note" class="fm-field-label"/>
+                            <field name="note" class="fm-field-input"/>
                         </div>
-                        <div style="display: table;">
-                            <div style="display: table-cell; width: 200px;">
-                                <label for="currency_ids"/>
-                            </div>
-                            <div style="display: table-cell">
-                                <field name="currency_ids" style="border-bottom: 1px solid black; margin-left: 15px;"
-                                        options="{'no_create': True}" widget="many2many_tags"/>
-                            </div>                            
-                        </div>                      
                     </div>
                 </sheet>
             </form>
@@ -57,17 +106,17 @@
         <field name="name">ForexManager workcenter list view</field>
         <field name="model">forexmanager.workcenter</field>
         <field name="arch" type="xml">
-            <list>
-                <field name="name"/>
-                <field name="desk_ids"/>
-                <field name="currency_ids"/>
-                <field name="note"/>
-                <button name="create_inventories" type="object" icon="fa-refresh" title="Crear inventarios iniciales para nuevas divisas"/>
+            <list duplicate="0">
+                <field name="id" width="5" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="name" width="500" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="desk_ids" width="100" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="currency_ids" width="100" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="note" width="500" groups="forexmanager.group_forexmanager_admin"/>
+                <button name="create_inventories" type="object" icon="fa-refresh" string="Crear inventarios" width="100" groups="forexmanager.group_forexmanager_admin" 
+                        title="Crear inventarios iniciales para cada divisa de cada ventanilla en este centro de trabajo. Si ya existe el inventario, NO será sobrescrito."/>
             </list>
         </field>
     </record>
-
-
 
     <!-- Action of forexmanager.workcenter -->
     <record id="forexmanager_config_workcenters_action" model="ir.actions.act_window">

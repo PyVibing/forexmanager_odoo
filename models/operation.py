@@ -3,29 +3,26 @@ from odoo.exceptions import ValidationError
 from passporteye import read_mrz
 import base64
 from datetime import datetime
+from decimal import Decimal, ROUND_HALF_UP
 from io import BytesIO
 from ..utils import notification
 
-# Eliminar luego, solo development
-import warnings
-warnings.filterwarnings("ignore")
 
 class Operation(models.Model):
+    """A model for converting currencies from source to destination currency."""
     _name = "forexmanager.operation"
-    _description = "A model for converting currencies from source to destination currency."
+    _description = "Operación de cambio de divisas"
 
-    name = fields.Char(default="Cambio de moneda", readonly=True)
-    date = fields.Date(string="Fecha de hoy", readonly=True, copy=False) # compute datetime.now().date() and readonly True
+    # MAIN FIELDS
+    name = fields.Char(default="Cambio de moneda", readonly=True, string="Nombre")
+    date = fields.Datetime(string="Fecha", readonly=True, copy=False, default=lambda self: datetime.now())
     user_id = fields.Many2one("res.users", string="Empleado", default=lambda self: self.env.uid, readonly=True, copy=False)
-    desk_id = fields.Many2one("forexmanager.desk", string="Ventanilla actual", required=True)
-    worksession_id = fields.Many2one("forexmanager.worksession", compute="_compute_worksession_id", store=True, string="Sesión")
-    opening_desk_id = fields.Many2one(related="worksession_id.opening_desk_id", string="Ventanilla de apertura", store=True)
+    desk_id = fields.Many2one("forexmanager.desk", string="Ventanilla actual", required=True, readonly=True,
+                              default=lambda self: self.env.user.current_desk_id.id)
+    worksession_id = fields.Many2one("forexmanager.worksession", compute="_compute_worksession_id", store=True, string="Sesión", readonly=True)
+    opening_desk_id = fields.Many2one(related="worksession_id.opening_desk_id", string="Ventanilla de apertura", store=True, readonly=True)
 
-    
-    calculation_ids = fields.One2many("forexmanager.calculation", "operation_id", string="Línea de cambio")
-    # customer_id = fields.Many2one("forexmanager.customer", string="Cliente")
-
-    # CUSTOMER DATA
+    # Customer data
     first_name_1 = fields.Char(string="Primer nombre", required=True)
     first_name_2 = fields.Char(string="Segundo(s) nombre(s)")
     last_name_1 = fields.Char(string="Primer apellido", required=True)
@@ -49,7 +46,7 @@ class Operation(models.Model):
     postal_code = fields.Integer(string="Código postal")
 
     # ID DATA
-    passport_id = fields.Many2one("forexmanager.passport")
+    passport_id = fields.Many2one("forexmanager.passport") # False or null means passport info is not in Passport model 
     ID_type = fields.Selection([
             ("p", "Pasaporte"),
             ("id", "DNI"),
@@ -63,17 +60,168 @@ class Operation(models.Model):
     image_2 = fields.Image(string="Imagen 2")
     image_3 = fields.Image(string="Imagen 3")
     image_4 = fields.Image(string="Imagen 4")
+    # Storing this field to know if the info was taken from DB or current document read.
+    # In case first time the info was wrongly taken, we know which user made the mistake.
+    data_from_db = fields.Boolean(string="Datos del cliente encontrados en la BBDD", default=False)
+    # HTML fields for showing in the form view
+    summary = fields.Html(string="Movimientos", options="{'sanitize': False}", compute="_onchange_summary_tables", store=True)
+    diff_calc_summary = fields.Html(string="Resumen", options="{'sanitize': False}", store=True)
 
+    # OTHER FIELDS
+    closing_session_check_started = fields.Boolean(related="worksession_id.closing_session.balances_checked_started")
+    closing_session_check_ended = fields.Boolean(related="worksession_id.closing_session.balances_checked_ended")    
+    calculation_ids = fields.One2many("forexmanager.calculation", "operation_id", string="Línea de cambio") # Required in create()
     # Checkboxs
     read_ID = fields.Boolean(default=False, store=False) # Checkbox on the view to read data from id document
     search_ID = fields.Boolean(string="Buscar cliente", default=False, store=False) # Checkbox on the view to look in the DB
+    confirm = fields.Boolean(default=False, string="Todo listo", store=False) # Required True (validated in create()). This way, avoid accidental save when browser window loses focus or any other reason
+    available = fields.Boolean(related="calculation_ids.available")
+    
+    
+    @api.onchange("calculation_ids")
+    def _onchange_summary_tables(self):
+        for rec in self:
+            receive_summary = {} # {currency: amount}
+            deliver_summary = {} # {currency: amount}
+            diff_calc_summary = {} # {currency: {"receive": amount, "deliver": amount}}
 
-    # Let's store this field to know if the info was taken from DB or current document read.
-    # In case first time the info was wrongly taken, we know the agent who made the mistake.
-    data_from_db = fields.Boolean(string="Datos del cliente encontrados en la BBDD", default=False)
+            # Grouping the amounts for every currency
+            for line in rec.calculation_ids:
+                if not (line.currency_source_id and line.currency_target_id):
+                    continue
 
-    # @api.depends("worksession_id")
-    # def _compute_opening_desk_id(self)
+                # Convert to Decimal
+                amount_received = Decimal(str(line.amount_received or 0))
+                amount_delivered = Decimal(str(line.amount_delivered or 0))
+
+                # Group by amount
+                receive_summary.setdefault(line.currency_source_id.name, Decimal('0'))
+                receive_summary[line.currency_source_id.name] += amount_received
+
+                deliver_summary.setdefault(line.currency_target_id.name, Decimal('0'))
+                deliver_summary[line.currency_target_id.name] += amount_delivered
+
+            # Calculating difference if currency is in both tables (receive and deliver)
+            for currency, amount in receive_summary.items():
+                diff_calc_summary.setdefault(currency, {"receive": 0, "deliver": 0})
+                
+                if currency not in deliver_summary:
+                    diff_calc_summary[currency]["receive"] = amount
+                else: 
+                    if receive_summary[currency] > deliver_summary[currency]:
+                        diff_calc_summary[currency]["receive"] = receive_summary[currency] - deliver_summary[currency]
+                    elif receive_summary[currency] < deliver_summary[currency]:
+                        diff_calc_summary[currency]["deliver"] = deliver_summary[currency] - receive_summary[currency]
+            for currency, amount in deliver_summary.items():
+                if currency not in receive_summary:
+                    diff_calc_summary.setdefault(currency, {"receive": 0, "deliver": 0})
+                    diff_calc_summary[currency]["deliver"] = amount
+
+            # Convert to float:
+            if receive_summary:
+                receive_summary = {k: float(v) for k, v in receive_summary.items()}
+            if deliver_summary:
+                deliver_summary = {k: float(v) for k, v in deliver_summary.items()}
+            if diff_calc_summary:
+                diff_calc_summary = {
+                    k: {"receive": float(v["receive"]), "deliver": float(v["deliver"])}
+                    for k, v in diff_calc_summary.items()
+                    }
+
+            html_summary = ""
+            html_diff_calc_summary = ""
+
+            # RECEIVE table
+            if receive_summary:
+                html_summary += """
+                    <div style="width: 25%; min-width: 350px; float: left; margin: 5px; padding: 15px; background-color: #ffffff;
+                                border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                                border-left: 4px solid #007bff;">
+                        <h4 style="color:#007bff;">RECIBIR</h4>
+                        <table class="table table-sm table-striped" style="width:100%; table-layout: fixed;">
+                            <thead>
+                                <tr>
+                                    <th style="width:70%; background-color: #007bff; color: white;">DIVISA</th>
+                                    <th style="width:30%; background-color: #007bff; color: white;">CANTIDAD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    """
+                for currency, amount in receive_summary.items():
+                    html_summary += f"""
+                            <tr>
+                                <td><strong>{currency}</strong></td>
+                                <td>{amount}</td>
+                            </tr>
+                    """
+                html_summary += """
+                            </tbody>
+                        </table>
+                    </div>
+                """
+
+            # DELIVER table
+            if deliver_summary:
+                html_summary += """
+                <div style="width: 25%; min-width: 350px; float: left; margin: 5px; padding: 15px; background-color: #ffffff;
+                            border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                            border-left: 4px solid #ffc107;">
+                    <h4 style="color:#ffc107;">ENTREGAR</h4>
+                    <table class="table table-sm table-striped" style="width:100%; table-layout: fixed;">
+                        <thead>
+                            <tr>
+                                <th style="width:70%; background-color: #ffc107; color: white;">DIVISA</th>
+                                <th style="width:30%; background-color: #ffc107; color: white;">CANTIDAD</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                """
+                for currency, amount in deliver_summary.items():
+                    html_summary += f"""
+                            <tr>
+                                <td><strong>{currency}</strong></td>
+                                <td>{amount}</td>
+                            </tr>
+                    """
+                html_summary += """
+                        </tbody>
+                    </table>
+                </div>
+                """
+
+            rec.summary = html_summary
+
+            # DIFF_CALC table
+            if diff_calc_summary:
+                html_diff_calc_summary += """
+                    <div class="personal-card" style="width: 40%; min-width: 500px;">
+                    <h4 style="color:#007bff;">RESUMEN DE LA OPERACIÓN</h4>
+                    <table class="table table-sm table-striped" style="width:100%; table-layout: fixed;">
+                        <thead>
+                            <tr>
+                                <th style="width:60%; background-color: #007bff; color: white;">DIVISA</th>
+                                <th style="width:20%; background-color: #007bff; color: white;">RECIBIR</th>
+                                <th style="width:20%; background-color: #007bff; color: white;">ENTREGAR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                """
+                for currency in diff_calc_summary.keys():
+                    if diff_calc_summary[currency]["receive"] or diff_calc_summary[currency]["deliver"]: # If difference is 0, we just don't show the currency/amount
+                        html_diff_calc_summary += f"""
+                                <tr>
+                                    <td><strong>{currency}</strong></td>
+                                    <td>{diff_calc_summary[currency]["receive"]}</td>
+                                    <td>{diff_calc_summary[currency]["deliver"]}</td>
+                                </tr>
+                        """
+                html_diff_calc_summary += """
+                            </tbody>
+                        </table>
+                    </div>
+                """
+            
+            rec.diff_calc_summary = html_diff_calc_summary
 
     @api.depends("desk_id")
     def _compute_worksession_id(self):
@@ -87,40 +235,19 @@ class Operation(models.Model):
                         ("desk_id", "=", rec.desk_id.id),
                         ], limit=1)
                 
-                # Get all oepn (checkin) sessions (main and secondaries) for this user
+                # Get all open (checkin) sessions (main and secondaries) for this user
                 all_sessions = self.env["forexmanager.worksession"].search([
                         ("user_id", "=", rec.user_id), 
                         ("session_status", "=", "open"), 
                         ("session_type", "=", "checkin"),
                         ])
-
-                for s in all_sessions:
+                for _ in all_sessions:
                     if session.desk_id == session.opening_desk_id: # We are operating in our opening_desk
-                            rec.worksession_id = session if session.balances_checked_ended else False
+                            rec.worksession_id = session.id if session.balances_checked_ended else False
                     else: # We are in a temporary desk, must check if balance check is finished in the associated opening desk
-                        rec.worksession_id = session if all_sessions[0].balances_checked_ended else False
+                        rec.worksession_id = session.id if all_sessions[0].balances_checked_ended else False
                         break # Only check in one of many possibles secondary sessions
-                  
-                    
-                
-
-    # @api.depends("user_id")
-    # def _compute_worksession_id(self):
-    #     for rec in self:
-    #         if rec.user_id:
-    #             session = self.env["forexmanager.worksession"].search([
-    #                 ("user_id", "=", rec.user_id),
-    #                 ("session_status", "=", "open"),
-    #                 ("desk_id", "=", rec.user_id.opening_desk_id),
-    #                 ("balances_checked_ended", "=", True)
-    #                 ])
-    #             print(session)
-    #             rec.worksession_id = session
-    #         else:
-    #             rec.worksession_id = False
-
-
-
+    
     @api.onchange("read_ID", "image_1")
     def get_passport_info(self):
         for rec in self:
@@ -129,13 +256,11 @@ class Operation(models.Model):
                 rec.image_2 = False
                 rec.image_3 = False
                 rec.image_4 = False
-
                 rec.read_ID = False
-                rec.passport_id = False
-                
+                rec.passport_id = False                
                 
             def clean_data():
-                # CUSTOMER DATA
+                # Customer data
                 rec.first_name_1 = False
                 rec.first_name_2 = False
                 rec.last_name_1 = False
@@ -143,10 +268,8 @@ class Operation(models.Model):
                 rec.birth_country_id = False
                 rec.birth_date = False
                 rec.sex = False
-
-                # CONTACT DATA
+                # Contact data
                 rec.email = False
-
                 # Customer address
                 rec.country_id = False
                 rec.province_id = False
@@ -155,16 +278,15 @@ class Operation(models.Model):
                 rec.number = False
                 rec.other = False
                 rec.postal_code = False
-
-                # ID DATA
+                # ID/Passport data
                 rec.ID_type = False
                 rec.ID_country = False
                 rec.nationality = False
                 rec.ID_expiration = False
                 rec.ID_number = False
-
-                rec.search_ID = False
                 rec.passport_id = False
+                # Buttons
+                rec.search_ID = False                
 
             if not rec.image_1:
                 # If deleting the first image or clicking the checkbox with no first image loaded
@@ -184,10 +306,6 @@ class Operation(models.Model):
                     img_stream = BytesIO(img_bytes)
                     mrz = read_mrz(img_stream)
                     mrz_dict = mrz.to_dict()
-                    # print(mrz_dict)
-                    # print("--------------------------")
-                    # print("--------------------------")
-                    # print("--------------------------")
                 except Exception:
                     raise ValidationError("No se pudo leer la información del documento. Por favor, rellene los datos manualmente.")
                 
@@ -206,12 +324,10 @@ class Operation(models.Model):
                 birth_date = mrz_dict["date_of_birth"].replace("<", "")
                 valid_birth_date = mrz_dict["valid_date_of_birth"]
                 sex = mrz_dict["sex"].replace("<", "")
-
                 
                 if valid_score > 50:
                     # Assign values to variables
                     rec.ID_number = ID_number
-
                     rec.search_passport()
 
                     if not rec.passport_id: # Assign values from document read
@@ -277,7 +393,7 @@ class Operation(models.Model):
 
     def assign_values_from_db(self, ID_exists):
         for rec in self:
-            # CUSTOMER DATA
+            # Customer data
             rec.first_name_1 = ID_exists.customer_id.first_name_1
             rec.first_name_2 = ID_exists.customer_id.first_name_2
             rec.last_name_1 = ID_exists.customer_id.last_name_1
@@ -285,10 +401,8 @@ class Operation(models.Model):
             rec.birth_country_id = ID_exists.customer_id.birth_country_id
             rec.birth_date = ID_exists.customer_id.birth_date
             rec.sex = ID_exists.customer_id.sex
-
-            # CONTACT DATA
+            # Contact data
             rec.email = ID_exists.customer_id.email
-
             # Customer address
             rec.country_id = ID_exists.customer_id.country_id.id
             rec.province_id = ID_exists.customer_id.province_id.id
@@ -297,8 +411,7 @@ class Operation(models.Model):
             rec.number = ID_exists.customer_id.number
             rec.other = ID_exists.customer_id.other
             rec.postal_code = ID_exists.customer_id.postal_code
-
-            # ID DATA
+            # ID/Passport data
             rec.ID_type = ID_exists.ID_type
             rec.ID_country = ID_exists.ID_country
             rec.nationality = ID_exists.nationality
@@ -318,14 +431,13 @@ class Operation(models.Model):
         for rec in self:
             ID_exists = self.env["forexmanager.passport"].search([
                 ("ID_number", "=", rec.ID_number)
-                ])
-            
+                ])            
             rec.passport_id = ID_exists
-            rec.search_ID = True # This disables the button when TRUE
+            rec.search_ID = True # This disables (readonly) the button when TRUE
 
             if rec.passport_id:
                 notification(rec, "Datos encontrados", 
-                             "Se cargaron los datos del cliente desde la Base de Datos. Sus datos principales no pueden ser modificados", 
+                             "Se cargaron los datos del cliente desde la Base de Datos. Sus datos principales no pueden ser modificados.", 
                              "info")
                 rec.assign_values_from_db(rec.passport_id)
             else:
@@ -341,11 +453,40 @@ class Operation(models.Model):
                                 "warning")
 
     def create(self, vals):
-        print("create operation")        
-        # VALIDATE DATA
-        operation = super(Operation, self).create(vals)
+        if not vals.get("calculation_ids"):
+            raise ValidationError("Falta añadir al menos una línea de cambio de divisa.")
+        if not vals.get("confirm"):
+            raise ValidationError("Por razones de seguridad, debes marcar la opción TODO LISTO (en la pestaña FINALIZAR) " \
+                                    "antes de confirmar la operación.")
         
-        if not operation.passport_id:
+        operation = super(Operation, self).create(vals)
+
+        for line in operation.calculation_ids:
+            amount_delivered = line.amount_delivered
+            amount_received = line.amount_received
+            currency_target_id = line.currency_target_id.id
+            currency_source_id = line.currency_source_id.id
+            opening_desk_id = operation.opening_desk_id.id
+            cashcount_deliver = self.env["forexmanager.cashcount"].search([
+                ("currency_id", "=", currency_target_id),
+                ("desk_id", "=", opening_desk_id)
+                ])
+            cashcount_receive = self.env["forexmanager.cashcount"].search([
+                ("currency_id", "=", currency_source_id),
+                ("desk_id", "=", opening_desk_id)
+                ])
+            
+            # Check availability again
+            if cashcount_deliver.balance < amount_delivered:
+                raise ValidationError("No hay disponibilidad suficiente para la cantidad de divisa que solicita el cliente. Modifique la cantidad para finalizar la operación.")
+        
+            # Update balance in cashcount model for this opening_desk
+            new_amount_receive = (Decimal(cashcount_receive.balance) + Decimal(amount_received)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            cashcount_receive.write({"balance": float(new_amount_receive)})
+            new_amount_deliver = (Decimal(cashcount_deliver.balance) - Decimal(amount_delivered)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            cashcount_deliver.write({"balance": float(new_amount_deliver)})
+        
+        if not operation.passport_id: # Means it wasn't found on customer search
             # Creating customer record in Customer model
             customer = self.env["forexmanager.customer"].create({
                 "first_name_1": operation.first_name_1,
@@ -365,8 +506,8 @@ class Operation(models.Model):
                 "postal_code": operation.postal_code,
                 })
         
-            # Creating passport record in Passport model
-            passport = self.env["forexmanager.passport"].create({
+            # Creating passport record in Passport model (relation with customer)
+            self.env["forexmanager.passport"].create({
                 "customer_id": customer.id,
                 "ID_type": operation.ID_type,
                 "ID_country": operation.ID_country.id,
@@ -374,7 +515,8 @@ class Operation(models.Model):
                 "ID_expiration": operation.ID_expiration,
                 "ID_number": operation.ID_number
                 })
-        
+            
+            operation.data_from_db = False
         else:
             # Lets update the info that can be updated (address, email), accesing the customer through his passport/ID
             customer = self.env["forexmanager.passport"].search([
@@ -391,13 +533,12 @@ class Operation(models.Model):
                 "other": vals["other"],
                 "postal_code": vals["postal_code"],
                 })
+            
+            operation.data_from_db = True
+        
+        notification(self, "Operación realizada exitosamente", 
+                     "La operación fue completada sin errores. Puedes chequearla en el historial de operaciones.", 
+                     "success")
         
         return operation
             
-    def write(self, vals):
-        for rec in self:
-            print("write operation")
-
-            operation = super().write(vals)
-
-            return operation

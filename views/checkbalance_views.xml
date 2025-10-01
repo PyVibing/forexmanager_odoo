@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <!-- List view of forexmanager.checkbalance -->
+    <record id="forexmanager_checkbalance_list_view" model="ir.ui.view">
+        <field name="name">ForexManager checkbalance list view</field>
+        <field name="model">forexmanager.checkbalance</field>
+        <field name="arch" type="xml">
+            <list create="0" duplicate="0" delete="0" editable="bottom">
+                <field name="id" width="5" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="name" width="150" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="session_id" width="150" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="user_id" width="50" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="desk_id" width="50" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="currency_id" width="50" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="physical_balance" readonly="1" width="20" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="BD_balance" width="20" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="checked" width="10" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="difference" width="20" string="Dif. temp." groups="forexmanager.group_forexmanager_admin"/>                
+                <field name="confirmed" width="10" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="saved_difference" width="20" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="value" width="20" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="date" width="50" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="note" width="180" readonly="closed_by or not saved_difference" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="closed" width="10" readonly="closed_by or not saved_difference" groups="forexmanager.group_forexmanager_admin"/>
+                <field name="closed_by" width="50" readonly="1" groups="forexmanager.group_forexmanager_admin"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="forexmanager_checkbalance_search_view" model="ir.ui.view">
+        <field name="name">Forexmanager checkbalance search view</field>
+        <field name="model">forexmanager.checkbalance</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="session_id"/>
+                <field name="user_id"/>
+                <field name="desk_id"/>
+                <field name="currency_id"/>
+                <field name="physical_balance"/>
+                <field name="BD_balance"/>
+                <field name="difference"/>
+                <field name="saved_difference"/>
+                <field name="value"/>
+                <field name="note"/>
+                <field name="closed_by" string="Admin que cierra"/>
+                <!-- Filters -->
+                <filter name="filter_rec_diff" domain="[('saved_difference', '!=', 0)]" string="Quebrantos"/>
+                <filter name="filter_rec_no_diff" domain="[('saved_difference', '=', 0)]" string="Correctos"/>
+                <separator/>
+                <filter name="filter_open_rec" domain="[('closed', '=', False)]" string="Abiertos"/>
+                <filter name="filter_close_rec" domain="[('closed', '=', True)]" string="Cerrados"/>
+                <!-- Groups -->
+                <filter name="group_by_session_id" context="{'group_by': 'session_id'}"/>
+                <filter name="group_by_user_id" context="{'group_by': 'user_id'}"/>
+                <filter name="group_by_desk_id" context="{'group_by': 'desk_id'}"/>
+                <filter name="group_by_currency_id" context="{'group_by': 'currency_id'}"/>
+                <filter name="group_by_date" context="{'group_by': 'date:day'}"/>
+                <filter name="group_by_closed_by" context="{'group_by': 'closed_by'}" string="Admin que cierra"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="forexmanager_admin_checkbalances_action" model="ir.actions.act_window">
+        <field name="name">ADMINISTRAR ARQUEOS DE DIVISAS</field>
+        <field name="res_model">forexmanager.checkbalance</field>
+        <field name="view_mode">list</field>
+        <field name="context">
+            {'from_list_view': True}
+        </field>
+    </record>
+
+</odoo>

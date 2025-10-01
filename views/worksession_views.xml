@@ -6,8 +6,12 @@
         <field name="name">ForexManager worksession form view</field>
         <field name="model">forexmanager.worksession</field>
         <field name="arch" type="xml">
-            <form>
+            <form create="false">
                 <style>
+                    .o_form_button_save.btn-light {
+                        display: None;
+                    }
+                    
                     .session-card {
                         flex: 1;
                         min-width: 320px;
@@ -23,7 +27,7 @@
                     .section {
                         margin-bottom: 20px;
                         border-bottom: 1px solid #e0e0e0;
-                        padding-bottom: 10px;
+                        padding-bottom: 0px;
                     }
 
                     .section label {
@@ -32,28 +36,27 @@
                     }
 
                     .field-row {
-                        display: flex;
-                        gap: 10px;
-                        margin-top: 8px;
-                        flex-wrap: wrap;
+                        display: grid;
+                        grid-template-columns: 150px 1fr;
+                        align-items: center;
+                        gap: 10px 20px;
+                        width: 100%;
                     }
 
                     .field-input {
                         border-bottom: 1px solid #ccc;
                         padding: 0px 8px;
-                        flex: 1;
-                        min-height: 24px;
-                        min-width: 100px;
-                        margin-bottom: 0px;
-                        margin-top: 0px;
+                        width: 100%;
+                        min-height: 25px;
                     }
 
                     .section-title {
-                        display: block;
                         font-size: 14px;
                         font-weight: 700;
                         color: #007bff;
-                        margin-bottom: 8px;
+                        display: block;
+                        margin-bottom: 10px;
+                        text-align: center;
                     }
 
                     .button-group {
@@ -61,101 +64,205 @@
                         gap: 10px;
                         margin: 15px 0;
                     }
+
+                    .error-message {
+                            display:flex; 
+                            justify-content:center; 
+                            width:100%;
+                            background-color: #a72828ff;
+                            border-radius:8px;
+                            padding:12px 16px; 
+                            display:flex; 
+                            align-items:center; 
+                            gap:10px;
+                            color: #fcfcfcff; 
+                            font-weight:600; 
+                            font-size:16px;
+                    }
+
+                    .group {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+                    }
+
+                    label {
+                        text-align: right;
+                        font-weight: 600;
+                        color: #444;
+                    }
+
+                    /* 🔹 Ocultar el circulito */
+                    .session-type-buttons .o_radio_input {
+                        display: none !important;
+                    }
+
+                    .session-type-buttons {
+                        display: inline-flex;
+                        justify-content: center;
+                        gap: 15px;
+                    }
+
+                    /* 🔹 Estilo base para cada opción */
+                    .session-type-buttons .o_radio_item label {
+                        display: inline-block;
+                        padding: 12px 24px;
+                        margin: 5px;
+                        border: 2px solid #007bff;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        background-color: #f8f9fa;
+                        font-weight: 600;
+                        color: #007bff;
+                        transition: all 0.2s ease-in-out;
+                    }
+
+                    /* 🔹 Hover */
+                    .session-type-buttons .o_radio_item label:hover {
+                        background-color: #007bff;
+                        color: #fff;
+                    }
+
+                    /* 🔹 Cuando está seleccionado */
+                    .session-type-buttons .o_radio_input:checked + label {
+                        background-color: #007bff;
+                        color: #fff;
+                        border-color: #0056b3;
+                    }
+
+                    .main-title {
+                        display: block;
+                        text-align: center;
+                        font-size: 22px;
+                        font-weight: 800;
+                        color: #fff;
+                        background: linear-gradient(135deg, #007bff, #0056b3);
+                        padding: 10px 24px;
+                        border-radius: 12px;
+                        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+                        letter-spacing: 1px;
+                        margin-bottom: 25px;
+                    }
+
+                    .no-dif-check {
+                        background: linear-gradient(135deg, #28a745, #218838);
+                        color: #fff;
+                        font-weight: 700;
+                        font-size: 16px;
+                        padding: 14px 20px;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 10px;
+                        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .dif-check {
+                        background: linear-gradient(135deg, #dc3545, #a71d2a);
+                        color: #fff;
+                        font-weight: 700;
+                        font-size: 16px;
+                        padding: 14px 20px;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 10px;
+                        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+
                 </style>
 
-                <sheet>
-                    <h1 class="bg-primary text-white p-2 rounded fs-3">SESIÓN DE ENTRADA/SALIDA</h1>
-                    
-                    <div class="session-card">
+                <sheet>                    
+                    <div invisible="desk_id">
+                        <span class="error-message">No has vinculado ninguna ventanilla. Ve al menú VINCULAR VENTANILLA y hazlo, para que puedas gestionar tu sesión de trabajo.</span>
+                    </div>
 
-                        <!-- 🔹 Campos principales de acción -->
+                    <div class="session-card" invisible="not desk_id">
+
+                        <!-- 🔹 MAIN FIELD -->
                         <div class="section">
-                            <span class="section-title">CAMPOS REQUERIDOS</span>
-                            <div class="field-row">
-                                <div class="flex-1">
-                                    <label for="desk_id"/>
-                                    <field name="desk_id" options="{'no_create': True, 'no_open': True}" force_save="1"
-                                        class="field-input" readonly="id"/>
-                                </div>
-                                <div class="flex-1" style="margin-left: 50px;">
-                                    <label for="session_type"/>
-                                    <field name="session_type" force_save="1" widget="radio" readonly="id"
-                                        class="field-input"/>
-                                </div>
+                            <span class="main-title">SESIÓN DE ENTRADA/SALIDA</span>
+                            <div class="field-row session-type-buttons">
+                                <field name="session_type" widget="radio" options="{'horizontal': true}" readonly="id"/>
                             </div>
                         </div>
 
-                        <!-- 🔹 Campos solo lectura agrupados -->
+                        <!-- 🔹 READONLY FIELDS -->
                         <div class="section">
                             <span class="section-title">INFORMACIÓN DE LA SESIÓN</span>
-                            <div class="field-row" style="display:flex; gap:40px;">
+                            <div class="group">
 
-                                <!-- Grupo: Nombre + Estado -->
-                                <div class="flex-1" style="display:flex; flex-direction:column; gap:10px;">
-                                    <div style="display:flex; align-items:center; gap:10px;">
-                                        <label for="name"/>
-                                        <field name="name" force_save="1" readonly="1" class="field-input"/>
-                                    </div>
-                                    <div style="display:flex; align-items:center; gap:10px;">
-                                        <label for="session_status"/>
-                                        <field name="session_status" force_save="1" class="field-input"/>
-                                    </div>
+                                <div class="field-row">
+                                    <label for="name"/>
+                                    <field name="name" readonly="1" class="field-input" force_save="1"/>
                                 </div>
 
-                                <!-- Grupo: Usuario + Desk apertura -->
-                                <div class="flex-1" style="display:flex; flex-direction:column; gap:10px;">
-                                    <div style="display:flex; align-items:center; gap:10px;">
-                                        <label for="user_id"/>
-                                        <field name="user_id" options="{'no_create': True, 'no_open': True}"
-                                            force_save="1" readonly="1" class="field-input"/>
-                                    </div>
-                                    <div style="display:flex; align-items:center; gap:10px;">
-                                        <label for="opening_desk_id"/>
-                                        <field name="opening_desk_id" options="{'no_create': True, 'no_open': True}"
-                                            force_save="1" readonly="1" class="field-input"/>
-                                    </div>
+                                <div class="field-row">
+                                    <label for="user_id"/>
+                                    <field name="user_id" force_save="1" options="{'no_create': True, 'no_open': True}" readonly="1" class="field-input"/>
                                 </div>
 
-                                <!-- Grupo: Inicio + Cierre -->
-                                <div class="flex-1" style="display:flex; flex-direction:column; gap:10px;">
-                                    <div style="display:flex; align-items:center; gap:10px;" invisible="not start_time">
-                                        <label for="start_time"/>
-                                        <field name="start_time" force_save="1" readonly="1" class="field-input" />
-                                    </div>
-                                    <div style="display:flex; align-items:center; gap:10px;" invisible="not close_time">
-                                        <label for="close_time"/>
-                                        <field name="close_time" force_save="1" readonly="1" class="field-input" />
-                                    </div>
+                                <div class="field-row">
+                                    <label for="desk_id"/>
+                                    <field name="desk_id" force_save="1" options="{'no_open': True}" class="field-input"/>
                                 </div>
-                                <div class="flex-1" style="display:flex; flex-direction:column; gap:10px;">
-                                    <div class="flex-1" invisible="session_type != 'checkin' or not closing_session">
-                                        <label for="closing_session"/>
-                                        <field name="closing_session" force_save="1"
-                                            class="field-input"/>
-                                    </div>
-                                    <div class="flex-1" invisible="session_type != 'checkout' or not session_to_close">
-                                        <label for="session_to_close"/>
-                                        <field name="session_to_close" force_save="1"
-                                            class="field-input"/>
-                                    </div>
+
+                                <div class="field-row">
+                                    <label for="opening_desk_id"/>
+                                    <field name="opening_desk_id" force_save="1" options="{'no_create': True, 'no_open': True}" readonly="1" class="field-input"/>
+                                </div>
+
+                                <div class="field-row">
+                                    <label for="session_status"/>
+                                    <field name="session_status" force_save="1" class="field-input"/>
+                                </div>
+
+                                <div class="field-row" invisible="not start_time">
+                                    <label for="start_time"/>
+                                    <field name="start_time" force_save="1" readonly="1" class="field-input"/>
+                                </div>
+
+                                <div class="field-row" invisible="not close_time">
+                                    <label for="close_time"/>
+                                    <field name="close_time" force_save="1" readonly="1" class="field-input"/>
+                                </div>
+                                <div class="field-row" invisible="session_type != 'checkin' or not closing_session">
+                                    <label for="closing_session"/>
+                                    <field name="closing_session" force_save="1" class="field-input" readonly="1"/>
+                                </div>
+                                <div class="field-row" invisible="session_type != 'checkout' or not session_to_close">
+                                    <label for="session_to_close"/>
+                                    <field name="session_to_close" force_save="1" class="field-input" readonly="1"/>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 🔹 Estado del arqueo -->
-                        <div class="section" invisible="not balances_checked_ended">
-                            <div style="display:flex; justify-content:center; width:100%;">
-                                <div style="background-color:#e6ffed; border:1px solid #28a745; border-radius:8px;
-                                            padding:12px 16px; display:flex; align-items:center; gap:10px;">
-                                    <span style="color:#155724; font-weight:600; font-size:16px;">
-                                        <i class="fa fa-check-square"></i>
-                                        ARQUEO COMPLETADO CON ÉXITO
-                                    </span>
+                        <!-- 🔹 Checkbalance status -->
+                        <div class="section" invisible="not balances_checked_ended or saved_difference_checkbalance_ids">
+                            <div style="display:flex; justify-content:center; width:100%; margin-bottom:20px;">
+                                <div class="no-dif-check">
+                                    <i class="fa fa-check-square"></i>
+                                    <span>Arqueo completado sin diferencias</span>
                                 </div>
                             </div>
                         </div>
-
-
+                        <div class="section" invisible="not saved_difference_checkbalance_ids">
+                            <div style="display:flex; justify-content:center; width:100%; margin-bottom:20px;">
+                                <div class="dif-check">
+                                    <i class="fa fa-check-square"></i>
+                                    <span>Arqueo completado con diferencias</span>
+                                </div>
+                            </div>
+                            <div>
+                                <field name="diff_summary" readonly="1" widget="html" force_save="1"/>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Buttons -->
@@ -207,12 +314,12 @@
                         <notebook invisible="not pending_checkbalance_ids and not difference_checkbalance_ids">
                             <page string="Pendiente de arqueo" invisible="not pending_checkbalance_ids">
                                 <field name="pending_checkbalance_ids">
-                                    <list editable="top" create="false">
+                                    <list editable="top" create="false" delete="false" options="{'no_open': True}">
                                         <field name="name"/>
-                                        <field name="session_id"/>
-                                        <field name="user_id"/>
-                                        <field name="desk_id"/>
-                                        <field name="currency_id"/>
+                                        <field name="session_id" options="{'no_open': True}"/>
+                                        <field name="user_id" options="{'no_open': True}"/>
+                                        <field name="desk_id" options="{'no_open': True}"/>
+                                        <field name="currency_id" options="{'no_open': True}"/>
                                         <field name="physical_balance"/>
                                         <field name="BD_balance"/>
                                         <field name="difference"/>
@@ -222,12 +329,12 @@
                             </page>
                             <page string="Diferencias en el arqueo" invisible="not difference_checkbalance_ids">
                                 <field name="difference_checkbalance_ids">
-                                    <list editable="top" create="false">
+                                    <list editable="top" create="false" delete="false">
                                         <field name="name"/>
-                                        <field name="session_id"/>
-                                        <field name="user_id"/>
-                                        <field name="desk_id"/>
-                                        <field name="currency_id"/>
+                                        <field name="session_id" options="{'no_open': True}"/>
+                                        <field name="user_id" options="{'no_open': True}"/>
+                                        <field name="desk_id" options="{'no_open': True}"/>
+                                        <field name="currency_id" options="{'no_open': True}"/>
                                         <field name="physical_balance" widget="char"/>
                                         <field name="BD_balance"/>
                                         <field name="difference"/>
@@ -239,16 +346,56 @@
                     </div>
                 </sheet>
             </form>
-
         </field>
     </record>
 
+    <!-- List view of forexmanager.worksession -->
+    <record id="forexmanager_worksession_list_view" model="ir.ui.view">
+        <field name="name">ForexManager worksession list view</field>
+        <field name="model">forexmanager.worksession</field>
+        <field name="arch" type="xml">
+            <list delete="0" duplicate="0" decoration-success="desk_id == opening_desk_id" decoration-warning="desk_id != opening_desk_id">
+                <field name="id" width="5"/>
+                <field name="name" width="400"/>
+                <field name="desk_id" width="50" string="Ventanilla/sesión" />
+                <field name="opening_desk_id" width="50" string="Ventanilla/arqueo"/>
+                <field name="session_type" string="Tipo" width="20"/>
+                <field name="session_status" string="Estado" width="20"/>
+                <field name="session_to_close" width="100"/>
+                <field name="closing_session" width="100"/>
+                <field name="start_time" string="Inicio" width="20"/>
+                <field name="close_time" string="Cierre" width="20"/>
+                <field name="balances_checked_ended" width="30"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search view of forexmanager.worksession-->
+     <record id="forexmanager_worksession_search_view" model="ir.ui.view">
+        <field name="name">ForexManager worksession search view</field>
+        <field name="model">forexmanager.worksession</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="id"/>
+                <field name="name"/>
+                <field name="desk_id"/>
+                <field name="opening_desk_id"/>
+                <field name="session_type"/>
+                <field name="session_status"/>
+                <field name="session_to_close"/>
+                <field name="closing_session"/>
+            </search>
+        </field>
+    </record>
 
     <!-- Action of forexmanager.currency -->
     <record id="forexmanager_worksession_action" model="ir.actions.act_window">
         <field name="name">SESIÓN / ARQUEO</field>
         <field name="res_model">forexmanager.worksession</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[("user_id", "=", uid)]</field>
+        <field name="domain">[
+            ("user_id", "=", uid), 
+            ("session_status", "=", "open"),
+            ]</field>
     </record>
 </odoo>

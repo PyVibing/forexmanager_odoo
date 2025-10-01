@@ -2,12 +2,14 @@ from odoo import fields, models, api
 
 
 class Customer(models.Model):
-    """This model will be only accesible through the Operation model. Records will be always created from there."""
+    """A model for defyning the personal information about the customers."""
+    # This model will be only accesible through the Operation model. Records will be always created from there.
     _name = "forexmanager.customer"
-    _description = "A model for defyning the personal information about the customer."
+    _description = "Cliente"
 
-    # CUSTOMER DATA
-    name = fields.Char(string="Nombre completo", compute="_get_full_name", store=True)
+    # MAIN FIELDS
+    # Customer data
+    name = fields.Char(string="Nombre completo", compute="_compute_name", store=True)
     first_name_1 = fields.Char(string="Primer nombre", required=True)
     first_name_2 = fields.Char(string="Segundo(s) nombre(s)")
     last_name_1 = fields.Char(string="Primer apellido", required=True)
@@ -30,11 +32,12 @@ class Customer(models.Model):
     other = fields.Char(string="Piso/portal/etc...")
     postal_code = fields.Integer(string="Código postal")
 
+    # OTHER FIELDS
     # Relation with Passport model
     passport_ids = fields.One2many("forexmanager.passport", "customer_id", string="Pasaporte", required=True)
     
     @api.depends("first_name_1", "first_name_2", "last_name_1", "last_name_2")
-    def _get_full_name(self):
+    def _compute_name(self):
         for rec in self:
             if rec.first_name_1 and rec.last_name_1:
                 rec.name = f"{rec.first_name_1} {rec.first_name_2 if rec.first_name_2 else ''} {rec.last_name_1} {rec.last_name_2 if rec.last_name_2 else ''}"
