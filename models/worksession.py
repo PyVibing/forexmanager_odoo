@@ -82,8 +82,7 @@ class WorkSession(models.Model):
                                     <tr>
                                         <th style="width:50%; background-color: #007bff; color: white;">DIVISA</th>
                                         <th style="width:25%; background-color: #007bff; color: white;">QUEBRANTO</th>
-                                        <th style="width:25%; background-color: #007bff; color: white;">VALOR
-                                        </th>
+                                        <th style="width:25%; background-color: #007bff; color: white;">VALOR</th>                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -105,7 +104,7 @@ class WorkSession(models.Model):
                             <tr>
                                 <td>{currency_id.name}</td>
                                 <td>{amount}</td>
-                                <td>{value} ({currency_base_id.name})</td>
+                                <td>{value} {currency_base_id.name}</td>
                             </tr>
                             
                     """

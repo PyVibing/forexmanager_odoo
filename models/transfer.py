@@ -8,7 +8,8 @@ class Transfer(models.Model):
     _description = "Crear nuevo traspaso"
     _inherit = "forexmanager.transfer.base"
 
-    worksession_id = fields.Many2one("forexmanager.worksession", string="Sesión", default=lambda self: self._default_worksession(), store=True)
+    worksession_id = fields.Many2one("forexmanager.worksession", string="Sesión", default=lambda self: self._default_worksession_id(), store=True)
+    opening_desk_worksession_id = fields.Many2one("forexmanager.worksession", string="Sesión", default=lambda self: self._default_opening_desk_worksession_id(), store=True)
 
 
     @api.onchange("transfer_line_ids")

@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
+    <!-- Server action -->
+    <record id="action_open_my_transfers_server" model="ir.actions.server">
+        <field name="name">Abrir Mis Traspasos</field>
+        <field name="model_id" ref="model_forexmanager_transfer"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_my_transfers()</field>
+    </record>
+
     <!-- For users -->
     <menuitem id="menu_forexmanager_root" name="ForexManager" sequence="0"/>
     <menuitem id="menu_forexmanager_currentdesktransient" name="Vincular ventanilla" sequence="1"
@@ -10,7 +18,7 @@
     <menuitem id="menu_forexmanager_new_operation" name="Realizar Operación" sequence="10" 
             parent="menu_forexmanager_root" action="forexmanager_new_operation_action"/>
     <menuitem id="menu_forexmanager_transfer" name=" Traspasos" sequence="15" 
-            parent="menu_forexmanager_root" action="forexmanager_transfer_action"/>   
+            parent="menu_forexmanager_root" action="action_open_my_transfers_server"/>   
     <menuitem id="menu_forexmanager_user_history_operation" name=" Mi historial" sequence="20" 
             parent="menu_forexmanager_root" action="forexmanager_user_history_operation_action"/>   
     <!-- For admins -->
@@ -29,5 +37,5 @@
             <menuitem id="menu_forexmanager_admin_transfer" name="Administrar traspasos" sequence="30" 
                 parent="menu_forexmanager_config" action="forexmanager_transfer_admin_action"/>
             <menuitem id="menu_forexmanager_history_operation" name="Historial de operaciones" sequence="35" 
-                parent="menu_forexmanager_config" action="forexmanager_history_operation_action"/>            
+                parent="menu_forexmanager_config" action="forexmanager_history_operation_action"/>   
 </odoo>

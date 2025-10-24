@@ -95,14 +95,17 @@
                                 <!-- Columna izquierda -->
                                 <div class="info-col">
                                     <div class="field-row">
-                                        <label for="user_id"/>
-                                        <field name="user_id" class="field-input"/>
-                                    </div>
-                                    <div class="field-row">
                                         <label for="worksession_id"/>
                                         <field name="worksession_id" class="field-input"/>
                                     </div>
-                                    
+                                    <div class="field-row">
+                                        <label for="opening_desk_worksession_id"/>
+                                        <field name="opening_desk_worksession_id" class="field-input"/>
+                                    </div>
+                                    <div class="field-row">
+                                        <label for="user_id"/>
+                                        <field name="user_id" class="field-input"/>
+                                    </div>
                                 </div>
 
                                 <!-- Columna derecha -->
@@ -137,25 +140,5 @@
             </list>
         </field>
     </record>
-
-    <!-- ACTION -->
-    <!-- For user -->
-    <record id="forexmanager_transfer_action" model="ir.actions.act_window">
-        <field name="name">TRASPASOS</field>
-        <field name="res_model">forexmanager.transfer</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">['|', ('user_id','=', uid), ('destination_users','in',[uid])]</field>
-    </record>
-    <record id="actwin_user_list" model="ir.actions.act_window.view">
-        <field name="act_window_id" ref="forexmanager.forexmanager_transfer_action"/>
-        <field name="sequence" eval="1"/>
-        <field name="view_mode">list</field>
-        <field name="view_id" ref="forexmanager.forexmanager_transfer_list_view"/>
-    </record>
-    <record id="actwin_user_form" model="ir.actions.act_window.view">
-        <field name="act_window_id" ref="forexmanager.forexmanager_transfer_action"/>
-        <field name="sequence" eval="2"/>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="forexmanager.forexmanager_transfer_form_view"/>
-    </record>
+    
 </odoo>

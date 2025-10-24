@@ -7,7 +7,7 @@
     "depends": ["base", "web",],
     # "assets": {
     #     "web.assets_backend": [
-    #         "forexmanager/static/src/js/form_button_hide.js",
+    #         "forexmanager/static/src/js/notebook_scroll.js",
     #         ],
     #     },
     "data": [

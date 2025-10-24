@@ -8,7 +8,7 @@ class TransferBase(models.AbstractModel):
     _description = "Traspaso"
 
 
-    def _default_worksession(self):
+    def _default_worksession_id(self):
         # Get current_desk_id for current user
         user_id = self.env.user
         current_desk_id = user_id.current_desk_id
@@ -24,13 +24,29 @@ class TransferBase(models.AbstractModel):
         if not worksession_id:
             raise ValidationError("No puedes traspasar dinero sin una sesión de trabajo iniciada en esta ventanilla.")
         return worksession_id
+    
+    def _default_opening_desk_worksession_id(self):
+        # Get opening_desk_id for current user
+        user_id = self.env.user
+        opening_desk_id = user_id.opening_desk_id
+        
+        opening_desk_worksession_id = self.env["forexmanager.worksession"].search([
+            ("desk_id", "=", opening_desk_id.id),
+            ("user_id", "=", user_id.id),
+            ("session_status", "=", "open"),
+            ("session_type", "=", "checkin")
+            ], limit=1)
+        if not opening_desk_worksession_id:
+            raise ValidationError("No puedes traspasar dinero sin una sesión de trabajo iniciada en esta ventanilla.")
+        return opening_desk_worksession_id
 
     # MAIN FIELDS
     # Readonly
     name = fields.Char(string="Nombre", default="Nuevo traspaso", readonly=True)
-    user_id = fields.Many2one("res.users", string="Empleado", default=lambda self: self.env.user.id, readonly=True)
-    worksession_id = fields.Many2one("forexmanager.worksession", string="Sesión", readonly=True)
-    current_desk_id = fields.Many2one("forexmanager.desk", string="Ventanilla actual", related="worksession_id.desk_id", store=True)
+    user_id = fields.Many2one("res.users", string="Enviado por", default=lambda self: self.env.user.id, readonly=True)
+    worksession_id = fields.Many2one("forexmanager.worksession", string="Sesión de trabajo", readonly=True)
+    opening_desk_worksession_id = fields.Many2one("forexmanager.worksession", string="Sesión de trabajo de origen", readonly=True)
+    current_desk_id = fields.Many2one("forexmanager.desk", string="Ventanilla de trabajo", related="worksession_id.desk_id", store=True)
     opening_desk_id = fields.Many2one("forexmanager.desk", string="Ventanilla de origen", related="worksession_id.opening_desk_id", store=True)
     
     transfer_line_ids = fields.One2many("forexmanager.transfer.line", "transfer_id", string="Líneas de traspaso") # Required on create()
@@ -42,7 +58,51 @@ class TransferBase(models.AbstractModel):
         compute="_compute_destination_users",
         store=True
         )
+    destination_worksessions = fields.Many2many(
+        "forexmanager.worksession",
+        string="Sesiones destino",
+        compute="_compute_destination_worksessions",
+        store=True
+        )
     
+    def action_open_my_transfers(self):
+        # Calculate destination user worksession if it's open 
+        destination_worksession_id = self.env["forexmanager.worksession"].search([
+            ("user_id", "=", self.env.uid),
+            ("session_status", "=", "open"),
+            ("balances_checked_ended", "=", True)
+            ], limit=1)
+        
+        # Calculate source user worksession when sender user is in secondary desk
+        source_worksession_ids = self.env["forexmanager.worksession"].search([
+            ("user_id", "=", self.env.uid),
+            ("session_status", "=", "open")
+            ])
+        
+        # Shows transfers only sent during current session for sender user and every receiver users
+        domain = [
+            "|",
+                "&",
+                    ("user_id", "=", self.env.uid),
+                    ("opening_desk_worksession_id", "in", source_worksession_ids.ids),
+                "&",
+                    ("destination_users", "in", [self.env.uid]),
+                    ("destination_worksessions", "in", [destination_worksession_id.id]),
+        ]
+        print("opening desk worksession id", self.opening_desk_worksession_id)
+        print("soure worksession id", source_worksession_ids)
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Mis Traspasos",
+            "res_model": "forexmanager.transfer",
+            "views": [
+                (self.env.ref("forexmanager.forexmanager_transfer_list_view").id, "list"),
+                (self.env.ref("forexmanager.forexmanager_transfer_form_view").id, "form")
+            ],
+            "domain": domain,
+            "context": {"default_user_view": True},
+        }
     
     @api.depends("transfer_line_ids")
     def _compute_current_worksession(self):
@@ -68,7 +128,7 @@ class TransferBase(models.AbstractModel):
                     ("session_status", "=", "open"),
                     ("opening_desk_id", "=", rec.opening_desk_id.id),
                     ("desk_id", "=", rec.opening_desk_id.id)
-                    ], limit=1) if rec.opening_desk_id else None            
+                    ], limit=1) if rec.opening_desk_id else None        
     
     @api.depends('transfer_line_ids')
     def _compute_user_transfer_line_ids(self):
@@ -83,6 +143,18 @@ class TransferBase(models.AbstractModel):
         for rec in self:
             users = rec.transfer_line_ids.mapped("sent_to")
             rec.destination_users = [(6, 0, users.ids)]
+
+    @api.depends("destination_users")
+    def _compute_destination_worksessions(self):
+        for rec in self:
+            worksession_ids = self.env["forexmanager.worksession"].search([
+                ("session_type", "=", "checkin"),
+                ("session_status", "=", "open"),
+                ("balances_checked_ended", "=", True),
+                ("user_id", "in", rec.destination_users.ids),
+            ])
+            
+            rec.destination_worksessions = [(6, 0, worksession_ids.ids)]
 
     def create(self, vals):                
         transfer = super().create(vals)

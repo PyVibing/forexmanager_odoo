@@ -88,7 +88,7 @@ class Calculation(models.Model):
     target_currency_real_id = fields.Many2one(related="currency_target_id.currency_id", readonly=True, store=False)
     # Boolean buttons (to avoid auto-save when clicking a button)
     switch_button = fields.Boolean(default=False, store=False)
-    bills_book = fields.Boolean(default=False, store=False)
+    bills_book = fields.Boolean(default=True, store=False)
     over_value_button = fields.Boolean(default=False, store=False)
     under_value_button = fields.Boolean(default=False, store=False)
     # Others
