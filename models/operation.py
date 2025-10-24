@@ -77,19 +77,24 @@ class Operation(models.Model):
     confirm = fields.Boolean(default=False, string="Todo listo", store=False) # Required True (validated in create()). This way, avoid accidental save when browser window loses focus or any other reason
     available = fields.Boolean(related="calculation_ids.available")
     
+
+
     
     @api.onchange("calculation_ids")
     def _onchange_summary_tables(self):
         for rec in self:
+            # Avoid adding a repeated line or a line with no availability or a line with amount <= 0
+            rec.calculation_ids = rec.calculation_ids.filtered(lambda l: l.available)
+            rec.calculation_ids = rec.calculation_ids.filtered(lambda l: not l.repeated_line)
+            rec.calculation_ids = rec.calculation_ids.filtered(lambda l: l.amount_received > 0)
+            rec.calculation_ids = rec.calculation_ids.filtered(lambda l: l.amount_delivered > 0)
+
             receive_summary = {} # {currency: amount}
             deliver_summary = {} # {currency: amount}
             diff_calc_summary = {} # {currency: {"receive": amount, "deliver": amount}}
 
             # Grouping the amounts for every currency
             for line in rec.calculation_ids:
-                if not (line.currency_source_id and line.currency_target_id):
-                    continue
-
                 # Convert to Decimal
                 amount_received = Decimal(str(line.amount_received or 0))
                 amount_delivered = Decimal(str(line.amount_delivered or 0))

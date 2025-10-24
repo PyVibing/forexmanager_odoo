@@ -11,39 +11,49 @@
                         display: None;
                     }
                     
-                    .card-container {
+                    .operation-card {
                         flex: 1;
-                        margin-left: 5px;
-                        margin-top: 10px;
-                        margin-bottom: 10px;
-                        padding: 15px;
+                        min-width: 300px;
+                        max-width: 500px;
+                        margin: 20px auto;
+                        padding: 20px;
                         background-color: #ffffff;
-                        border-radius: 8px;
-                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-                        border-left: 4px solid #007bff;
+                        border-radius: 10px;
+                        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+                        border-left: 5px solid #007bff;
                     }
 
-                    .field-group {
+                    .section {
                         margin-bottom: 20px;
-                        border-bottom: 1px solid #e0e0e0;
-                        padding-bottom: 10px;
-                        margin-left: 10px;
                     }
 
-                    .field-label {
-                        font-weight: 600;
+                    .section-title {
+                        font-size: 16px;
+                        font-weight: 700;
                         color: #007bff;
+                        text-align: center;
+                        margin-bottom: 10px;
                         display: block;
-                        margin-bottom: 5px;
-                        margin-right: 10px;
+                    }
+
+                    .field-row {
+                        display: flex;
+                        flex-direction: column;
+                        margin-bottom: 15px;
+                    }
+
+                    label {
+                        font-weight: 600;
+                        color: #444;
+                        margin-bottom: 4px;
                     }
 
                     .field-input {
                         border: 1px solid #ccc;
-                        border-radius: 4px;
-                        padding: 4px 8px;
-                        min-width: 100px;
-                        min-height: 25px;
+                        border-radius: 6px;
+                        padding: 4px 10px;
+                        min-height: 30px;
+                        width: 100%;
                     }
 
                     .field-upload {
@@ -51,66 +61,64 @@
                     }
 
                     .btn-link {
-                        margin-left: 15px;
-                        padding: 4px 10px;
+                        margin-top: 10px;
+                        padding: 6px 12px;
                         border: none;
-                        border-radius: 4px;
-                        background-color: #007bff;
+                        border-radius: 6px;
+                        background: linear-gradient(135deg, #007bff, #0056b3);
                         color: white;
                         font-weight: 600;
                         cursor: pointer;
                         transition: background-color 0.2s ease;
+                        text-align: center;
                     }
 
                     .btn-link:hover {
-                        background-color: #0056b3;
-                        color: white;
+                        background-color: #004a99;
                     }
 
                     .main-title {
-                        display: block;
                         text-align: center;
-                        font-size: 22px;
+                        font-size: 20px;
                         font-weight: 800;
                         color: #fff;
                         background: linear-gradient(135deg, #007bff, #0056b3);
-                        padding: 10px 24px;
-                        border-radius: 12px;
-                        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-                        letter-spacing: 1px;
-                        margin-bottom: 25px;
+                        padding: 10px 0;
+                        border-radius: 8px;
+                        margin-bottom: 20px;
                     }
                 </style>
 
                 <sheet>
-                    <div class="card-container">
-                        <span class="main-title">VINCULAR VENTANILLA</span>
+                    <div class="operation-card">
+                        <div class="main-title">VINCULAR VENTANILLA</div>
 
-                        <!-- Usuario -->
-                        <div class="field-group">
-                            <label for="user_id" class="field-label"/>
-                            <field name="user_id" class="field-input"
-                                options="{'no_open': True, 'no_create': True}"/>
+                        <div class="section">
+                            <span class="section-title">DATOS DE VINCULACIÓN</span>
+
+                            <div class="field-row">
+                                <label for="user_id"/>
+                                <field name="user_id" class="field-input"
+                                    options="{'no_open': True, 'no_create': True}"/>
+                            </div>
+
+                            <div class="field-row">
+                                <label for="current_desk"/>
+                                <field name="current_desk" class="field-input"
+                                    options="{'no_open': True, 'no_create': True}"/>
+                            </div>
+
+                            <div class="field-row" invisible="id">
+                                <label for="desk_code"/>
+                                <field name="desk_code" class="field-upload" readonly="id"/>
+                                <button name="update_current_desk" type="object" string="VINCULAR"
+                                        class="btn-link"/>
+                            </div>
                         </div>
-
-                        <!-- Ventanilla actual -->
-                        <div class="field-group">
-                            <label for="current_desk" class="field-label"/>
-                            <field name="current_desk" class="field-input"
-                                options="{'no_open': True, 'no_create': True}"/>
-                        </div>
-
-                        <!-- Código de ventanilla -->
-                        <div class="field-group" invisible="id">
-                            <label for="desk_code" class="field-label"/>
-                            <field name="desk_code" class="field-upload" readonly="id"/>
-                            <button name="update_current_desk" type="object" string="VINCULAR"
-                                    class="btn-link"/>
-                        </div>
-
                     </div>
                 </sheet>
             </form>
+
 
         </field>
     </record>

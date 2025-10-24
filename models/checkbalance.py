@@ -32,18 +32,13 @@ class CheckBalance(models.Model):
     def _compute_value(self):
         for rec in self:
             if rec.saved_difference and rec.currency_id:
-                print(rec.saved_difference)
-                print(rec.currency_id)
                 base_rate = Decimal(get_base_rate(
                                             from_currency=rec.currency_id.initials, 
                                             to_currency=rec.currency_id.currency_base_id.name)).quantize(
                                                                                             Decimal("0.01"), rounding=ROUND_HALF_UP
                                     ) if rec.currency_id.initials != rec.currency_id.currency_base_id.name else 1
-                print(base_rate)
                 rec.value = float(Decimal(Decimal(rec.saved_difference) * base_rate).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
-                print(rec.value)
             else:
-                print("else")
                 rec.value = 0
 
     @api.depends("currency_id", "session_id")

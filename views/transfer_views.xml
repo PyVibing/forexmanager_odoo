@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <!-- Form view of forexmanager.transfer for user-->
+    <record id="forexmanager_transfer_form_view" model="ir.ui.view">
+        <field name="name">ForexManager transfer form view</field>
+        <field name="model">forexmanager.transfer</field>
+        <field name="arch" type="xml">
+            <form>
+                <style>
+                    .operation-card {
+                        margin: 20px auto;
+                        padding: 20px;
+                        background-color: #ffffff;
+                        border-radius: 10px;
+                        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+                        border-left: 5px solid #007bff;
+                        max-width: 1000px;
+                    }
+
+                    .section {
+                        margin-bottom: 20px;
+                    }
+
+                    .section-title {
+                        font-size: 16px;
+                        font-weight: 700;
+                        color: #007bff;
+                        text-align: center;
+                        margin-bottom: 10px;
+                        display: block;
+                    }
+
+                    .field-row {
+                        display: flex;
+                        flex-direction: column;
+                        margin-bottom: 15px;
+                    }
+
+                    label {
+                        font-weight: 600;
+                        color: #444;
+                        margin-bottom: 4px;
+                    }
+
+                    .field-input {
+                        border: 1px solid #ccc;
+                        border-radius: 6px;
+                        padding: 4px 10px;
+                        min-height: 30px;
+                        width: 100%;
+                    }
+
+                    .main-title {
+                        text-align: center;
+                        font-size: 20px;
+                        font-weight: 800;
+                        color: #fff;
+                        background: linear-gradient(135deg, #007bff, #0056b3);
+                        padding: 10px 0;
+                        border-radius: 8px;
+                        margin-bottom: 20px;
+                    }
+
+                    /* Distribución en dos columnas */
+                    .info-grid {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 20px;
+                    }
+
+                    .info-col {
+                        flex: 1;
+                        min-width: 250px;
+                    }
+                </style>
+
+                <sheet>
+                    <div class="operation-card">
+                        <div class="main-title">TRASPASO DE DINERO</div>
+
+                        <!-- Tabla de líneas -->
+                        <div class="section">
+                            <span class="section-title" invisible="id">DIVISAS A TRASPASAR</span>
+                            <span class="section-title" invisible="not id">DIVISAS TRASPASADAS</span>
+                            <field name="transfer_line_ids" readonly="id" invisible="user_id != uid"/>
+                            <field name="user_transfer_line_ids" readonly="id" invisible="user_id == uid or not id"/>                          
+                        </div>
+
+                        <!-- Info adicional -->
+                        <div class="section">
+                            <span class="section-title">INFORMACIÓN DEL TRASPASO</span>
+                            <div class="info-grid">
+
+                                <!-- Columna izquierda -->
+                                <div class="info-col">
+                                    <div class="field-row">
+                                        <label for="user_id"/>
+                                        <field name="user_id" class="field-input"/>
+                                    </div>
+                                    <div class="field-row">
+                                        <label for="worksession_id"/>
+                                        <field name="worksession_id" class="field-input"/>
+                                    </div>
+                                    
+                                </div>
+
+                                <!-- Columna derecha -->
+                                <div class="info-col">
+                                    <div class="field-row">
+                                        <label for="current_desk_id"/>
+                                        <field name="current_desk_id" class="field-input"/>
+                                    </div>
+                                    <div class="field-row">
+                                        <label for="opening_desk_id"/>
+                                        <field name="opening_desk_id" class="field-input"/>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- List view of forexmanager.transfer for user -->
+    <record id="forexmanager_transfer_list_view" model="ir.ui.view">
+        <field name="name">ForexManager transfer list view</field>
+        <field name="model">forexmanager.transfer</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" width="150"/>
+                <field name="user_id" string="Envía" width="50"/>
+                <field name="opening_desk_id" width="1000"/>                
+            </list>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <!-- For user -->
+    <record id="forexmanager_transfer_action" model="ir.actions.act_window">
+        <field name="name">TRASPASOS</field>
+        <field name="res_model">forexmanager.transfer</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">['|', ('user_id','=', uid), ('destination_users','in',[uid])]</field>
+    </record>
+    <record id="actwin_user_list" model="ir.actions.act_window.view">
+        <field name="act_window_id" ref="forexmanager.forexmanager_transfer_action"/>
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="forexmanager.forexmanager_transfer_list_view"/>
+    </record>
+    <record id="actwin_user_form" model="ir.actions.act_window.view">
+        <field name="act_window_id" ref="forexmanager.forexmanager_transfer_action"/>
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="forexmanager.forexmanager_transfer_form_view"/>
+    </record>
+</odoo>

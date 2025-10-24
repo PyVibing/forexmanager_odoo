@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <!-- Form view of forexmanager.transfer.line -->
+    <record id="forexmanager_transfer_line_form_view" model="ir.ui.view">
+        <field name="name">ForexManager transfer line form view</field>
+        <field name="model">forexmanager.transfer.line</field>
+        <field name="arch" type="xml">
+            <form>
+                <style>
+                    .operation-card {
+                        flex: 1;
+                        min-width: 300px;
+                        max-width: 500px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        background-color: #ffffff;
+                        border-radius: 10px;
+                        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+                        border-left: 5px solid #007bff;
+                    }
+
+                    .section {
+                        margin-bottom: 20px;
+                    }
+
+                    .section-title {
+                        font-size: 16px;
+                        font-weight: 700;
+                        color: #007bff;
+                        text-align: center;
+                        margin-bottom: 10px; /* margen normal */
+                        display: block;
+                    }
+
+                    .field-row {
+                        display: flex;
+                        flex-direction: column;
+                        margin-bottom: 15px; /* 🔹 espacio extra entre cada campo */
+                    }
+
+                    label {
+                        font-weight: 600;
+                        color: #444;
+                        margin-bottom: 4px; /* 🔹 menos separación entre label y field */
+                    }
+
+                    .field-input {
+                        border: 1px solid #ccc;
+                        border-radius: 6px;
+                        padding: 4px 10px;
+                        min-height: 30px;
+                        width: 100%;
+                    }
+
+                    .main-title {
+                        text-align: center;
+                        font-size: 20px;
+                        font-weight: 800;
+                        color: #fff;
+                        background: linear-gradient(135deg, #007bff, #0056b3);
+                        padding: 10px 0;
+                        border-radius: 8px;
+                        margin-bottom: 20px;
+                    }
+                    
+                </style>
+
+                <sheet> 
+                    <div class="operation-card">
+                        <div class="main-title">TRASPASAR DINERO</div>
+
+                        <div class="section">
+                            <span class="section-title">DETALLES DEL TRASPASO</span>
+                            <div class="field-row" readonly="id">
+                                <label for="receiver_desk_id"/>
+                                <field name="receiver_desk_id" class="field-input" options="{'no_create': True, 'no_open': True}"/>
+                            </div>
+                            <div class="field-row">
+                                <label for="currency_id"/>
+                                <field name="currency_id" readonly="id" class="field-input" domain="[('id', 'in', accepted_currencies)]" options="{'no_create': True, 'no_open': True}"/>
+                            </div>
+                            <div class="field-row">
+                                <label for="amount"/>
+                                <field name="amount" readonly="id" class="field-input"/>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </sheet>
+                <footer replace="0" invisible="not destination_checked_in or not amount_available"/>
+            </form>
+        </field>
+    </record>
+
+    <!-- List view of forexmanager.transfer.line -->
+    <record id="forexmanager_transfer_line_list_view" model="ir.ui.view">
+        <field name="name">ForexManager transfer line list_ view</field>
+        <field name="model">forexmanager.transfer.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sender_desk_id" invisible="sent_to != uid and sent_by != uid"/>
+                <field name="receiver_desk_id" invisible="sent_to != uid and sent_by != uid"/>
+                <field name="currency_id"/>
+                <field name="amount"/>
+                <field name="status_source"/>
+                <field name="status_destination"/>
+                <button type="object" name="receive_transfer" string="Recibir" 
+                        invisible="sent_to != uid or not id or status_destination != 'pending'"/>
+                <button type="object" name="reject_transfer" string="Rechazar" 
+                        confirm="¿Estás seguro de querer rechazar este traspaso?"
+                        invisible="sent_to != uid or not id or status_destination != 'pending'"/>
+                <button type="object" name="cancel_transfer_source" string="Cancelar" 
+                        confirm="¿Estás seguro de querer cancelar este traspaso?" 
+                        invisible="sent_by != uid or not id or status_destination != 'pending'"/>
+            </list>
+        </field>
+    </record>
+</odoo>

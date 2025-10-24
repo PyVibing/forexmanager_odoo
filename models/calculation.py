@@ -16,8 +16,8 @@ class Calculation(models.Model):
     name = fields.Char(compute="_compute_name", store=True, string="Nombre")
     date = fields.Datetime(related="operation_id.date", string="Fecha", store=True, readonly=True) 
     user_id = fields.Many2one("res.users", string="Empleado", default=lambda self: self.env.uid, readonly=True)
-    currency_source_id = fields.Many2one("forexmanager.currency", string="Divisa ofrecida", required=True)
-    currency_target_id = fields.Many2one("forexmanager.currency", string="Divisa solicitada", required=True)
+    currency_source_id = fields.Many2one("forexmanager.currency", string="Divisa ofrecida", required=True, domain="[('id', '!=', currency_target_id)]")
+    currency_target_id = fields.Many2one("forexmanager.currency", string="Divisa solicitada", required=True, domain="[('id', '!=', currency_source_id)]")
     amount_received = fields.Monetary(
         string="Cantidad recibida",
         currency_field="source_currency_real_id",
@@ -236,7 +236,7 @@ class Calculation(models.Model):
     @api.depends("amount_delivered", "target_currency_real_id", "buy_rate", "sell_rate", "new_delivered_value")
     def _compute_amount_received(self):
         for rec in self:
-            if not rec.currency_source_id or not rec.currency_target_id or rec.amount_delivered < 0:
+            if not rec.currency_source_id or not rec.currency_target_id or rec.amount_delivered <= 0:
                 rec.amount_received = False
                 rec.amount_delivered = False
 

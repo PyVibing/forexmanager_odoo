@@ -36,7 +36,8 @@ class WorkSession(models.Model):
 
     # OTHER FIELDS
     op_ids = fields.One2many("forexmanager.operation", "worksession_id")
-    checkbalance_ids = fields.One2many("forexmanager.checkbalance", "session_id")    
+    checkbalance_ids = fields.One2many("forexmanager.checkbalance", "session_id")
+    transfer_ids = fields.One2many("forexmanager.transfer", "worksession_id", string="Traspasos") 
     # Shows only the currencies with non confirmed balance
     pending_checkbalance_ids = fields.One2many(
         "forexmanager.checkbalance",
@@ -67,7 +68,6 @@ class WorkSession(models.Model):
         )
     # Field HTML to show saved_difference for every currency in a table
     diff_summary = fields.Html(string="Divisas con diferencias", compute="_compute_saved_difference_checkbalance_ids", options="{'sanitize': False}", store=True)
-
     # Checkbox (to connect the odoo session with a physical pc/desk with its own currency balance)
     checkbox_connect = fields.Boolean(string="Vincular ventanilla", store=False)
 
@@ -169,11 +169,20 @@ class WorkSession(models.Model):
                 raise ValidationError(f"No existe inventario creado para la moneda {currency_id.name} \
                                       Contacte con su administrador de sistemas.")
             return cashcount.balance
-
-        # Create records for CheckBalance only in the opening desk (only once)
+        
+        # Create records for CheckBalance only in the opening desk
         if self.desk_id == self.opening_desk_id:
+            
             # Check if there is a pending balance check in the opening session before the end session check balance
             if self.session_type == "checkout":
+                # If there is a pending transfer in to opening_desk, exit checkbalance is not allowed
+                pending_transfer = self.env["forexmanager.transfer.line"].search([
+                    ("receiver_desk_id", "=", self.opening_desk_id),
+                    ("status_destination", "=", "pending")
+                    ], limit=1)
+                if pending_transfer:
+                    raise ValidationError("No puedes lanzar el arqueo de salida mientras tengas un traspaso pendiente por recibir.")
+
                 if not self.session_to_close.balances_checked_ended:
                     raise ValidationError("No puedes lanzar el arqueo de salida sin haber completado el arqueo de entrada.")
             # Get the coins of this desk

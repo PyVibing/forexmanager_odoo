@@ -1,5 +1,6 @@
 import requests
 from odoo.exceptions import UserError, ValidationError
+        
 
 def get_base_rate(from_currency, to_currency):
     URL = f"https://api.frankfurter.dev/v1/latest?base={from_currency}&symbols={to_currency}"

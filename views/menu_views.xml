@@ -9,6 +9,8 @@
             parent="menu_forexmanager_root" action="forexmanager_worksession_action"/>
     <menuitem id="menu_forexmanager_new_operation" name="Realizar Operación" sequence="10" 
             parent="menu_forexmanager_root" action="forexmanager_new_operation_action"/>
+    <menuitem id="menu_forexmanager_transfer" name=" Traspasos" sequence="15" 
+            parent="menu_forexmanager_root" action="forexmanager_transfer_action"/>   
     <menuitem id="menu_forexmanager_user_history_operation" name=" Mi historial" sequence="20" 
             parent="menu_forexmanager_root" action="forexmanager_user_history_operation_action"/>   
     <!-- For admins -->
@@ -24,6 +26,8 @@
                 parent="menu_forexmanager_config" action="forexmanager_config_cashcounts_action"/>
             <menuitem id="menu_forexmanager_admin_checkbalance" name="Administrar arqueos de divisas" sequence="25" 
                 parent="menu_forexmanager_config" action="forexmanager_admin_checkbalances_action"/>
-            <menuitem id="menu_forexmanager_history_operation" name="Historial de operaciones" sequence="30" 
+            <menuitem id="menu_forexmanager_admin_transfer" name="Administrar traspasos" sequence="30" 
+                parent="menu_forexmanager_config" action="forexmanager_transfer_admin_action"/>
+            <menuitem id="menu_forexmanager_history_operation" name="Historial de operaciones" sequence="35" 
                 parent="menu_forexmanager_config" action="forexmanager_history_operation_action"/>            
 </odoo>
