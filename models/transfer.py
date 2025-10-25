@@ -3,6 +3,7 @@ from odoo.exceptions import ValidationError
 
 
 class Transfer(models.Model):
+    """A model for send money between desks."""
     
     _name = "forexmanager.transfer"
     _description = "Crear nuevo traspaso"

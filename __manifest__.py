@@ -1,15 +1,12 @@
 {
     "name": "ForexManager: Cambio de divisas",
     "version": "1.0",
-    "category": "Currency exchange",
-    "summary": "Gestión para empresas orientadas al cambio de divisas ",
+    "category": "Accounting/Finance",
+    "summary": "Gestión de operaciones para empresas orientadas al cambio de divisas ",
+    "description": "Módulo para gestionar operaciones de cambio de divisas (Forex) en Odoo (v18.0).",
+    "website": "https://github.com/PyVibing/forexmanager_odoo",
     "author": "Jeffry Hernández",
     "depends": ["base", "web",],
-    # "assets": {
-    #     "web.assets_backend": [
-    #         "forexmanager/static/src/js/notebook_scroll.js",
-    #         ],
-    #     },
     "data": [
         "security/forexmanager_security.xml",
         "security/ir.model.access.csv",
@@ -26,9 +23,7 @@
         "views/transfer_line_views.xml",
         "views/transfer_views.xml",
         "views/transfer_admin_views.xml",
-        "views/transfer_line_currency_views.xml",
-        # "views/transfer_transient_views.xml",
-        "views/menu_views.xml", 
+        "views/menu_views.xml",
     ],
     "post_init_hook": "initial_config",
     "installable": True,

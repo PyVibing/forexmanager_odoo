@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
+
     <!-- Form view of forexmanager.operation -->
     <record id="forexmanager_operation_form_view" model="ir.ui.view">
         <field name="name">ForexManager operation form view</field>
@@ -128,231 +129,222 @@
                     }
                 </style>
                 <sheet style="min-width: 100%;">
-                    <notebook>
-                        <page string="Realizar cambio de divisa">                    
-                            <div invisible="worksession_id or not desk_id">
-                                <span class="error-message">No puedes operar en esta ventanilla. Primeramente debes iniciar sesión y realizar, si aún no lo has hecho, el arqueo de entrada.</span>
-                            </div>
-                            <div invisible="desk_id">
-                                <span class="error-message">No has vinculado ninguna ventanilla. Ve al menú VINCULAR VENTANILLA y hazlo, para que puedas operar.</span>
-                            </div>
-                            <div invisible="not worksession_id or not desk_id or not (closing_session_check_started and not closing_session_check_ended)">
-                                <span class="error-message">Tienes el arqueo de salida iniciado. Ya no puedes seguir operando.</span>
-                            </div>
-                            <div invisible="not worksession_id or (closing_session_check_started and not closing_session_check_ended)">
-                                <h1 class="main-title">CAMBIO DE MONEDA</h1>
-                                <notebook>
-                                    <page string="Moneda y cantidad">
-                                        <field name="calculation_ids" readonly="id">
-                                            <list>
-                                                <field name="name" width="300px;"/>
-                                                <field name="payment_type" width="100"/>
-                                                <field name="amount_received" string="A recibir" width="50"/>
-                                                <field name="currency_source_id" string="Divisa" width="200"/>
-                                                <field name="delivery_type" width="100"/>
-                                                <field name="amount_delivered" string="A entregar" width="60"/>
-                                                <field name="currency_target_id" string="Divisa" width="200"/>
-                                                <field name="discount" width="80"/>
-                                                <field name="operation_ref" width="50"/>
-                                            </list>
-                                        </field>
-                                        <div>
-                                            <field name="summary" readonly="1" widget="html" force_save="1"/>
-                                        </div>
-                                    </page>
+                    <div invisible="worksession_id or not desk_id">
+                        <span class="error-message">No puedes operar en esta ventanilla. Primeramente debes iniciar sesión y realizar, si aún no lo has hecho, el arqueo de entrada.</span>
+                    </div>
+                    <div invisible="desk_id">
+                        <span class="error-message">No has vinculado ninguna ventanilla. Ve al menú VINCULAR VENTANILLA y hazlo, para que puedas operar.</span>
+                    </div>
+                    <div invisible="not worksession_id or not desk_id or not (closing_session_check_started and not closing_session_check_ended)">
+                        <span class="error-message">Tienes el arqueo de salida iniciado. Ya no puedes seguir operando.</span>
+                    </div>
+                    <div invisible="not worksession_id or (closing_session_check_started and not closing_session_check_ended)">
+                        <h1 class="main-title">CAMBIO DE MONEDA</h1>
+                        <notebook>
+                            <page string="Moneda y cantidad">
+                                <field name="calculation_ids" readonly="id">
+                                    <list>
+                                        <field name="name" width="300px;"/>
+                                        <field name="payment_type" width="100"/>
+                                        <field name="amount_received" string="A recibir" width="50"/>
+                                        <field name="currency_source_id" string="Divisa" width="200"/>
+                                        <field name="delivery_type" width="100"/>
+                                        <field name="amount_delivered" string="A entregar" width="60"/>
+                                        <field name="currency_target_id" string="Divisa" width="200"/>
+                                        <field name="discount" width="80"/>
+                                        <field name="operation_ref" width="50"/>
+                                    </list>
+                                </field>
+                                <div>
+                                    <field name="summary" readonly="1" widget="html" force_save="1"/>
+                                </div>
+                            </page>
 
-                                    <!-- Customer data -->
-                                    <page string="Datos del cliente">
+                            <!-- Customer data -->
+                            <page string="Datos del cliente">
 
-                                        <div style="display: flex; gap:20px; flex-wrap:wrap; width: 100%;">
+                                <div style="display: flex; gap:20px; flex-wrap:wrap; width: 100%;">
 
-                                            <!-- Main Info -->
-                                            <div class="personal-card">
-                                                
-                                                <!-- Passport info -->
-                                                <div class="section">
-                                                    <div class="section-title">INFORMACIÓN DEL PASAPORTE</div>
+                                    <!-- Main Info -->
+                                    <div class="personal-card">
+                                        
+                                        <!-- Passport info -->
+                                        <div class="section">
+                                            <div class="section-title">INFORMACIÓN DEL PASAPORTE</div>
 
-                                                    <div class="field-row" style="display: flex; gap: 10px;">
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="ID_number"/>
-                                                            <field name="ID_number" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="ID_type"/>
-                                                            <field name="ID_type" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="ID_country"/>
-                                                            <field name="ID_country" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="nationality"/>
-                                                            <field name="nationality" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="ID_expiration"/>
-                                                            <field name="ID_expiration" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                    </div>
-                                                    <div class="field-row" style="display: flex; gap: 10px;">
-                                                        <label for="search_ID"/>
-                                                        <field name="search_ID" readonly="search_ID or id"/>
-                                                        <field name="passport_id" invisible="1" force_save="1"/> <!-- We must have this field so we can use it in readonly and invisible  -->
-                                                    </div>
+                                            <div class="field-row" style="display: flex; gap: 10px;">
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="ID_number"/>
+                                                    <field name="ID_number" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
-
-                                                <!-- Name -->
-                                                <div class="section">
-                                                    <div class="section-title">NOMBRE COMPLETO DEL CLIENTE</div>
-
-                                                    <div class="field-row" style="display: flex; gap: 10px;">
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="first_name_1"/>
-                                                            <field name="first_name_1" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="first_name_2"/>
-                                                            <field name="first_name_2" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="last_name_1"/>
-                                                            <field name="last_name_1" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="last_name_2"/>
-                                                            <field name="last_name_2" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                    </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="ID_type"/>
+                                                    <field name="ID_type" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
-
-                                                <!-- Birth -->
-                                                <div class="section">
-                                                    <div class="section-title">DATOS DE NACIMIENTO</div>
-
-                                                    <div class="field-row" style="display: flex; gap: 10px;">
-                                                        <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
-                                                            <label for="birth_country_id"/>
-                                                            <field name="birth_country_id" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="birth_date"/>
-                                                            <field name="birth_date" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="sex">Sexo</label>
-                                                            <field name="sex" class="field-input" readonly="passport_id or id" force_save="1"/>
-                                                        </div>
-                                                    </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="ID_country"/>
+                                                    <field name="ID_country" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
-
-
-                                                <!-- Local address -->
-                                                <div class="section">
-                                                    <div class="section-title">DIRECCIÓN LOCAL</div>
-
-                                                    <div class="field-row" style="display: flex; gap: 10px;">
-                                                        <div style="display: flex; flex-direction: column; flex: 2;">
-                                                            <label for="street"/>
-                                                            <field name="street" class="field-input"  readonly="id"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="number"/>
-                                                            <field name="number" class="field-input" readonly="id"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="other"/>
-                                                            <field name="other" class="field-input" readonly="id"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="postal_code"/>
-                                                            <field name="postal_code" widget="char" class="field-input" readonly="id"/>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="field-row" style="display: flex; gap: 10px;">
-                                                        <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
-                                                            <label for="country_id"/>
-                                                            <field name="country_id" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="id"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
-                                                            <label for="province_id"/>
-                                                            <field name="province_id" domain="[('country_id', '=', country_id)]" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="id"/>
-                                                        </div>
-                                                        <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
-                                                            <label for="city"/>
-                                                            <field name="city" class="field-input" readonly="id"/>
-                                                        </div>
-                                                    </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="nationality"/>
+                                                    <field name="nationality" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
-
-                                                <!-- Contact -->
-                                                <div class="section">
-                                                    <div class="section-title">DATOS DE CONTACTO</div>
-
-                                                    <div class="field-row" style="display: flex; gap: 10px;">
-                                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                                            <label for="email"/>
-                                                            <field name="email" class="field-input" style="width: 30%" readonly="id"/>
-                                                        </div>
-                                                    </div>                                            
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="ID_expiration"/>
+                                                    <field name="ID_expiration" class="field-input" readonly="passport_id or id" force_save="1"/>
                                                 </div>
-
                                             </div>
-
-                                            <!-- ID images -->
-                                            <div id="id_info" class="image-card">
-                                                
-                                                <div style="margin-bottom: 20px; padding-bottom: 10px;">
-                                                    <label for="image_1" string="Imágenes del documento" style="font-weight:600; color:#ffc107;"/>
-                                                    <div class="field-images">
-                                                        <div style="display: flex; flex-direction: column;">
-                                                            <field name="image_1" widget="image" readonly="id"/>
-                                                            <div>
-                                                                <label for="read_ID" string="Leer datos"/>
-                                                                <field name="read_ID" readonly="id" style="margin-left: 10px;"/>
-                                                            </div>
-                                                        </div>
-                                                        <div>
-                                                            <field name="image_2" widget="image" readonly="id"/>
-                                                        </div>
-                                                        <div>
-                                                            <field name="image_3" widget="image" readonly="id"/>
-                                                        </div>    
-                                                        <div>
-                                                            <field name="image_4" widget="image" readonly="id"/>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
+                                            <div class="field-row" style="display: flex; gap: 10px;">
+                                                <label for="search_ID"/>
+                                                <field name="search_ID" readonly="search_ID or id"/>
+                                                <field name="passport_id" invisible="1" force_save="1"/> <!-- We must have this field so we can use it in readonly and invisible  -->
                                             </div>
                                         </div>
-                                    
-                                    </page>
 
-                                    <page string="Finalizar">
-                                        <div>
-                                            <field name="diff_calc_summary" readonly="1" widget="html" force_save="1"/>
+                                        <!-- Name -->
+                                        <div class="section">
+                                            <div class="section-title">NOMBRE COMPLETO DEL CLIENTE</div>
+
+                                            <div class="field-row" style="display: flex; gap: 10px;">
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="first_name_1"/>
+                                                    <field name="first_name_1" class="field-input" readonly="passport_id or id" force_save="1"/>
+                                                </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="first_name_2"/>
+                                                    <field name="first_name_2" class="field-input" readonly="passport_id or id" force_save="1"/>
+                                                </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="last_name_1"/>
+                                                    <field name="last_name_1" class="field-input" readonly="passport_id or id" force_save="1"/>
+                                                </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="last_name_2"/>
+                                                    <field name="last_name_2" class="field-input" readonly="passport_id or id" force_save="1"/>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div style="display: flex; align-items: center; margin-left: 200px; width: 300px; align-items: baseline;" 
-                                                invisible="id or not diff_calc_summary">
-                                            <h4 style="font-size: 14px; font-weight: 700; color: #007bff; margin: 0 10px 0 0;">
-                                                TODO LISTO
-                                            </h4>
-                                            <field name="confirm"/>
-                                            <div style="flex-grow: 1;"/>
-                                            <button type="object" string="CONFIRMAR" class="btn btn-primary"/>
+
+                                        <!-- Birth -->
+                                        <div class="section">
+                                            <div class="section-title">DATOS DE NACIMIENTO</div>
+
+                                            <div class="field-row" style="display: flex; gap: 10px;">
+                                                <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
+                                                    <label for="birth_country_id"/>
+                                                    <field name="birth_country_id" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="passport_id or id" force_save="1"/>
+                                                </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="birth_date"/>
+                                                    <field name="birth_date" class="field-input" readonly="passport_id or id" force_save="1"/>
+                                                </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="sex">Sexo</label>
+                                                    <field name="sex" class="field-input" readonly="passport_id or id" force_save="1"/>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </page>
-                                </notebook>
-                            </div>
-                        </page>
-                        <page string="Realizar traspaso">
-                            <!-- <field name="transfer_transient_ids" mode="list,form"
-                            views="[(ref('forexmanager_transfer_transient_list_view'),'list'),
-                                    (ref('forexmanager_transfer_transient_form_view'),'form')]"/> -->
-                        </page>
-                    </notebook>
+
+
+                                        <!-- Local address -->
+                                        <div class="section">
+                                            <div class="section-title">DIRECCIÓN LOCAL</div>
+
+                                            <div class="field-row" style="display: flex; gap: 10px;">
+                                                <div style="display: flex; flex-direction: column; flex: 2;">
+                                                    <label for="street"/>
+                                                    <field name="street" class="field-input"  readonly="id"/>
+                                                </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="number"/>
+                                                    <field name="number" class="field-input" readonly="id"/>
+                                                </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="other"/>
+                                                    <field name="other" class="field-input" readonly="id"/>
+                                                </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="postal_code"/>
+                                                    <field name="postal_code" widget="char" class="field-input" readonly="id"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="field-row" style="display: flex; gap: 10px;">
+                                                <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
+                                                    <label for="country_id"/>
+                                                    <field name="country_id" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="id"/>
+                                                </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
+                                                    <label for="province_id"/>
+                                                    <field name="province_id" domain="[('country_id', '=', country_id)]" options="{'no_create': True, 'no_open': True}" class="field-input" readonly="id"/>
+                                                </div>
+                                                <div style="display: flex; flex-direction: column; flex: 1; min-width: 150px;">
+                                                    <label for="city"/>
+                                                    <field name="city" class="field-input" readonly="id"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Contact -->
+                                        <div class="section">
+                                            <div class="section-title">DATOS DE CONTACTO</div>
+
+                                            <div class="field-row" style="display: flex; gap: 10px;">
+                                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                                    <label for="email"/>
+                                                    <field name="email" class="field-input" style="width: 30%" readonly="id"/>
+                                                </div>
+                                            </div>                                            
+                                        </div>
+
+                                    </div>
+
+                                    <!-- ID images -->
+                                    <div id="id_info" class="image-card">
+                                        
+                                        <div style="margin-bottom: 20px; padding-bottom: 10px;">
+                                            <label for="image_1" string="Imágenes del documento" style="font-weight:600; color:#ffc107;"/>
+                                            <div class="field-images">
+                                                <div style="display: flex; flex-direction: column;">
+                                                    <field name="image_1" widget="image" readonly="id"/>
+                                                    <div>
+                                                        <label for="read_ID" string="Leer datos"/>
+                                                        <field name="read_ID" readonly="id" style="margin-left: 10px;"/>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <field name="image_2" widget="image" readonly="id"/>
+                                                </div>
+                                                <div>
+                                                    <field name="image_3" widget="image" readonly="id"/>
+                                                </div>    
+                                                <div>
+                                                    <field name="image_4" widget="image" readonly="id"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            
+                            </page>
+
+                            <page string="Finalizar">
+                                <div>
+                                    <field name="diff_calc_summary" readonly="1" widget="html" force_save="1"/>
+                                </div>
+                                <div style="display: flex; align-items: center; margin-left: 200px; width: 300px; align-items: baseline;" 
+                                        invisible="id or not diff_calc_summary">
+                                    <h4 style="font-size: 14px; font-weight: 700; color: #007bff; margin: 0 10px 0 0;">
+                                        TODO LISTO
+                                    </h4>
+                                    <field name="confirm"/>
+                                    <div style="flex-grow: 1;"/>
+                                    <button type="object" string="CONFIRMAR" class="btn btn-primary"/>
+                                </div>
+                            </page>
+                        </notebook>
+                    </div>
                 </sheet>
             </form>
         </field>
@@ -422,4 +414,5 @@
             {"search_default_group_by_date": 1}
         </field>
     </record>
+    
 </odoo>

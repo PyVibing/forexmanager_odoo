@@ -3,6 +3,7 @@ from odoo import fields, models
 
 class Users(models.Model):
     """A model for defyning users and related information about them."""
+    
     _inherit = "res.users"
     _description = "Usuario"
 

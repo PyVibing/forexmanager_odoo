@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
+    
     <!-- Form view of forexmanager.worksession -->
     <record id="forexmanager_worksession_form_view" model="ir.ui.view">
         <field name="name">ForexManager worksession form view</field>
@@ -291,30 +292,16 @@
                             <page string="Pendiente de arqueo" invisible="not pending_checkbalance_ids">
                                 <field name="pending_checkbalance_ids">
                                     <list editable="top" create="false" delete="false" options="{'no_open': True}">
-                                        <field name="name"/>
-                                        <field name="session_id" options="{'no_open': True}"/>
-                                        <field name="user_id" options="{'no_open': True}"/>
-                                        <field name="desk_id" options="{'no_open': True}"/>
-                                        <field name="currency_id" options="{'no_open': True}"/>
                                         <field name="physical_balance"/>
-                                        <field name="BD_balance"/>
-                                        <field name="difference"/>
-                                        <field name="checked"/>
+                                        <field name="currency_id" options="{'no_open': True}"/>                                        
                                     </list>
                                 </field>
                             </page>
                             <page string="Diferencias en el arqueo" invisible="not difference_checkbalance_ids">
                                 <field name="difference_checkbalance_ids">
                                     <list editable="top" create="false" delete="false">
-                                        <field name="name"/>
-                                        <field name="session_id" options="{'no_open': True}"/>
-                                        <field name="user_id" options="{'no_open': True}"/>
-                                        <field name="desk_id" options="{'no_open': True}"/>
-                                        <field name="currency_id" options="{'no_open': True}"/>
-                                        <field name="physical_balance" widget="char"/>
-                                        <field name="BD_balance"/>
-                                        <field name="difference"/>
-                                        <field name="checked"/>
+                                        <field name="physical_balance"/>
+                                        <field name="currency_id" options="{'no_open': True}"/>                                        
                                     </list>
                                 </field>
                             </page>
@@ -322,8 +309,6 @@
                     </div>
                 </sheet>
             </form>
-            
-
         </field>
     </record>
 
@@ -376,4 +361,5 @@
             ("session_status", "=", "open"),
             ]</field>
     </record>
+
 </odoo>

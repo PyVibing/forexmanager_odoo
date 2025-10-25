@@ -63,4 +63,4 @@ class CheckBalance(models.Model):
             if self.env.context.get('from_list_view') and rec.saved_difference and not rec.note and rec.closed:
                 raise ValidationError("Debes añadir unas notas explicando este quebranto.")
             
-            return checkbalance
+        return checkbalance

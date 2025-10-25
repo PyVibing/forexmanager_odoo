@@ -6,6 +6,7 @@ from ..utils import notification
 
 class CurrentDeskTransient(models.TransientModel):
     """A model for updating the current desk where user is working."""
+    
     _name = "forexmanager.currentdesktransient"
     _description = "Vinculación de ventanilla"
 

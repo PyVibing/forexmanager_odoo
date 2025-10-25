@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
+
     <!-- List view of forexmanager.cashcount -->
     <record id="forexmanager_cashcount_list_view" model="ir.ui.view">
         <field name="name">ForexManager cashcount list view</field>
@@ -23,4 +24,5 @@
         <field name="res_model">forexmanager.cashcount</field>
         <field name="view_mode">list</field>
     </record>
+    
 </odoo>

@@ -5,6 +5,7 @@ from ..utils import notification
 
 class Breakdown(models.Model):
     """A model for defyning the accepted bills and coins for a currency."""
+    
     _name = "forexmanager.breakdown"
     _description = "Desglose de billetes y monedas"
 

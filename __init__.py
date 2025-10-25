@@ -9,8 +9,7 @@ def initial_config(env):
                     i.active = True
             print("Currencies activated")
         except Exception as e:
-            print("Exception in init hook - activate_currencies:", e)
-
+            print("Exception in init hook (file: __init__.py) - initial_config() --> activate_currencies:", e)
     
     activate_currencies(env)
     

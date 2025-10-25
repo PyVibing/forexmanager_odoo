@@ -4,6 +4,7 @@ from odoo.exceptions import ValidationError
 
 class Cashcount(models.Model):
     """A model for keep the currency inventory for every desk. Records will be created from create() in model Currency and model Desk."""
+
     _name = "forexmanager.cashcount"
     _description = "Balance de divisas"
 
@@ -29,4 +30,4 @@ class Cashcount(models.Model):
             if rec.balance > 0:
                 raise ValidationError("No puedes eliminar un inventario que tenga saldo positivo. Puedes archivarlo si prefieres. O puedes realizar un inventario y ajustar la cantidad a 0 antes de eliminarlo.")
             
-            return super().unlink()
+        return super().unlink()

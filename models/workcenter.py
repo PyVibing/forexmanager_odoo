@@ -4,7 +4,8 @@ from ..utils import create_initial_inventories
 
 
 class WorkCenter(models.Model):
-    """A model for defyning all the workcenters for the Exchange Currency Company."""
+    """A model for defyning all the workcenters for the exchange currency company."""
+
     _name = "forexmanager.workcenter"
     _description = "Centro de trabajo"
 
@@ -53,7 +54,10 @@ class WorkCenter(models.Model):
                         # Means the user is adding a new accepted currency for this workcenter
                         # So let's create the initial inventory (cashcount) for this currency and desk
                         workcenter = super().write(vals)
-                        create_initial_inventories(self.env["forexmanager.workcenter"].browse(rec.id))
 
-            workcenter = super().write(vals)
+                        if rec.desk_ids: # Creates inventories for every desk only if there is at least one
+                            create_initial_inventories(self.env["forexmanager.workcenter"].browse(rec.id))
+
+        workcenter = super().write(vals)
+            
         return workcenter

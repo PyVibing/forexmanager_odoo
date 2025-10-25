@@ -7,6 +7,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 class WorkSession(models.Model):
     """A model for creating the work sessions."""
+
     _name = "forexmanager.worksession"
     _description = "Sesión de trabajo"
 
@@ -118,8 +119,7 @@ class WorkSession(models.Model):
                         </table>
                     </div>
                 """
-                rec.diff_summary = summary
-            
+                rec.diff_summary = summary            
 
     # Manually executed from worksession.search_difference()
     def check_balances_checked_ended(self): 
@@ -365,4 +365,4 @@ class WorkSession(models.Model):
                             "current_desk_id": False,
                             })
                         
-            return worksession
+        return worksession

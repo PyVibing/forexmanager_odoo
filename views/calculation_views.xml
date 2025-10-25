@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
+    
     <!-- Form view of forexmanager.calculation -->
     <record id="forexmanager_calculation_form_view" model="ir.ui.view">
         <field name="name">ForexManager calculation form view</field>

@@ -1,8 +1,10 @@
 from odoo import fields, models, api
 from ..utils import notification
 
+
 class Passport(models.Model):
     """A model for defyning everything related to the customer passport or ID."""
+    
     _name = "forexmanager.passport"
     _description = "Documento de identidad"
 

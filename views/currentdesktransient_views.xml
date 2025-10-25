@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
+
+    <!-- Form view of forexmanager.currentdesktransient -->
     <record id="forexmanager_currentdesktransient_form_view" model="ir.ui.view">
         <field name="name">ForexManager currentdesktransient form view</field>
         <field name="model">forexmanager.currentdesktransient</field>
@@ -118,8 +120,6 @@
                     </div>
                 </sheet>
             </form>
-
-
         </field>
     </record>
 
@@ -128,4 +128,5 @@
         <field name="res_model">forexmanager.currentdesktransient</field>
         <field name="view_mode">form</field>
     </record>
+    
 </odoo>

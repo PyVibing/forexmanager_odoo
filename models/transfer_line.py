@@ -3,7 +3,8 @@ from odoo.exceptions import ValidationError
 
 
 class TransferLine(models.Model):
-    """A model for creating a new transfer from list view."""
+    """A model for defyning the currencies and amounts when sending money between desks."""
+    
     _name = "forexmanager.transfer.line"
     _description = "Crear nueva línea de traspaso"
     _inherit = "forexmanager.transfer.line.base"

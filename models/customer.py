@@ -2,8 +2,9 @@ from odoo import fields, models, api
 
 
 class Customer(models.Model):
-    """A model for defyning the personal information about the customers."""
-    # This model will be only accesible through the Operation model. Records will be always created from there.
+    """A model for defyning the personal information about the customers."""    
+    # This model will be only accesible through the Operation model. New records will be always created from there.
+
     _name = "forexmanager.customer"
     _description = "Cliente"
 

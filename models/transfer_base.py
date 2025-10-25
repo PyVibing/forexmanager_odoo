@@ -4,9 +4,10 @@ from ..utils import notification
 
 
 class TransferBase(models.AbstractModel):
+    """A model for send money between desks. Using AbstractModel is only for practicing with this type of model."""
+
     _name = "forexmanager.transfer.base"
     _description = "Traspaso"
-
 
     def _default_worksession_id(self):
         # Get current_desk_id for current user
@@ -79,6 +80,19 @@ class TransferBase(models.AbstractModel):
             ("session_status", "=", "open")
             ])
         
+        # Transfer is not allowed if user has not completed checkbalance in opening desk id
+        if self.user_id.current_desk_id and self.user_id.opening_desk_id:
+            source_worksession_id = self.env["forexmanager.worksession"].search([
+            ("user_id", "=", self.env.uid),
+            ("session_status", "=", "open"),
+            ("session_type", "=", "checkin"),
+            ("balances_checked_ended", "=", True)
+            ], limit=1)
+            if not source_worksession_id:
+                raise ValidationError("No puedes traspasar dinero sin haber realizado el arqueo de entrada en tu ventanilla de arqueo.")
+            
+            
+        
         # Shows transfers only sent during current session for sender user and every receiver users
         domain = [
             "|",
@@ -89,8 +103,6 @@ class TransferBase(models.AbstractModel):
                     ("destination_users", "in", [self.env.uid]),
                     ("destination_worksessions", "in", [destination_worksession_id.id]),
         ]
-        print("opening desk worksession id", self.opening_desk_worksession_id)
-        print("soure worksession id", source_worksession_ids)
 
         return {
             "type": "ir.actions.act_window",

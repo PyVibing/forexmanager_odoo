@@ -4,6 +4,9 @@ from ..utils import notification
 
 
 class TransferBase(models.AbstractModel):
+    """A model for defyning the currencies and amounts when sending money between desks. 
+    Using AbstractModel is only for practicing with this type of model."""
+
     _name = "forexmanager.transfer.line.base"
     _description = "Línea de Traspaso"
 
@@ -140,7 +143,8 @@ class TransferBase(models.AbstractModel):
                 return transfer_line
 
             transfer_line = super().write(vals)
-            return transfer_line
+        
+        return transfer_line
     
     # BUTTONS CALLS
     def cancel_transfer_source(self):

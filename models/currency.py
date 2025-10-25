@@ -4,7 +4,8 @@ from ..utils import get_base_rate, notification, create_initial_inventories
 
 
 class Currency(models.Model):
-    """A model for defining the allowed currencies for this exchange company, and balance. Only for admins."""
+    """A model for defining the allowed currencies for this exchange company, and balance."""
+
     _name = "forexmanager.currency"
     _description = "Divisas"
 
@@ -18,7 +19,7 @@ class Currency(models.Model):
     base_rate = fields.Float(compute="_compute_base_rate") # currency_id related to currency_base_id
 
     # OTHER FIELDS
-    # Units_ids is mandatory in create()
+    # Units_ids is mandatory in create() and write()
     unit_ids = fields.One2many("forexmanager.breakdown", "currency_id", string="Billetes y monedas aceptadas") # Bill and coins
     workcenter_ids = fields.Many2many(
         comodel_name="forexmanager.workcenter",
@@ -51,10 +52,10 @@ class Currency(models.Model):
     def create(self, vals):
         currency = super().create(vals)
         if not currency.unit_ids:
-            raise ValidationError("Debe crear un desglose de monedas y billetes para esta divisa.")
+            raise ValidationError("Debes crear un desglose de monedas y billetes para esta divisa.")
         if not currency.workcenter_ids:
             notification(self, "Asignar centro de trabajo", 
-                    "Recuerde luego asignar al menos un centro de trabajo a esta divisa. Vaya a CONFIGURACIÓN/ADMINISTRAR CENTROS DE TRABAJO", 
+                    "Recuerda luego asignar al menos un centro de trabajo a esta divisa. Ve a CONFIGURACIÓN/ADMINISTRAR CENTROS DE TRABAJO", 
                     "warning")
 
         # Add the new currency to every desk cashcount (inventory) for every desk in workcenter_ids
@@ -88,7 +89,7 @@ class Currency(models.Model):
                             if cashcount_rec:
                                 if cashcount_rec.balance > 0:
                                     currency = cashcount_rec.currency_id
-                                    raise ValidationError(f"No puede desvincular este centro de trabajo de la divisa {currency.name} mientras existan ventanillas con saldo de esta divisa mayor que 0.00 {currency.initials}")
+                                    raise ValidationError(f"No puedes desvincular este centro de trabajo de la divisa {currency.name} mientras existan ventanillas con saldo de esta divisa mayor que 0.00 {currency.initials}")
                                 else:
                                     cashcount_rec.unlink()
                     elif wc[0] == 4:
@@ -96,8 +97,12 @@ class Currency(models.Model):
                         # So let's create the initial inventory (cashcount) for this currency and desk
                         currency = super().write(vals)
                         create_initial_inventories(rec.workcenter_ids)
-
-            currency = super().write(vals)        
+            
+            currency = super().write(vals)
+            
+            if not rec.unit_ids:
+                raise ValidationError("Debes crear un desglose de monedas y billetes para esta divisa.")
+                   
         return currency
 
     

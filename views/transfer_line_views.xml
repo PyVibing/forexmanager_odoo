@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
+    
     <!-- Form view of forexmanager.transfer.line -->
     <record id="forexmanager_transfer_line_form_view" model="ir.ui.view">
         <field name="name">ForexManager transfer line form view</field>
@@ -116,4 +117,5 @@
             </list>
         </field>
     </record>
+
 </odoo>

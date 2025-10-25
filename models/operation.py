@@ -10,6 +10,7 @@ from ..utils import notification
 
 class Operation(models.Model):
     """A model for converting currencies from source to destination currency."""
+
     _name = "forexmanager.operation"
     _description = "Operación de cambio de divisas"
 
@@ -77,8 +78,6 @@ class Operation(models.Model):
     confirm = fields.Boolean(default=False, string="Todo listo", store=False) # Required True (validated in create()). This way, avoid accidental save when browser window loses focus or any other reason
     available = fields.Boolean(related="calculation_ids.available")
     
-
-
     
     @api.onchange("calculation_ids")
     def _onchange_summary_tables(self):

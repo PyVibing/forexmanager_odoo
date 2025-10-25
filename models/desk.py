@@ -4,6 +4,7 @@ from odoo.exceptions import ValidationError
 
 class Desk(models.Model):
     """A model for defyning the desks (physical workplaces). Every desk has its own currency inventory."""
+    
     _name = "forexmanager.desk"
     _description = "Ventanilla de trabajo"
 

@@ -6,6 +6,7 @@ from ..utils import notification
 
 class Calculation(models.Model):
     """A model for calculating the conversion from source to destination currency."""
+
     _name = "forexmanager.calculation"
     _description = "Cálculo para cambio de divisas"
 
@@ -231,8 +232,7 @@ class Calculation(models.Model):
                 rec.amount_received, rec.amount_delivered = amount_received, amount_delivered
                 if not rec.check_availability(rec.currency_target_id, rec.amount_delivered):
                     notification(rec, "No hay suficiente balance", "No existe suficiente balance de la divisa solicitada", "warning")
-                         
-    
+                             
     @api.depends("amount_delivered", "target_currency_real_id", "buy_rate", "sell_rate", "new_delivered_value")
     def _compute_amount_received(self):
         for rec in self:

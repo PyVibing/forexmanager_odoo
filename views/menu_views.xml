@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
+
     <!-- Server action -->
     <record id="action_open_my_transfers_server" model="ir.actions.server">
         <field name="name">Abrir Mis Traspasos</field>
@@ -21,10 +22,11 @@
             parent="menu_forexmanager_root" action="action_open_my_transfers_server"/>   
     <menuitem id="menu_forexmanager_user_history_operation" name=" Mi historial" sequence="20" 
             parent="menu_forexmanager_root" action="forexmanager_user_history_operation_action"/>   
+
     <!-- For admins -->
     <menuitem id="menu_forexmanager_config" name="Configuración" sequence="25" 
             parent="menu_forexmanager_root" groups="forexmanager.group_forexmanager_admin"/>
-            <menuitem id="menu_forexmanager_config_currencies" name="Administrar monedas" sequence="5" 
+            <menuitem id="menu_forexmanager_config_currencies" name="Administrar divisas" sequence="5" 
                 parent="menu_forexmanager_config" action="forexmanager_config_currencies_action"/>
             <menuitem id="menu_forexmanager_config_desks" name="Administrar ventanillas" sequence="15" 
                 parent="menu_forexmanager_config" action="forexmanager_config_desks_action"/>
@@ -37,5 +39,6 @@
             <menuitem id="menu_forexmanager_admin_transfer" name="Administrar traspasos" sequence="30" 
                 parent="menu_forexmanager_config" action="forexmanager_transfer_admin_action"/>
             <menuitem id="menu_forexmanager_history_operation" name="Historial de operaciones" sequence="35" 
-                parent="menu_forexmanager_config" action="forexmanager_history_operation_action"/>   
+                parent="menu_forexmanager_config" action="forexmanager_history_operation_action"/>
+                
 </odoo>
