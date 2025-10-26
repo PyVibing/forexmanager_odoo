@@ -105,7 +105,9 @@
                 <field name="currency_id"/>
                 <field name="amount"/>
                 <field name="status_source"/>
+                <field name="source_time"/>
                 <field name="status_destination"/>
+                <field name="destination_time"/>
                 <button type="object" name="receive_transfer" string="Recibir" 
                         invisible="sent_to != uid or not id or status_destination != 'pending'"/>
                 <button type="object" name="reject_transfer" string="Rechazar" 

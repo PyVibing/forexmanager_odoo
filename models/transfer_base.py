@@ -1,6 +1,7 @@
 from odoo import fields, api, models
 from odoo.exceptions import ValidationError
-from ..utils import notification 
+from ..utils import notification
+import datetime
 
 
 class TransferBase(models.AbstractModel):
@@ -49,6 +50,7 @@ class TransferBase(models.AbstractModel):
     opening_desk_worksession_id = fields.Many2one("forexmanager.worksession", string="Sesión de trabajo de origen", readonly=True)
     current_desk_id = fields.Many2one("forexmanager.desk", string="Ventanilla de trabajo", related="worksession_id.desk_id", store=True)
     opening_desk_id = fields.Many2one("forexmanager.desk", string="Ventanilla de origen", related="worksession_id.opening_desk_id", store=True)
+    sent_time = fields.Datetime(string="Hora de envío", readonly=True)
     
     transfer_line_ids = fields.One2many("forexmanager.transfer.line", "transfer_id", string="Líneas de traspaso") # Required on create()
     user_transfer_line_ids = fields.One2many("forexmanager.transfer.line", "transfer_id", string="Líneas de traspaso", 
@@ -168,7 +170,8 @@ class TransferBase(models.AbstractModel):
             
             rec.destination_worksessions = [(6, 0, worksession_ids.ids)]
 
-    def create(self, vals):                
+    def create(self, vals):
+        vals["sent_time"] = datetime.datetime.now()               
         transfer = super().create(vals)
         
         lines = vals.get("transfer_line_ids")        

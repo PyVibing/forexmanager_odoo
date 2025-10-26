@@ -1,6 +1,7 @@
 from odoo import fields, api, models
 from odoo.exceptions import ValidationError
 from ..utils import notification
+import datetime
 
 
 class TransferBase(models.AbstractModel):
@@ -28,6 +29,8 @@ class TransferBase(models.AbstractModel):
         ], string="Estado/destino", readonly=True) # default="pending" in create()
     sent_by = fields.Many2one("res.users", related="transfer_id.user_id", store=True, string="Enviado por")
     sent_to = fields.Many2one("res.users", compute="_compute_sent_to", store=True, string="Enviado a")
+    source_time = fields.Datetime(string="Hora")
+    destination_time = fields.Datetime(string="Hora")
 
     # OTHER FIELDS
     transfer_id = fields.Many2one("forexmanager.transfer", string="Traspaso")
@@ -123,6 +126,7 @@ class TransferBase(models.AbstractModel):
     def create(self, vals_list):
         for vals in vals_list:
             vals["status_source"] = "sent"
+            vals["source_time"] = datetime.datetime.now()
             vals["status_destination"] = "pending"
 
             transfer_line = super().create(vals)
@@ -140,6 +144,8 @@ class TransferBase(models.AbstractModel):
                 if not rec.destination_checked_in:
                     raise ValidationError(f"La ventanilla {rec.receiver_desk_id.name} no tiene una sesión de inicio abierta. No se pudo redirigir el traspaso.")
                 rec.status_destination = "pending"
+                rec.destination_time = False
+                rec.source_time = datetime.datetime.now()
                 return transfer_line
 
             transfer_line = super().write(vals)
@@ -154,6 +160,7 @@ class TransferBase(models.AbstractModel):
         if self.status_destination == "pending" and self.status_source == "sent":
             self.update_balance_sender("increase")
             self.status_source = "cancelled"
+            self.source_time = datetime.datetime.now()
             self.status_destination = "cancelled"
             notification(self, "Traspaso cancelado", "El traspaso se canceló correctamente. Se actualizó el saldo de la ventanilla de origen.",
                      "success")
@@ -169,6 +176,7 @@ class TransferBase(models.AbstractModel):
         if self.status_destination == "pending" and self.status_source == "sent":
             self.update_balance_receiver("increase")
             self.status_destination = "received"
+            self.destination_time = datetime.datetime.now()
             notification(self, "Traspaso recibido", "El traspaso se recibió correctamente. Se actualizó el saldo de la ventanilla de destino.",
                      "success")
         elif self.status_destination == "received":
@@ -184,6 +192,7 @@ class TransferBase(models.AbstractModel):
         
         if self.status_destination == "pending" and self.status_source == "sent":
             self.status_destination = "cancelled"
+            self.destination_time = datetime.datetime.now()
             notification(self, "Traspaso rechazado", "El traspaso se rechazó correctamente.",
                      "success")
         elif self.status_destination == "received":

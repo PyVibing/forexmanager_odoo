@@ -91,7 +91,9 @@
                                     <field name="currency_id" readonly="1"/>
                                     <field name="amount" readonly="1"/>
                                     <field name="status_source" readonly="1"/>
+                                    <field name="source_time"/>
                                     <field name="status_destination" readonly="1"/>
+                                    <field name="destination_time"/>
                                 </list>
                             </field>                        
                         </div>

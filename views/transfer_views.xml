@@ -119,6 +119,10 @@
                                         <label for="opening_desk_id"/>
                                         <field name="opening_desk_id" class="field-input"/>
                                     </div>
+                                    <div class="field-row">
+                                        <label for="sent_time"/>
+                                        <field name="sent_time" class="field-input"/>
+                                    </div>
                                 </div>
 
                             </div>
