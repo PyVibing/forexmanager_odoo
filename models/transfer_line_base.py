@@ -4,9 +4,8 @@ from ..utils import notification
 import datetime
 
 
-class TransferBase(models.AbstractModel):
-    """A model for defyning the currencies and amounts when sending money between desks. 
-    Using AbstractModel is only for practicing with this type of model."""
+class TransferLineBase(models.AbstractModel):
+    """A model for defyning the currencies and amounts when sending money between desks."""
 
     _name = "forexmanager.transfer.line.base"
     _description = "Línea de Traspaso"
@@ -38,6 +37,7 @@ class TransferBase(models.AbstractModel):
     accepted_currencies = fields.Many2many(related="opening_desk_id.workcenter_id.currency_ids") # For currency_id domain in form view
     amount_available = fields.Boolean(default=False)
     destination_checked_in = fields.Boolean(default=False) # To know if receiver_desk is already checked in
+
 
     @api.depends("receiver_desk_id")
     def _compute_sent_to(self):

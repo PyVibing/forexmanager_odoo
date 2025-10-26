@@ -72,12 +72,51 @@ class Operation(models.Model):
     closing_session_check_started = fields.Boolean(related="worksession_id.closing_session.balances_checked_started")
     closing_session_check_ended = fields.Boolean(related="worksession_id.closing_session.balances_checked_ended")    
     calculation_ids = fields.One2many("forexmanager.calculation", "operation_id", string="Línea de cambio") # Required in create()
+    transfertransient_ids = fields.One2many("forexmanager.transfertransient", "operation", string="Nuevo traspaso")
     # Checkboxs
     read_ID = fields.Boolean(default=False, store=False) # Checkbox on the view to read data from id document
     search_ID = fields.Boolean(string="Buscar cliente", default=False, store=False) # Checkbox on the view to look in the DB
     confirm = fields.Boolean(default=False, string="Todo listo", store=False) # Required True (validated in create()). This way, avoid accidental save when browser window loses focus or any other reason
     available = fields.Boolean(related="calculation_ids.available")
     
+    @api.onchange("transfertransient_ids")
+    def _onchange_transfertransient_ids(self):
+        # Deletes the transfer if not transfer_line
+        for rec in self:
+            # Filter transfers with transfer_lines
+            rec.transfertransient_ids = rec.transfertransient_ids.filtered(lambda t: t.transfer_line_ids)
+
+            # Create the transfer (Transfer model) and its transfer lines (TransferLine model)
+            for t in rec.transfertransient_ids:
+                for t_line in t.transfer_line_ids:
+                    def get_opening_desk_worksession_id():
+                        # Get opening_desk_id for current user
+                        user_id = self.env.user
+                        opening_desk_id = user_id.opening_desk_id
+                        
+                        opening_desk_worksession_id = self.env["forexmanager.worksession"].search([
+                            ("desk_id", "=", opening_desk_id.id),
+                            ("user_id", "=", user_id.id),
+                            ("session_status", "=", "open"),
+                            ("session_type", "=", "checkin")
+                            ], limit=1)
+                        
+                        return opening_desk_worksession_id.id if opening_desk_worksession_id else None
+
+                    self.env['forexmanager.transfer'].create({
+                        "worksession_id": rec.worksession_id.id,
+                        "opening_desk_worksession_id": get_opening_desk_worksession_id(),
+                        "transfer_line_ids": [[
+                            0, 'temp', {
+                                'receiver_desk_id': t_line.receiver_desk_id.id, 
+                                'currency_id': t_line.currency_id.id, 
+                                'amount': t_line.amount,
+                                }
+                            ]]
+                        })
+            
+            # Delete the temporal record (TransferTransient model) from the one2many in Operation form view
+            rec.transfertransient_ids = False            
     
     @api.onchange("calculation_ids")
     def _onchange_summary_tables(self):

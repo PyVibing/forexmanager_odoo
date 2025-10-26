@@ -5,11 +5,11 @@ import datetime
 
 
 class TransferBase(models.AbstractModel):
-    """A model for send money between desks. Using AbstractModel is only for practicing with this type of model."""
+    """A model for send money between desks."""
 
     _name = "forexmanager.transfer.base"
     _description = "Traspaso"
-
+    
     def _default_worksession_id(self):
         # Get current_desk_id for current user
         user_id = self.env.user
@@ -47,7 +47,7 @@ class TransferBase(models.AbstractModel):
     name = fields.Char(string="Nombre", default="Nuevo traspaso", readonly=True)
     user_id = fields.Many2one("res.users", string="Enviado por", default=lambda self: self.env.user.id, readonly=True)
     worksession_id = fields.Many2one("forexmanager.worksession", string="Sesión de trabajo", readonly=True)
-    opening_desk_worksession_id = fields.Many2one("forexmanager.worksession", string="Sesión de trabajo de origen", readonly=True)
+    opening_desk_worksession_id = fields.Many2one("forexmanager.worksession", string="Sesión de trabajo de origen", readonly=True) # For controlling visibility in list view
     current_desk_id = fields.Many2one("forexmanager.desk", string="Ventanilla de trabajo", related="worksession_id.desk_id", store=True)
     opening_desk_id = fields.Many2one("forexmanager.desk", string="Ventanilla de origen", related="worksession_id.opening_desk_id", store=True)
     sent_time = fields.Datetime(string="Hora de envío", readonly=True)
@@ -92,8 +92,6 @@ class TransferBase(models.AbstractModel):
             ], limit=1)
             if not source_worksession_id:
                 raise ValidationError("No puedes traspasar dinero sin haber realizado el arqueo de entrada en tu ventanilla de arqueo.")
-            
-            
         
         # Shows transfers only sent during current session for sender user and every receiver users
         domain = [
@@ -174,7 +172,7 @@ class TransferBase(models.AbstractModel):
         vals["sent_time"] = datetime.datetime.now()               
         transfer = super().create(vals)
         
-        lines = vals.get("transfer_line_ids")        
+        lines = vals.get("transfer_line_ids") 
         if not lines:
             raise ValidationError("Debe añadir al menos una divisa para traspasar.")
         
