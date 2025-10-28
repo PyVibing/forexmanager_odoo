@@ -20,16 +20,17 @@ class TransferLineBase(models.AbstractModel):
     status_source = fields.Selection([
         ("cancelled", "Cancelado"),
         ("sent", "Enviado"),
-        ], string="Estado/origen", readonly=True) # default="sent" in create()
+        ], string="Origen", readonly=True) # default="sent" in create()
     status_destination = fields.Selection([
         ("cancelled", "Cancelado"),
         ("pending", "Pendiente de recibir"),
-        ("received", "Recibido")
-        ], string="Estado/destino", readonly=True) # default="pending" in create()
+        ("received", "Recibido"),
+        ("rejected", "Rechazado")
+        ], string="Destino", readonly=True) # default="pending" in create()
     sent_by = fields.Many2one("res.users", related="transfer_id.user_id", store=True, string="Enviado por")
     sent_to = fields.Many2one("res.users", compute="_compute_sent_to", store=True, string="Enviado a")
-    source_time = fields.Datetime(string="Hora")
-    destination_time = fields.Datetime(string="Hora")
+    source_time = fields.Datetime(string="Hora", readonly=True)
+    destination_time = fields.Datetime(string="Hora", readonly=True)
 
     # OTHER FIELDS
     transfer_id = fields.Many2one("forexmanager.transfer", string="Traspaso")
@@ -135,29 +136,27 @@ class TransferLineBase(models.AbstractModel):
     
     def write(self, vals):
         for rec in self:
-            
-            # Only field editable is receiver_desk_id
-            if "receiver_desk_id" in vals and vals["receiver_desk_id"] != rec.receiver_desk_id.id: # Admin is changing receiver_desk_id
-                transfer_line = super().write(vals)
-                # Check if receiver_desk_id has an opening session
-                rec.check_destination_checked_in()        
-                if not rec.destination_checked_in:
-                    raise ValidationError(f"La ventanilla {rec.receiver_desk_id.name} no tiene una sesión de inicio abierta. No se pudo redirigir el traspaso.")
-                rec.status_destination = "pending"
-                rec.destination_time = False
-                rec.source_time = datetime.datetime.now()
-                return transfer_line
-
-            transfer_line = super().write(vals)
+            if rec.status_source != "cancelled":
+                # Only field editable is receiver_desk_id (for admins)
+                if "receiver_desk_id" in vals and vals["receiver_desk_id"] != rec.receiver_desk_id.id: # Admin is changing receiver_desk_id
+                    transfer_line = super().write(vals)
+                    # Check if receiver_desk_id has an opening session
+                    rec.check_destination_checked_in()        
+                    if not rec.destination_checked_in:
+                        raise ValidationError(f"La ventanilla {rec.receiver_desk_id.name} no tiene una sesión de inicio abierta. No se pudo redirigir el traspaso.")
+                    rec.status_destination = "pending"
+                    rec.destination_time = False
+                    rec.source_time = datetime.datetime.now()
+                    return transfer_line
         
-        return transfer_line
+        return super().write(vals)
     
     # BUTTONS CALLS
     def cancel_transfer_source(self):
         if self.env.user.id != self.sent_by.id:
             raise ValidationError("No puedes cancelar un traspaso si no eres quien lo envió.")
         
-        if self.status_destination == "pending" and self.status_source == "sent":
+        if self.status_destination in ["pending", "rejected"] and self.status_source == "sent":
             self.update_balance_sender("increase")
             self.status_source = "cancelled"
             self.source_time = datetime.datetime.now()
@@ -181,8 +180,8 @@ class TransferLineBase(models.AbstractModel):
                      "success")
         elif self.status_destination == "received":
             raise ValidationError("No puedes recibir nuevamente este traspaso. Ya fue recibido correctamente.")
-        elif self.status_destination == "cancelled" and self.status_source != "cancelled":
-            raise ValidationError("El traspaso está cancelado en ventanilla de destino. Ya no puedes recibirlo.")
+        elif self.status_destination == "rejected":
+            raise ValidationError("El traspaso fue rechazado en ventanilla de destino. Ya no puedes recibirlo.")
         elif self.status_destination == "cancelled" and self.status_source == "cancelled":
             raise ValidationError("El traspaso está cancelado en ventanilla de origen y destino. Ya no puedes recibirlo.")
         
@@ -191,13 +190,13 @@ class TransferLineBase(models.AbstractModel):
             raise ValidationError("No puedes rechazar un traspaso si no eres el destinatario.")
         
         if self.status_destination == "pending" and self.status_source == "sent":
-            self.status_destination = "cancelled"
+            self.status_destination = "rejected"
             self.destination_time = datetime.datetime.now()
             notification(self, "Traspaso rechazado", "El traspaso se rechazó correctamente.",
                      "success")
         elif self.status_destination == "received":
             raise ValidationError("No puedes rechazar este traspaso. Ya fue recibido correctamente.")
-        elif self.status_destination == "cancelled" and self.status_source != "cancelled":
-            raise ValidationError("El traspaso está cancelado en ventanilla de destino. No puedes volver a rechazarlo.")
+        elif self.status_destination == "rejected" and self.status_source != "cancelled":
+            raise ValidationError("El traspaso ya fue rechazado en ventanilla de destino. No puedes volver a rechazarlo.")
         elif self.status_destination == "cancelled" and self.status_source == "cancelled":
             raise ValidationError("El traspaso está cancelado en ventanilla de origen y destino. Ya no puedes rechazarlo.")

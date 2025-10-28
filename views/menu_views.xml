@@ -10,12 +10,20 @@
         <field name="code">action = model.action_open_my_transfers()</field>
     </record>
 
+    <!-- Server action -->
+    <record id="action_open_my_worksessions_server" model="ir.actions.server">
+        <field name="name">Abrir Mis sesiones de trabajo</field>
+        <field name="model_id" ref="model_forexmanager_worksession"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_my_worksessions()</field>
+    </record>
+
     <!-- For users -->
     <menuitem id="menu_forexmanager_root" name="ForexManager" sequence="0"/>
     <menuitem id="menu_forexmanager_currentdesktransient" name="Vincular ventanilla" sequence="1"
             parent="menu_forexmanager_root" action="forexmanager_currentdesktransient_action"/>
     <menuitem id="menu_forexmanager_worksession" name="Sesión / Arqueo" sequence="5" 
-            parent="menu_forexmanager_root" action="forexmanager_worksession_action"/>
+            parent="menu_forexmanager_root" action="action_open_my_worksessions_server"/>
     <menuitem id="menu_forexmanager_new_operation" name="Realizar Operación" sequence="10" 
             parent="menu_forexmanager_root" action="forexmanager_new_operation_action"/>
     <menuitem id="menu_forexmanager_transfer" name=" Traspasos" sequence="15" 

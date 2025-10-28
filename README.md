@@ -1,4 +1,5 @@
 # 💱 ForexManager
+**Última versión: v1.2**
 
 Sistema de gestión para casas de cambio de divisas, desarrollado para **Odoo v18.0**.
 
@@ -116,8 +117,9 @@ El resto de menús se explican a continuación.
    - El **escaneo de documentos** se hace fuera de Odoo; el archivo debe subirse manualmente.
    - La **API gratuita** usada para tipos de cambio admite principalmente divisas europeas y norteamericanas.
    - Para ampliarla, modifica `get_base_rate()` en `utils.py` usando otra API.
-   - La **lectura automática de pasaportes/DNI** está en fase experimental.  
-   - Si deseas mejorarla, revisa `operation.py` → método `get_passport_info()`.
+   - La **lectura automática de pasaportes/DNI** está en fase experimental. Si deseas mejorarla, revisa `operation.py` → método `get_passport_info()`.
+   - No se ha implementado la generación de un ticket o recibo para el cliente.
+   - Pudiera añadirse una forma para que el cliente firma digitalmente sobre una pantalla táctil, y añadir dicha firma al ticket o recibo para el cliente (que tampoco existe de momento).
 
 ---
 

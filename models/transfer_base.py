@@ -113,7 +113,7 @@ class TransferBase(models.AbstractModel):
                 (self.env.ref("forexmanager.forexmanager_transfer_form_view").id, "form")
             ],
             "domain": domain,
-            "context": {"default_user_view": True},
+            "context": {"search_default_pending": 1},
         }
     
     @api.depends("transfer_line_ids")

@@ -73,6 +73,28 @@ class WorkSession(models.Model):
     checkbox_connect = fields.Boolean(string="Vincular ventanilla", store=False)
 
 
+    def action_open_my_worksessions(self):
+        desk_id = self.env.user.current_desk_id.id
+        # action = self.env.ref('forexmanager.forexmanager_worksession_action').read()[0]
+        # Shows only open session in current desk for current user
+        domain = [
+            ('desk_id', '=', desk_id),
+            ("user_id", "=", self.env.user.id), 
+            ("session_status", "=", "open")
+            ]
+        
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Mis Sesiones",
+            "res_model": "forexmanager.worksession",
+            "views": [
+                (self.env.ref("forexmanager.forexmanager_worksession_list_view").id, "list"),
+                (self.env.ref("forexmanager.forexmanager_worksession_form_view").id, "form")
+            ],
+            "domain": domain,
+            "context": {"default_user_view": True},
+        }
+
     @api.depends("saved_difference_checkbalance_ids")
     def _compute_saved_difference_checkbalance_ids(self):
         for rec in self:

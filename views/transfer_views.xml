@@ -16,7 +16,7 @@
                         border-radius: 10px;
                         box-shadow: 0 3px 10px rgba(0,0,0,0.1);
                         border-left: 5px solid #007bff;
-                        max-width: 1000px;
+                        max-width: 1200px;
                     }
 
                     .section {
@@ -139,9 +139,10 @@
         <field name="model">forexmanager.transfer</field>
         <field name="arch" type="xml">
             <list>
+                <field name="id" width="5"/>
                 <field name="name" width="150"/>
                 <field name="user_id" string="Envía" width="50"/>
-                <field name="opening_desk_id" width="1000"/>                
+                <field name="opening_desk_id" width="1200"/>                
             </list>
         </field>
     </record>

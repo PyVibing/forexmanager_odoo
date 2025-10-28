@@ -317,7 +317,7 @@
         <field name="name">ForexManager worksession list view</field>
         <field name="model">forexmanager.worksession</field>
         <field name="arch" type="xml">
-            <list delete="0" duplicate="0" decoration-success="desk_id == opening_desk_id" decoration-warning="desk_id != opening_desk_id">
+            <list delete="0" duplicate="0">
                 <field name="id" width="5"/>
                 <field name="name" width="400"/>
                 <field name="desk_id" width="50" string="Ventanilla/sesión" />
@@ -349,17 +349,6 @@
                 <field name="closing_session"/>
             </search>
         </field>
-    </record>
-
-    <!-- Action of forexmanager.currency -->
-    <record id="forexmanager_worksession_action" model="ir.actions.act_window">
-        <field name="name">SESIÓN / ARQUEO</field>
-        <field name="res_model">forexmanager.worksession</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">[
-            ("user_id", "=", uid), 
-            ("session_status", "=", "open"),
-            ]</field>
     </record>
 
 </odoo>

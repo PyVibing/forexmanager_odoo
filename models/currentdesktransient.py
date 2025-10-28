@@ -33,9 +33,7 @@ class CurrentDeskTransient(models.TransientModel):
                     raise ValidationError("Este código no está asociado a ninguna ventanilla. Contacte con su administrador de sistemas.")
                 
                 # Update current_desk_id in res.users
-                user = self.env["res.users"].search([
-                    ("id", "=", self.env.uid)
-                    ])
+                user = self.env.user
                 if rec.current_desk.id == desk.id:
                     notification(rec, "Ya estabas en esta ventanilla", 
                                  "Ya habías declarado esta misma ventanilla como tu ventanilla actual. " \
@@ -50,4 +48,7 @@ class CurrentDeskTransient(models.TransientModel):
                                 "success", True)            
             else:
                 rec.read_code = False
+            
+            
+
                 

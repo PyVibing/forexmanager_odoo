@@ -142,6 +142,7 @@
         <field name="model">forexmanager.transfer</field>
         <field name="arch" type="xml">
             <list create="0">
+                <field name="id"/>
                 <field name="name"/>
                 <field name="transfer_line_ids"/>
                 <field name="destination_users"/>
@@ -153,12 +154,28 @@
         </field>
     </record>
 
+    <!-- Search view of forexmanager.transfer for admin and users -->
+    <record id="forexmanager_transfer_search_admin_view" model="ir.ui.view">
+        <field name="name">Forexmanager transfer search admin view</field>
+        <field name="model">forexmanager.transfer</field>
+        <field name="arch" type="xml">
+            <search>
+                <!-- Filters -->
+                <filter name="pending" string="Por recibir" domain="[('transfer_line_ids.status_destination', '=', 'pending')]" />
+                <filter name="rejected" string="Rechazados" domain="[('transfer_line_ids.status_destination', '=', 'rejected')]"/>
+                <filter name="received" string="Recibidos" domain="[('transfer_line_ids.status_destination', '=', 'received')]"/>
+                <filter name="cancelled" string="Cancelados" domain="[('transfer_line_ids.status_destination', '=', 'cancelled')]"/>                
+            </search>
+        </field>
+    </record>
+
     <!-- ACTION -->
     <!-- For admin -->
     <record id="forexmanager_transfer_admin_action" model="ir.actions.act_window">
         <field name="name">ADMINISTRAR TRASPASOS</field>
         <field name="res_model">forexmanager.transfer</field>
         <field name="view_mode">list,form</field>
+        <field name="context">{"search_default_pending": 1}</field>
     </record>
 
     <record id="actwin_admin_list" model="ir.actions.act_window.view">

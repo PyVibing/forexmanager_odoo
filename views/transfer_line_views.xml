@@ -115,7 +115,7 @@
                         invisible="sent_to != uid or not id or status_destination != 'pending'"/>
                 <button type="object" name="cancel_transfer_source" string="Cancelar" 
                         confirm="¿Estás seguro de querer cancelar este traspaso?" 
-                        invisible="sent_by != uid or not id or status_destination != 'pending'"/>
+                        invisible="sent_by != uid or not id or status_destination not in ['pending', 'rejected']"/>
             </list>
         </field>
     </record>
